@@ -1,0 +1,18 @@
+---
+version: 2.1
+
+orbs:
+  ruby: circleci/ruby@0.1
+
+jobs:
+  build:
+    docker:
+      - image: cimg/ruby:3.2.0
+    executor: ruby/default
+    steps:
+      - checkout
+      - run: gem install bundler -v '2.5.22'
+      - ruby/bundle-install
+      - run:
+          name: rspec
+          command: COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN bundle exec rspec
