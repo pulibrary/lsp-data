@@ -8,6 +8,7 @@ gem 'marc', '~> 1.0'
 gem 'marc_cleanup', github: 'pulibrary/marc_cleanup', tag: 'v0.9.0'
 gem 'rubocop'
 gem 'nokogiri'
+gem 'unf', '0.1.4'
 gem 'coveralls_reborn'
 
 group :development, :test do

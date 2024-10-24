@@ -130,7 +130,9 @@ GEM
     tins (1.37.0)
       bigdecimal
       sync
-    unf (0.2.0)
+    unf (0.1.4)
+      unf_ext
+    unf_ext (0.0.9.1)
     unicode-display_width (2.6.0)
 
 PLATFORMS
@@ -154,6 +156,7 @@ DEPENDENCIES
   rubocop
   simplecov
   simplecov-html
+  unf (= 0.1.4)
 
 BUNDLED WITH
    2.5.22
