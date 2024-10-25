@@ -641,6 +641,7 @@ RSpec.describe 'get_publisher' do
   end
 end
 RSpec.describe 'get_type_key' do
+  let(:record) { MARC::Record.new_from_hash('fields' => fields, 'leader' => leader) }
   let(:fields) do
     [
       { '245' => { 'ind1' => '0',
@@ -653,16 +654,220 @@ RSpec.describe 'get_type_key' do
   end
   context 'leader is less than 10 characters' do
     let(:leader) { '01104naa' }
-    let(:record) { MARC::Record.new_from_hash('fields' => fields, 'leader' => leader) }
     it 'returns one underscore' do
       expect(LspData.get_type_key(record)).to eq '_'
     end
   end
   context 'leader position 6 has a diacritic' do
     let(:leader) { "01104n\u00e1m a2200289 i 4500" }
-    let(:record) { MARC::Record.new_from_hash('fields' => fields, 'leader' => leader) }
     it 'returns the type without a diacritic' do
       expect(LspData.get_type_key(record)).to eq 'a'
     end
+  end
+end
+RSpec.describe 'get_title_part_key' do
+  let(:leader) { '01104nam a2200289 i 4500' }
+  let(:record) { MARC::Record.new_from_hash('fields' => fields, 'leader' => leader) }
+  context 'has no 245$p' do
+    let(:fields) do
+      [
+        { '245' => { 'ind1' => '0',
+                     'ind2' => ' ',
+                     'subfields' => [
+                                      { 'a' => 'record' },
+                                      { 'h' => 'electronic resource' }
+                                    ] } }
+      ]
+    end
+    it 'returns 30 underscores' do
+      expect(LspData.get_title_part_key(record)).to eq "#{'_' * 30}"
+    end
+  end
+  context 'has multiple 245$p' do
+    let(:fields) do
+      [
+        { '245' => { 'ind1' => '0',
+                     'ind2' => ' ',
+                     'subfields' => [
+                                      { 'a' => 'record' },
+                                      { 'p' => 'First try.' },
+                                      { 'p' => 'Second part'}
+                                    ] } }
+      ]
+    end
+    it 'returns first 10 normalized characters of each part' do
+      expect(LspData.get_title_part_key(record)).to eq "first_try_second_par#{'_' * 10}"
+    end
+  end
+end
+RSpec.describe 'get_title_number_key' do
+  let(:leader) { '01104nam a2200289 i 4500' }
+  let(:record) { MARC::Record.new_from_hash('fields' => fields, 'leader' => leader) }
+  context 'has no 245$n' do
+    let(:fields) do
+      [
+        { '245' => { 'ind1' => '0',
+                     'ind2' => ' ',
+                     'subfields' => [
+                                      { 'a' => 'record' },
+                                      { 'h' => 'electronic resource' }
+                                    ] } }
+      ]
+    end
+    it 'returns 10 underscores' do
+      expect(LspData.get_title_number_key(record)).to eq "#{'_' * 10}"
+    end
+  end
+  context 'has multiple 245$n' do
+    let(:fields) do
+      [
+        { '245' => { 'ind1' => '0',
+                     'ind2' => ' ',
+                     'subfields' => [
+                                      { 'a' => 'record' },
+                                      { 'n' => "N\u00famero tres." }
+                                    ] } }
+      ]
+    end
+    it 'returns first 10 normalized characters' do
+      expect(LspData.get_title_number_key(record)).to eq "numero_tre"
+    end
+  end
+end
+RSpec.describe 'get_author_key' do
+  let(:leader) { '01104nam a2200289 i 4500' }
+  let(:record) { MARC::Record.new_from_hash('fields' => fields, 'leader' => leader) }
+  context 'has no 1xx field' do
+    let(:fields) do
+      [
+        { '245' => { 'ind1' => '0',
+                     'ind2' => ' ',
+                     'subfields' => [
+                                      { 'a' => 'record' },
+                                      { 'h' => 'electronic resource' }
+                                    ] } }
+      ]
+    end
+    it 'returns 20 underscores' do
+      expect(LspData.get_author_key(record)).to eq "#{'_' * 20}"
+    end
+  end
+  context 'has multiple 1xx fields' do
+    let(:fields) do
+      [
+        { '245' => { 'ind1' => '0',
+                     'ind2' => ' ',
+                     'subfields' => [
+                                      { 'a' => 'record' },
+                                      { 'n' => "N\u00famero tres." }
+                                    ] } },
+        { '100' => { 'ind1' => ' ',
+                     'ind2' => ' ',
+                     'subfields' => [
+                                      { 'a' => "\u00c9t\u00e9" }
+                                    ] } },
+        { '110' => { 'ind1' => ' ',
+                     'ind2' => ' ',
+                     'subfields' => [
+                                      { 'a' => 'Dog B.' }
+                                    ] } }
+      ]
+    end
+    it 'returns normalized string padded to 20 characters' do
+      expect(LspData.get_author_key(record)).to eq "etedog_b#{'_' * 12}"
+    end
+  end
+end
+RSpec.describe 'get_title_date_key' do
+  let(:leader) { '01104nam a2200289 i 4500' }
+  let(:record) { MARC::Record.new_from_hash('fields' => fields, 'leader' => leader) }
+  context 'has no 245$f' do
+    let(:fields) do
+      [
+        { '245' => { 'ind1' => '0',
+                     'ind2' => ' ',
+                     'subfields' => [
+                                      { 'a' => 'record' },
+                                      { 'h' => 'electronic resource' }
+                                    ] } }
+      ]
+    end
+    it 'returns 15 underscores' do
+      expect(LspData.get_title_date_key(record)).to eq "#{'_' * 15}"
+    end
+  end
+  context 'has 245$f field' do
+    let(:fields) do
+      [
+        { '245' => { 'ind1' => '0',
+                     'ind2' => ' ',
+                     'subfields' => [
+                                      { 'a' => 'record' },
+                                      { 'f' => "The year 1905 in the month of May" }
+                                    ] } }
+      ]
+    end
+    it 'returns normalized string trimmed to 15 characters' do
+      expect(LspData.get_title_date_key(record)).to eq 'year_1905_in_th'
+    end
+  end
+end
+RSpec.describe 'get_gov_doc_key' do
+  let(:leader) { '01104nam a2200289 i 4500' }
+  let(:record) { MARC::Record.new_from_hash('fields' => fields, 'leader' => leader) }
+  context 'has no 086$a' do
+    let(:fields) do
+      [
+        { '086' => { 'ind1' => '0',
+                     'ind2' => ' ',
+                     'subfields' => [
+                                      { 'z' => 'A 1' }
+                                    ] } }
+      ]
+    end
+    it 'returns an empty character' do
+      expect(LspData.get_gov_doc_key(record)).to eq ''
+    end
+  end
+  context 'has an 086$a' do
+    let(:fields) do
+      [
+        { '086' => { 'ind1' => '0',
+                     'ind2' => ' ',
+                     'subfields' => [
+                                      { 'a' => 'Y 123.1:5' }
+                                    ] } }
+      ]
+    end
+    it 'returns normalized string' do
+      expect(LspData.get_gov_doc_key(record)).to eq 'y 123 1 5'
+    end
+  end
+end
+RSpec.describe 'get_match_key' do
+  let(:leader) { '01104nam a2200289 i 4500' }
+  let(:record) { MARC::Record.new_from_hash('fields' => fields, 'leader' => leader) }
+  let(:fields) do
+    [
+      { '086' => { 'ind1' => '0',
+                   'ind2' => ' ',
+                   'subfields' => [
+                                    { 'a' => 'A 1' }
+                                  ] } },
+      { '245' => { 'ind1' => '0',
+                   'ind2' => ' ',
+                   'subfields' => [
+                                    { 'a' => 'This is a record.' }
+                                  ] } },
+      { '300' => { 'ind1' => ' ',
+                   'ind2' => ' ',
+                   'subfields' => [
+                                    { 'a' => '2001 pages' }
+                                  ] } }
+    ]
+  end
+  let(:match_key) { 'this_is_a_record___________________________________________________________00002001________a___________________________________________________________________________1p' }
+  it 'returns a complete match key' do
+    expect(LspData.get_match_key(record)).to eq match_key
   end
 end

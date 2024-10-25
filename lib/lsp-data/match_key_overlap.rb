@@ -292,5 +292,4 @@ module LspData
     match_key << get_format_character(record)
     match_key
   end
-
 end
