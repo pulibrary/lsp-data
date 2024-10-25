@@ -139,7 +139,7 @@ module LspData
     return pad_with_underscores('', 4) if f300.nil?
 
     subfa = f300['a'].dup
-    subfa.gsub!(/^[^0-9]*([0-9]{4}).*$/, '\1') if subfa =~ /^[^0-9]*([0-9]{4}).*$/
+    subfa.gsub!(/^[^0-9]*([0-9]{4}).*$/, '\1')
     subfa = '' if subfa =~ /[^0-9]/
     pad_with_underscores(subfa, 4)
   end

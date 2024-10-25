@@ -59,8 +59,8 @@ RSpec.describe 'get_format_character' do
     let(:record) { MARC::Record.new_from_hash('fields' => fields, 'leader' => leader) }
     let(:fields) do
       [
-        { '245' => { 'indicator1' => '0',
-                     'indicator2' => ' ',
+        { '245' => { 'ind1' => '0',
+                     'ind2' => ' ',
                      'subfields' => [
                                       { 'a' => 'record' },
                                       { 'h' => 'electronic resource' }
@@ -75,8 +75,8 @@ RSpec.describe 'get_format_character' do
     let(:record) { MARC::Record.new_from_hash('fields' => fields, 'leader' => leader) }
     let(:fields) do
       [
-        { '590' => { 'indicator1' => ' ',
-                     'indicator2' => ' ',
+        { '590' => { 'ind1' => ' ',
+                     'ind2' => ' ',
                      'subfields' => [
                                       { 'a' => 'This is an electronic reproduction.' }
                                     ] } }
@@ -90,8 +90,8 @@ RSpec.describe 'get_format_character' do
     let(:record) { MARC::Record.new_from_hash('fields' => fields, 'leader' => leader) }
     let(:fields) do
       [
-        { '533' => { 'indicator1' => ' ',
-                     'indicator2' => ' ',
+        { '533' => { 'ind1' => ' ',
+                     'ind2' => ' ',
                      'subfields' => [
                                       { 'a' => 'Electronic reproduction.' }
                                     ] } }
@@ -112,13 +112,13 @@ RSpec.describe 'get_format_character' do
     let(:record) { MARC::Record.new_from_hash('fields' => fields, 'leader' => leader) }
     let(:fields) do
       [
-        { '856' => { 'indicator1' => ' ',
-                     'indicator2' => ' ',
+        { '856' => { 'ind1' => ' ',
+                     'ind2' => ' ',
                      'subfields' => [
                                       { 'u' => 'https://website.com' }
                                     ] } },
-        { '086' => { 'indicator1' => '0',
-                     'indicator2' => ' ',
+        { '086' => { 'ind1' => '0',
+                     'ind2' => ' ',
                      'subfields' => [
                                       { 'a' => 'A 1' }
                                     ] } }
@@ -132,8 +132,8 @@ RSpec.describe 'get_format_character' do
     let(:record) { MARC::Record.new_from_hash('fields' => fields, 'leader' => leader) }
     let(:fields) do
       [
-        { '245' => { 'indicator1' => '0',
-                     'indicator2' => ' ',
+        { '245' => { 'ind1' => '0',
+                     'ind2' => ' ',
                      'subfields' => [
                                       { 'a' => 'record' }
                                     ] } }
@@ -149,8 +149,8 @@ RSpec.describe 'process_title_field' do
   let(:leader) { '01104naa a2200289 i 4500' }
   let(:fields) do
     [
-      { '245' => { 'indicator1' => '0',
-                   'indicator2' => ' ',
+      { '245' => { 'ind1' => '0',
+                   'ind2' => ' ',
                    'subfields' => [
                                     { 'a' => 'main' },
                                     { 'b' => 'b' },
@@ -169,14 +169,14 @@ RSpec.describe 'get_title_key' do
   context 'record has 880 field' do
     let(:fields) do
       [
-        { '245' => { 'indicator1' => '0',
-                     'indicator2' => ' ',
+        { '245' => { 'ind1' => '0',
+                     'ind2' => ' ',
                      'subfields' => [
                                       { 'a' => 'Main' },
                                       { '6' => '880-01' }
                                     ] } },
-        { '880' => { 'indicator1' => '0',
-                     'indicator2' => ' ',
+        { '880' => { 'ind1' => '0',
+                     'ind2' => ' ',
                      'subfields' => [
                                       { 'a' => 'Μαιν' },
                                       { '6' => '245-01' }
@@ -190,8 +190,8 @@ RSpec.describe 'get_title_key' do
   context 'record has no 880 field' do
     let(:fields) do
       [
-        { '245' => { 'indicator1' => '0',
-                     'indicator2' => ' ',
+        { '245' => { 'ind1' => '0',
+                     'ind2' => ' ',
                      'subfields' => [
                                       { 'a' => 'Main' }
                                     ] } }
@@ -204,8 +204,8 @@ RSpec.describe 'get_title_key' do
   context 'record has no 245 field' do
     let(:fields) do
       [
-        { '100' => { 'indicator1' => '0',
-                     'indicator2' => ' ',
+        { '100' => { 'ind1' => '0',
+                     'ind2' => ' ',
                      'subfields' => [
                                       { 'a' => 'Main' }
                                     ] } }
@@ -222,8 +222,8 @@ RSpec.describe 'get_gmd_key' do
     let(:record) { MARC::Record.new_from_hash('fields' => fields, 'leader' => leader) }
     let(:fields) do
       [
-        { '245' => { 'indicator1' => '0',
-                     'indicator2' => ' ',
+        { '245' => { 'ind1' => '0',
+                     'ind2' => ' ',
                      'subfields' => [
                                       { 'a' => 'record' },
                                       { 'h' => '[test]' }
@@ -238,8 +238,8 @@ RSpec.describe 'get_gmd_key' do
     let(:record) { MARC::Record.new_from_hash('fields' => fields, 'leader' => leader) }
     let(:fields) do
       [
-        { '245' => { 'indicator1' => '0',
-                     'indicator2' => ' ',
+        { '245' => { 'ind1' => '0',
+                     'ind2' => ' ',
                      'subfields' => [
                                       { 'a' => 'record' }
                                     ] } }
@@ -247,6 +247,422 @@ RSpec.describe 'get_gmd_key' do
     end
     it 'returns 5 underscores' do
       expect(LspData.get_gmd_key(record)).to eq '_____'
+    end
+  end
+end
+RSpec.describe 'get_pub_date_key' do
+  let(:record) { MARC::Record.new_from_hash('fields' => fields, 'leader' => leader) }
+  let(:leader) { '01104nam a2200289 i 4500' }
+  context 'record has valid date2 in 008' do
+    let(:fields) do
+      [
+        { '008' => '111111t19861984' }
+      ]
+    end
+    it 'returns date2 from 008' do
+      expect(LspData.get_pub_date_key(record)).to eq '1984'
+    end
+  end
+  context 'record has invalid date2 in 008 and no 26x' do
+    let(:fields) do
+      [
+        { '008' => '111111t1986198u' }
+      ]
+    end
+    it 'returns 0000' do
+      expect(LspData.get_pub_date_key(record)).to eq '0000'
+    end
+  end
+  context 'record has invalid date2 in 008 and 264s for publication and copyright' do
+    let(:fields) do
+      [
+        { '008' => '111111t1986198u' },
+        { '264' => { 'ind1' => ' ',
+                     'ind2' => '1',
+                     'subfields' => [
+                                      { 'c' => '1981' }
+                                    ] } },
+        { '264' => { 'ind1' => ' ',
+                     'ind2' => '4',
+                     'subfields' => [
+                                      { 'c' => '1983' }
+                                    ] } }
+      ]
+    end
+    it 'returns date from publication 264' do
+      expect(LspData.get_pub_date_key(record)).to eq '1981'
+    end
+  end
+  context 'record has no 008 and 264s for copyright and distribution' do
+    let(:fields) do
+      [
+        { '264' => { 'ind1' => ' ',
+                     'ind2' => '2',
+                     'subfields' => [
+                                      { 'c' => '1982' }
+                                    ] } },
+        { '264' => { 'ind1' => ' ',
+                     'ind2' => '4',
+                     'subfields' => [
+                                      { 'c' => '1984' }
+                                    ] } }
+      ]
+    end
+    it 'returns date from copyright 264' do
+      expect(LspData.get_pub_date_key(record)).to eq '1984'
+    end
+  end
+  context 'record has no 008 and 264s for distribution and manufacture' do
+    let(:fields) do
+      [
+        { '264' => { 'ind1' => ' ',
+                     'ind2' => '2',
+                     'subfields' => [
+                                      { 'c' => '1982' }
+                                    ] } },
+        { '264' => { 'ind1' => ' ',
+                     'ind2' => '3',
+                     'subfields' => [
+                                      { 'c' => '1983' }
+                                    ] } }
+      ]
+    end
+    it 'returns date from distribution 264' do
+      expect(LspData.get_pub_date_key(record)).to eq '1982'
+    end
+  end
+  context 'record has no 008, 260 field, and 264 for production' do
+    let(:fields) do
+      [
+        { '260' => { 'ind1' => ' ',
+                     'ind2' => ' ',
+                     'subfields' => [
+                                      { 'c' => '1960' }
+                                    ] } },
+        { '264' => { 'ind1' => ' ',
+                     'ind2' => '0',
+                     'subfields' => [
+                                      { 'c' => '1980' }
+                                    ] } }
+      ]
+    end
+    it 'returns date from production 264' do
+      expect(LspData.get_pub_date_key(record)).to eq '1980'
+    end
+  end
+  context 'record has no 008, 260 field, and 264 with no date' do
+    let(:fields) do
+      [
+        { '260' => { 'ind1' => ' ',
+                     'ind2' => ' ',
+                     'subfields' => [
+                                      { 'c' => '1960' }
+                                    ] } },
+        { '264' => { 'ind1' => ' ',
+                     'ind2' => '0',
+                     'subfields' => [
+                                      { 'a' => 'Philadelphia' }
+                                    ] } }
+      ]
+    end
+    it 'returns date from 260 field' do
+      expect(LspData.get_pub_date_key(record)).to eq '1960'
+    end
+  end
+  context 'record has no 008 or 26x field with date' do
+    let(:fields) do
+      [
+        { '264' => { 'ind1' => ' ',
+                     'ind2' => '1',
+                     'subfields' => [
+                                      { 'a' => 'Philadelphia' }
+                                    ] } }
+      ]
+    end
+    it 'returns 0000' do
+      expect(LspData.get_pub_date_key(record)).to eq '0000'
+    end
+  end
+end
+RSpec.describe 'get_pagination_key' do
+  let(:record) { MARC::Record.new_from_hash('fields' => fields, 'leader' => leader) }
+  let(:leader) { '01104nam a2200289 i 4500' }
+  context 'record has no 300 field' do
+    let(:fields) do
+      [
+        { '008' => '111111t19861984' }
+      ]
+    end
+    it 'returns 4 underscores' do
+      expect(LspData.get_pagination_key(record)).to eq '____'
+    end
+  end
+  context 'record has 300 field with pagination below 1,000 pages' do
+    let(:fields) do
+      [
+        { '300' => { 'ind1' => ' ',
+                     'ind2' => ' ',
+                     'subfields' => [
+                                      { 'a' => 'Has 300 pages' }
+                                    ] } }
+
+      ]
+    end
+    it 'returns 4 underscores' do
+      expect(LspData.get_pagination_key(record)).to eq '____'
+    end
+  end
+  context 'record has 300 field with pagination above 1,000 pages' do
+    let(:fields) do
+      [
+        { '300' => { 'ind1' => ' ',
+                     'ind2' => ' ',
+                     'subfields' => [
+                                      { 'a' => 'Has 4001 pages' }
+                                    ] } }
+
+      ]
+    end
+    it 'returns pagination' do
+      expect(LspData.get_pagination_key(record)).to eq '4001'
+    end
+  end
+  context 'record has 300 field with no pagination in subfield a' do
+    let(:fields) do
+      [
+        { '300' => { 'ind1' => ' ',
+                     'ind2' => ' ',
+                     'subfields' => [
+                                      { 'a' => 'Has pages' }
+                                    ] } }
+      ]
+    end
+    it 'returns 4 underscores' do
+      expect(LspData.get_pagination_key(record)).to eq '____'
+    end
+  end
+end
+RSpec.describe 'get_edition_key' do
+  let(:record) { MARC::Record.new_from_hash('fields' => fields, 'leader' => leader) }
+  let(:leader) { '01104nam a2200289 i 4500' }
+  context 'record has no 250$a' do
+    let(:fields) do
+      [
+        { '250' => { 'ind1' => ' ',
+                     'ind2' => ' ',
+                     'subfields' => [
+                                      { '3' => 'First work' }
+                                    ] } }
+      ]
+    end
+    it 'returns 3 underscores' do
+      expect(LspData.get_edition_key(record)).to eq '___'
+    end
+  end
+  context 'record has 250a with numbers 1-3 in word form' do
+    let(:fields) do
+      [
+        { '250' => { 'ind1' => ' ',
+                     'ind2' => ' ',
+                     'subfields' => [
+                                      { 'a' => 'random firthisec' }
+                                    ] } }
+      ]
+    end
+    it 'returns numbers' do
+      expect(LspData.get_edition_key(record)).to eq '132'
+    end
+  end
+  context 'record has 250a with numbers 4-6 in word form' do
+    let(:fields) do
+      [
+        { '250' => { 'ind1' => ' ',
+                     'ind2' => ' ',
+                     'subfields' => [
+                                      { 'a' => 'foufivsixlaugh' }
+                                    ] } }
+      ]
+    end
+    it 'returns numbers' do
+      expect(LspData.get_edition_key(record)).to eq '456'
+    end
+  end
+  context 'record has 250a with numbers 7-9 in word form' do
+    let(:fields) do
+      [
+        { '250' => { 'ind1' => ' ',
+                     'ind2' => ' ',
+                     'subfields' => [
+                                      { 'a' => 'seveignin' }
+                                    ] } }
+      ]
+    end
+    it 'returns numbers' do
+      expect(LspData.get_edition_key(record)).to eq '789'
+    end
+  end
+  context 'record has 250a with 2-letter word' do
+    let(:fields) do
+      [
+        { '250' => { 'ind1' => ' ',
+                     'ind2' => ' ',
+                     'subfields' => [
+                                      { 'a' => '!ok' }
+                                    ] } }
+      ]
+    end
+    it 'returns 2-letter word with padding' do
+      expect(LspData.get_edition_key(record)).to eq 'ok_'
+    end
+  end
+end
+RSpec.describe 'get_publisher' do
+  let(:record) { MARC::Record.new_from_hash('fields' => fields, 'leader' => leader) }
+  let(:leader) { '01104nam a2200289 i 4500' }
+  context 'record has no publisher info' do
+    let(:fields) do
+      [
+        { '008' => '111111t1986198u' }
+      ]
+    end
+    it 'returns 5 underscores' do
+      expect(LspData.get_publisher_key(record)).to eq '_____'
+    end
+  end
+  context 'record has 264s for publication and copyright' do
+    let(:fields) do
+      [
+        { '008' => '111111t1986198u' },
+        { '264' => { 'ind1' => ' ',
+                     'ind2' => '1',
+                     'subfields' => [
+                                      { 'b' => 'publisher' }
+                                    ] } },
+        { '264' => { 'ind1' => ' ',
+                     'ind2' => '4',
+                     'subfields' => [
+                                      { 'b' => 'copyright' }
+                                    ] } }
+      ]
+    end
+    it 'returns publisher from publication 264' do
+      expect(LspData.get_publisher_key(record)).to eq 'publi'
+    end
+  end
+  context 'record has 264s for copyright and distribution' do
+    let(:fields) do
+      [
+        { '264' => { 'ind1' => ' ',
+                     'ind2' => '2',
+                     'subfields' => [
+                                      { 'b' => 'distribution' }
+                                    ] } },
+        { '264' => { 'ind1' => ' ',
+                     'ind2' => '4',
+                     'subfields' => [
+                                      { 'b' => 'copyright' }
+                                    ] } }
+      ]
+    end
+    it 'returns publisher from copyright 264' do
+      expect(LspData.get_publisher_key(record)).to eq 'copyr'
+    end
+  end
+  context 'record has 264s for distribution and manufacture' do
+    let(:fields) do
+      [
+        { '264' => { 'ind1' => ' ',
+                     'ind2' => '2',
+                     'subfields' => [
+                                      { 'b' => 'distribution' }
+                                    ] } },
+        { '264' => { 'ind1' => ' ',
+                     'ind2' => '3',
+                     'subfields' => [
+                                      { 'c' => 'manufacture' }
+                                    ] } }
+      ]
+    end
+    it 'returns publisher from distribution 264' do
+      expect(LspData.get_publisher_key(record)).to eq 'distr'
+    end
+  end
+  context 'record has 260 field and 264 for production' do
+    let(:fields) do
+      [
+        { '260' => { 'ind1' => ' ',
+                     'ind2' => ' ',
+                     'subfields' => [
+                                      { 'b' => 'Two sixty' }
+                                    ] } },
+        { '264' => { 'ind1' => ' ',
+                     'ind2' => '0',
+                     'subfields' => [
+                                      { 'b' => 'production' }
+                                    ] } }
+      ]
+    end
+    it 'returns publisher from production 264' do
+      expect(LspData.get_publisher_key(record)).to eq 'produ'
+    end
+  end
+  context 'record has 260 field and 264 with no publisher' do
+    let(:fields) do
+      [
+        { '260' => { 'ind1' => ' ',
+                     'ind2' => ' ',
+                     'subfields' => [
+                                      { 'b' => 'Two sixty' }
+                                    ] } },
+        { '264' => { 'ind1' => ' ',
+                     'ind2' => '0',
+                     'subfields' => [
+                                      { 'a' => 'Philadelphia' }
+                                    ] } }
+      ]
+    end
+    it 'returns publisher from 260 field' do
+      expect(LspData.get_publisher_key(record)).to eq 'two_s'
+    end
+  end
+  context 'record has no 26x field with publisher' do
+    let(:fields) do
+      [
+        { '264' => { 'ind1' => ' ',
+                     'ind2' => '1',
+                     'subfields' => [
+                                      { 'a' => 'Philadelphia' }
+                                    ] } }
+      ]
+    end
+    it 'returns 5 underscores' do
+      expect(LspData.get_publisher_key(record)).to eq '_____'
+    end
+  end
+end
+RSpec.describe 'get_type_key' do
+  let(:fields) do
+    [
+      { '245' => { 'ind1' => '0',
+                   'ind2' => ' ',
+                   'subfields' => [
+                                    { 'a' => 'record' },
+                                    { 'h' => 'electronic resource' }
+                                  ] } }
+    ]
+  end
+  context 'leader is less than 10 characters' do
+    let(:leader) { '01104naa' }
+    let(:record) { MARC::Record.new_from_hash('fields' => fields, 'leader' => leader) }
+    it 'returns one underscore' do
+      expect(LspData.get_type_key(record)).to eq '_'
+    end
+  end
+  context 'leader position 6 has a diacritic' do
+    let(:leader) { "01104n\u00e1m a2200289 i 4500" }
+    let(:record) { MARC::Record.new_from_hash('fields' => fields, 'leader' => leader) }
+    it 'returns the type without a diacritic' do
+      expect(LspData.get_type_key(record)).to eq 'a'
     end
   end
 end
