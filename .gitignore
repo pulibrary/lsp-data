@@ -9,5 +9,6 @@
 /tmp/
 *.rb~
 *.log
+/Gemfile.lock
 .rspec_status
 .byebug_history
