@@ -2,52 +2,52 @@
 
 require_relative './../lib/lsp-data'
 RSpec.describe 'strip_punctuation' do
-  let (:replace_char) { '' }
+  let(:replace_char) { '' }
   context "string starts with 'A'" do
     let(:string) { 'A test' }
     it 'removes the stop word' do
       expect(LspData.strip_punctuation(string: string,
-        replace_char: replace_char)).to eq 'test'
+                                       replace_char: replace_char)).to eq 'test'
     end
   end
   context "string starts with 'An'" do
     let(:string) { 'An animal' }
     it 'removes the stop word' do
       expect(LspData.strip_punctuation(string: string,
-        replace_char: replace_char)).to eq 'animal'
+                                       replace_char: replace_char)).to eq 'animal'
     end
   end
   context "string starts with 'the'" do
     let(:string) { 'the best' }
     it 'removes the stop word' do
       expect(LspData.strip_punctuation(string: string,
-        replace_char: replace_char)).to eq 'best'
+                                       replace_char: replace_char)).to eq 'best'
     end
   end
-  context "string has all replaced characters" do
+  context 'string has all replaced characters' do
     let(:string) { "Apples & p\u0022\u002aeaches %22%are g\u003bo\u005eo\u007cd in '{}p\u007ei\u00a9e" }
     it 'replaces all characters correctly' do
       expect(LspData.strip_punctuation(string: string,
-        replace_char: replace_char)).to eq 'Applesandpeachesaregoodinpie'
+                                       replace_char: replace_char)).to eq 'Applesandpeachesaregoodinpie'
     end
   end
 end
 RSpec.describe 'pad_with_underscores' do
-  let (:string) { 'spaces' }
-  let (:string_length) { 10 }
+  let(:string) { 'spaces' }
+  let(:string_length) { 10 }
   it 'adds underscores to make the string 10 characters long' do
     expect(LspData.pad_with_underscores(string,
-      string_length)).to eq 'spaces____'
+                                        string_length)).to eq 'spaces____'
   end
 end
 RSpec.describe 'trim_max_field_length' do
-  let (:string) { 'a' * 32_001 }
+  let(:string) { 'a' * 32_001 }
   it 'makes string length 32,000 characters' do
     expect(LspData.trim_max_field_length(string).length).to eq 32_000
   end
 end
 RSpec.describe 'normalize_string_and_remove_accents' do
-  let (:string) { "piet\u00e1" }
+  let(:string) { "piet\u00e1" }
   it 'normalizes to :nfd and removes acute accent' do
     expect(LspData.normalize_string_and_remove_accents(string)).to eq 'pieta'
   end
@@ -62,9 +62,9 @@ RSpec.describe 'get_format_character' do
         { '245' => { 'ind1' => '0',
                      'ind2' => ' ',
                      'subfields' => [
-                                      { 'a' => 'record' },
-                                      { 'h' => 'electronic resource' }
-                                    ] } }
+                       { 'a' => 'record' },
+                       { 'h' => 'electronic resource' }
+                     ] } }
       ]
     end
     it 'identifies the record as electronic' do
@@ -78,8 +78,8 @@ RSpec.describe 'get_format_character' do
         { '590' => { 'ind1' => ' ',
                      'ind2' => ' ',
                      'subfields' => [
-                                      { 'a' => 'This is an electronic reproduction.' }
-                                    ] } }
+                       { 'a' => 'This is an electronic reproduction.' }
+                     ] } }
       ]
     end
     it 'identifies the record as electronic' do
@@ -93,8 +93,8 @@ RSpec.describe 'get_format_character' do
         { '533' => { 'ind1' => ' ',
                      'ind2' => ' ',
                      'subfields' => [
-                                      { 'a' => 'Electronic reproduction.' }
-                                    ] } }
+                       { 'a' => 'Electronic reproduction.' }
+                     ] } }
       ]
     end
     it 'identifies the record as electronic' do
@@ -103,7 +103,7 @@ RSpec.describe 'get_format_character' do
   end
   context '007 format is computer file' do
     let(:record) { MARC::Record.new_from_hash('fields' => fields, 'leader' => leader) }
-    let(:fields) { [ { '007' => 'C' } ] }
+    let(:fields) { [{ '007' => 'C' }] }
     it 'identifies the record as electronic' do
       expect(LspData.get_format_character(record)).to eq 'e'
     end
@@ -115,13 +115,13 @@ RSpec.describe 'get_format_character' do
         { '856' => { 'ind1' => ' ',
                      'ind2' => ' ',
                      'subfields' => [
-                                      { 'u' => 'https://website.com' }
-                                    ] } },
+                       { 'u' => 'https://website.com' }
+                     ] } },
         { '086' => { 'ind1' => '0',
                      'ind2' => ' ',
                      'subfields' => [
-                                      { 'a' => 'A 1' }
-                                    ] } }
+                       { 'a' => 'A 1' }
+                     ] } }
       ]
     end
     it 'identifies the record as electronic' do
@@ -135,8 +135,8 @@ RSpec.describe 'get_format_character' do
         { '245' => { 'ind1' => '0',
                      'ind2' => ' ',
                      'subfields' => [
-                                      { 'a' => 'record' }
-                                    ] } }
+                       { 'a' => 'record' }
+                     ] } }
       ]
     end
     it 'identifies the record as print' do
@@ -152,11 +152,11 @@ RSpec.describe 'process_title_field' do
       { '245' => { 'ind1' => '0',
                    'ind2' => ' ',
                    'subfields' => [
-                                    { 'a' => 'main' },
-                                    { 'b' => 'b' },
-                                    { 'h' => 'h' },
-                                    { 'p' => 'p' }
-                                  ] } }
+                     { 'a' => 'main' },
+                     { 'b' => 'b' },
+                     { 'h' => 'h' },
+                     { 'p' => 'p' }
+                   ] } }
     ]
   end
   it 'normalizes the string and makes it 70 characters long' do
@@ -172,15 +172,15 @@ RSpec.describe 'get_title_key' do
         { '245' => { 'ind1' => '0',
                      'ind2' => ' ',
                      'subfields' => [
-                                      { 'a' => 'Main' },
-                                      { '6' => '880-01' }
-                                    ] } },
+                       { 'a' => 'Main' },
+                       { '6' => '880-01' }
+                     ] } },
         { '880' => { 'ind1' => '0',
                      'ind2' => ' ',
                      'subfields' => [
-                                      { 'a' => 'Μαιν' },
-                                      { '6' => '245-01' }
-                                    ] } }
+                       { 'a' => 'Μαιν' },
+                       { '6' => '245-01' }
+                     ] } }
       ]
     end
     it 'returns the title key from the 880 field' do
@@ -193,8 +193,8 @@ RSpec.describe 'get_title_key' do
         { '245' => { 'ind1' => '0',
                      'ind2' => ' ',
                      'subfields' => [
-                                      { 'a' => 'Main' }
-                                    ] } }
+                       { 'a' => 'Main' }
+                     ] } }
       ]
     end
     it 'returns the title key from the 245 field' do
@@ -207,12 +207,12 @@ RSpec.describe 'get_title_key' do
         { '100' => { 'ind1' => '0',
                      'ind2' => ' ',
                      'subfields' => [
-                                      { 'a' => 'Main' }
-                                    ] } }
+                       { 'a' => 'Main' }
+                     ] } }
       ]
     end
     it 'returns 70 underscores' do
-      expect(LspData.get_title_key(record)).to eq "#{'_' * 70}"
+      expect(LspData.get_title_key(record)).to eq ('_' * 70).to_s
     end
   end
 end
@@ -225,9 +225,9 @@ RSpec.describe 'get_gmd_key' do
         { '245' => { 'ind1' => '0',
                      'ind2' => ' ',
                      'subfields' => [
-                                      { 'a' => 'record' },
-                                      { 'h' => '[test]' }
-                                    ] } }
+                       { 'a' => 'record' },
+                       { 'h' => '[test]' }
+                     ] } }
       ]
     end
     it 'returns "test" padded to 5 characters' do
@@ -241,8 +241,8 @@ RSpec.describe 'get_gmd_key' do
         { '245' => { 'ind1' => '0',
                      'ind2' => ' ',
                      'subfields' => [
-                                      { 'a' => 'record' }
-                                    ] } }
+                       { 'a' => 'record' }
+                     ] } }
       ]
     end
     it 'returns 5 underscores' do
@@ -280,13 +280,13 @@ RSpec.describe 'get_pub_date_key' do
         { '264' => { 'ind1' => ' ',
                      'ind2' => '1',
                      'subfields' => [
-                                      { 'c' => '1981' }
-                                    ] } },
+                       { 'c' => '1981' }
+                     ] } },
         { '264' => { 'ind1' => ' ',
                      'ind2' => '4',
                      'subfields' => [
-                                      { 'c' => '1983' }
-                                    ] } }
+                       { 'c' => '1983' }
+                     ] } }
       ]
     end
     it 'returns date from publication 264' do
@@ -299,13 +299,13 @@ RSpec.describe 'get_pub_date_key' do
         { '264' => { 'ind1' => ' ',
                      'ind2' => '2',
                      'subfields' => [
-                                      { 'c' => '1982' }
-                                    ] } },
+                       { 'c' => '1982' }
+                     ] } },
         { '264' => { 'ind1' => ' ',
                      'ind2' => '4',
                      'subfields' => [
-                                      { 'c' => '1984' }
-                                    ] } }
+                       { 'c' => '1984' }
+                     ] } }
       ]
     end
     it 'returns date from copyright 264' do
@@ -318,13 +318,13 @@ RSpec.describe 'get_pub_date_key' do
         { '264' => { 'ind1' => ' ',
                      'ind2' => '2',
                      'subfields' => [
-                                      { 'c' => '1982' }
-                                    ] } },
+                       { 'c' => '1982' }
+                     ] } },
         { '264' => { 'ind1' => ' ',
                      'ind2' => '3',
                      'subfields' => [
-                                      { 'c' => '1983' }
-                                    ] } }
+                       { 'c' => '1983' }
+                     ] } }
       ]
     end
     it 'returns date from distribution 264' do
@@ -337,13 +337,13 @@ RSpec.describe 'get_pub_date_key' do
         { '260' => { 'ind1' => ' ',
                      'ind2' => ' ',
                      'subfields' => [
-                                      { 'c' => '1960' }
-                                    ] } },
+                       { 'c' => '1960' }
+                     ] } },
         { '264' => { 'ind1' => ' ',
                      'ind2' => '0',
                      'subfields' => [
-                                      { 'c' => '1980' }
-                                    ] } }
+                       { 'c' => '1980' }
+                     ] } }
       ]
     end
     it 'returns date from production 264' do
@@ -356,13 +356,13 @@ RSpec.describe 'get_pub_date_key' do
         { '260' => { 'ind1' => ' ',
                      'ind2' => ' ',
                      'subfields' => [
-                                      { 'c' => '1960' }
-                                    ] } },
+                       { 'c' => '1960' }
+                     ] } },
         { '264' => { 'ind1' => ' ',
                      'ind2' => '0',
                      'subfields' => [
-                                      { 'a' => 'Philadelphia' }
-                                    ] } }
+                       { 'a' => 'Philadelphia' }
+                     ] } }
       ]
     end
     it 'returns date from 260 field' do
@@ -375,8 +375,8 @@ RSpec.describe 'get_pub_date_key' do
         { '264' => { 'ind1' => ' ',
                      'ind2' => '1',
                      'subfields' => [
-                                      { 'a' => 'Philadelphia' }
-                                    ] } }
+                       { 'a' => 'Philadelphia' }
+                     ] } }
       ]
     end
     it 'returns 0000' do
@@ -403,8 +403,8 @@ RSpec.describe 'get_pagination_key' do
         { '300' => { 'ind1' => ' ',
                      'ind2' => ' ',
                      'subfields' => [
-                                      { 'a' => 'Has 300 pages' }
-                                    ] } }
+                       { 'a' => 'Has 300 pages' }
+                     ] } }
 
       ]
     end
@@ -418,8 +418,8 @@ RSpec.describe 'get_pagination_key' do
         { '300' => { 'ind1' => ' ',
                      'ind2' => ' ',
                      'subfields' => [
-                                      { 'a' => 'Has 4001 pages' }
-                                    ] } }
+                       { 'a' => 'Has 4001 pages' }
+                     ] } }
 
       ]
     end
@@ -433,8 +433,8 @@ RSpec.describe 'get_pagination_key' do
         { '300' => { 'ind1' => ' ',
                      'ind2' => ' ',
                      'subfields' => [
-                                      { 'a' => 'Has pages' }
-                                    ] } }
+                       { 'a' => 'Has pages' }
+                     ] } }
       ]
     end
     it 'returns 4 underscores' do
@@ -451,8 +451,8 @@ RSpec.describe 'get_edition_key' do
         { '250' => { 'ind1' => ' ',
                      'ind2' => ' ',
                      'subfields' => [
-                                      { '3' => 'First work' }
-                                    ] } }
+                       { '3' => 'First work' }
+                     ] } }
       ]
     end
     it 'returns 3 underscores' do
@@ -465,8 +465,8 @@ RSpec.describe 'get_edition_key' do
         { '250' => { 'ind1' => ' ',
                      'ind2' => ' ',
                      'subfields' => [
-                                      { 'a' => 'random firthisec' }
-                                    ] } }
+                       { 'a' => 'random firthisec' }
+                     ] } }
       ]
     end
     it 'returns numbers' do
@@ -479,8 +479,8 @@ RSpec.describe 'get_edition_key' do
         { '250' => { 'ind1' => ' ',
                      'ind2' => ' ',
                      'subfields' => [
-                                      { 'a' => 'foufivsixlaugh' }
-                                    ] } }
+                       { 'a' => 'foufivsixlaugh' }
+                     ] } }
       ]
     end
     it 'returns numbers' do
@@ -493,8 +493,8 @@ RSpec.describe 'get_edition_key' do
         { '250' => { 'ind1' => ' ',
                      'ind2' => ' ',
                      'subfields' => [
-                                      { 'a' => 'seveignin' }
-                                    ] } }
+                       { 'a' => 'seveignin' }
+                     ] } }
       ]
     end
     it 'returns numbers' do
@@ -507,8 +507,8 @@ RSpec.describe 'get_edition_key' do
         { '250' => { 'ind1' => ' ',
                      'ind2' => ' ',
                      'subfields' => [
-                                      { 'a' => '!ok' }
-                                    ] } }
+                       { 'a' => '!ok' }
+                     ] } }
       ]
     end
     it 'returns 2-letter word with padding' do
@@ -536,13 +536,13 @@ RSpec.describe 'get_publisher' do
         { '264' => { 'ind1' => ' ',
                      'ind2' => '1',
                      'subfields' => [
-                                      { 'b' => 'publisher' }
-                                    ] } },
+                       { 'b' => 'publisher' }
+                     ] } },
         { '264' => { 'ind1' => ' ',
                      'ind2' => '4',
                      'subfields' => [
-                                      { 'b' => 'copyright' }
-                                    ] } }
+                       { 'b' => 'copyright' }
+                     ] } }
       ]
     end
     it 'returns publisher from publication 264' do
@@ -555,13 +555,13 @@ RSpec.describe 'get_publisher' do
         { '264' => { 'ind1' => ' ',
                      'ind2' => '2',
                      'subfields' => [
-                                      { 'b' => 'distribution' }
-                                    ] } },
+                       { 'b' => 'distribution' }
+                     ] } },
         { '264' => { 'ind1' => ' ',
                      'ind2' => '4',
                      'subfields' => [
-                                      { 'b' => 'copyright' }
-                                    ] } }
+                       { 'b' => 'copyright' }
+                     ] } }
       ]
     end
     it 'returns publisher from copyright 264' do
@@ -574,13 +574,13 @@ RSpec.describe 'get_publisher' do
         { '264' => { 'ind1' => ' ',
                      'ind2' => '2',
                      'subfields' => [
-                                      { 'b' => 'distribution' }
-                                    ] } },
+                       { 'b' => 'distribution' }
+                     ] } },
         { '264' => { 'ind1' => ' ',
                      'ind2' => '3',
                      'subfields' => [
-                                      { 'c' => 'manufacture' }
-                                    ] } }
+                       { 'c' => 'manufacture' }
+                     ] } }
       ]
     end
     it 'returns publisher from distribution 264' do
@@ -593,13 +593,13 @@ RSpec.describe 'get_publisher' do
         { '260' => { 'ind1' => ' ',
                      'ind2' => ' ',
                      'subfields' => [
-                                      { 'b' => 'Two sixty' }
-                                    ] } },
+                       { 'b' => 'Two sixty' }
+                     ] } },
         { '264' => { 'ind1' => ' ',
                      'ind2' => '0',
                      'subfields' => [
-                                      { 'b' => 'production' }
-                                    ] } }
+                       { 'b' => 'production' }
+                     ] } }
       ]
     end
     it 'returns publisher from production 264' do
@@ -612,13 +612,13 @@ RSpec.describe 'get_publisher' do
         { '260' => { 'ind1' => ' ',
                      'ind2' => ' ',
                      'subfields' => [
-                                      { 'b' => 'Two sixty' }
-                                    ] } },
+                       { 'b' => 'Two sixty' }
+                     ] } },
         { '264' => { 'ind1' => ' ',
                      'ind2' => '0',
                      'subfields' => [
-                                      { 'a' => 'Philadelphia' }
-                                    ] } }
+                       { 'a' => 'Philadelphia' }
+                     ] } }
       ]
     end
     it 'returns publisher from 260 field' do
@@ -631,8 +631,8 @@ RSpec.describe 'get_publisher' do
         { '264' => { 'ind1' => ' ',
                      'ind2' => '1',
                      'subfields' => [
-                                      { 'a' => 'Philadelphia' }
-                                    ] } }
+                       { 'a' => 'Philadelphia' }
+                     ] } }
       ]
     end
     it 'returns 5 underscores' do
@@ -647,9 +647,9 @@ RSpec.describe 'get_type_key' do
       { '245' => { 'ind1' => '0',
                    'ind2' => ' ',
                    'subfields' => [
-                                    { 'a' => 'record' },
-                                    { 'h' => 'electronic resource' }
-                                  ] } }
+                     { 'a' => 'record' },
+                     { 'h' => 'electronic resource' }
+                   ] } }
     ]
   end
   context 'leader is less than 10 characters' do
@@ -674,13 +674,13 @@ RSpec.describe 'get_title_part_key' do
         { '245' => { 'ind1' => '0',
                      'ind2' => ' ',
                      'subfields' => [
-                                      { 'a' => 'record' },
-                                      { 'h' => 'electronic resource' }
-                                    ] } }
+                       { 'a' => 'record' },
+                       { 'h' => 'electronic resource' }
+                     ] } }
       ]
     end
     it 'returns 30 underscores' do
-      expect(LspData.get_title_part_key(record)).to eq "#{'_' * 30}"
+      expect(LspData.get_title_part_key(record)).to eq ('_' * 30).to_s
     end
   end
   context 'has multiple 245$p' do
@@ -689,10 +689,10 @@ RSpec.describe 'get_title_part_key' do
         { '245' => { 'ind1' => '0',
                      'ind2' => ' ',
                      'subfields' => [
-                                      { 'a' => 'record' },
-                                      { 'p' => 'First try.' },
-                                      { 'p' => 'Second part'}
-                                    ] } }
+                       { 'a' => 'record' },
+                       { 'p' => 'First try.' },
+                       { 'p' => 'Second part' }
+                     ] } }
       ]
     end
     it 'returns first 10 normalized characters of each part' do
@@ -709,13 +709,13 @@ RSpec.describe 'get_title_number_key' do
         { '245' => { 'ind1' => '0',
                      'ind2' => ' ',
                      'subfields' => [
-                                      { 'a' => 'record' },
-                                      { 'h' => 'electronic resource' }
-                                    ] } }
+                       { 'a' => 'record' },
+                       { 'h' => 'electronic resource' }
+                     ] } }
       ]
     end
     it 'returns 10 underscores' do
-      expect(LspData.get_title_number_key(record)).to eq "#{'_' * 10}"
+      expect(LspData.get_title_number_key(record)).to eq ('_' * 10).to_s
     end
   end
   context 'has multiple 245$n' do
@@ -724,13 +724,13 @@ RSpec.describe 'get_title_number_key' do
         { '245' => { 'ind1' => '0',
                      'ind2' => ' ',
                      'subfields' => [
-                                      { 'a' => 'record' },
-                                      { 'n' => "N\u00famero tres." }
-                                    ] } }
+                       { 'a' => 'record' },
+                       { 'n' => "N\u00famero tres." }
+                     ] } }
       ]
     end
     it 'returns first 10 normalized characters' do
-      expect(LspData.get_title_number_key(record)).to eq "numero_tre"
+      expect(LspData.get_title_number_key(record)).to eq 'numero_tre'
     end
   end
 end
@@ -743,13 +743,13 @@ RSpec.describe 'get_author_key' do
         { '245' => { 'ind1' => '0',
                      'ind2' => ' ',
                      'subfields' => [
-                                      { 'a' => 'record' },
-                                      { 'h' => 'electronic resource' }
-                                    ] } }
+                       { 'a' => 'record' },
+                       { 'h' => 'electronic resource' }
+                     ] } }
       ]
     end
     it 'returns 20 underscores' do
-      expect(LspData.get_author_key(record)).to eq "#{'_' * 20}"
+      expect(LspData.get_author_key(record)).to eq ('_' * 20).to_s
     end
   end
   context 'has multiple 1xx fields' do
@@ -758,19 +758,19 @@ RSpec.describe 'get_author_key' do
         { '245' => { 'ind1' => '0',
                      'ind2' => ' ',
                      'subfields' => [
-                                      { 'a' => 'record' },
-                                      { 'n' => "N\u00famero tres." }
-                                    ] } },
+                       { 'a' => 'record' },
+                       { 'n' => "N\u00famero tres." }
+                     ] } },
         { '100' => { 'ind1' => ' ',
                      'ind2' => ' ',
                      'subfields' => [
-                                      { 'a' => "\u00c9t\u00e9" }
-                                    ] } },
+                       { 'a' => "\u00c9t\u00e9" }
+                     ] } },
         { '110' => { 'ind1' => ' ',
                      'ind2' => ' ',
                      'subfields' => [
-                                      { 'a' => 'Dog B.' }
-                                    ] } }
+                       { 'a' => 'Dog B.' }
+                     ] } }
       ]
     end
     it 'returns normalized string padded to 20 characters' do
@@ -787,13 +787,13 @@ RSpec.describe 'get_title_date_key' do
         { '245' => { 'ind1' => '0',
                      'ind2' => ' ',
                      'subfields' => [
-                                      { 'a' => 'record' },
-                                      { 'h' => 'electronic resource' }
-                                    ] } }
+                       { 'a' => 'record' },
+                       { 'h' => 'electronic resource' }
+                     ] } }
       ]
     end
     it 'returns 15 underscores' do
-      expect(LspData.get_title_date_key(record)).to eq "#{'_' * 15}"
+      expect(LspData.get_title_date_key(record)).to eq ('_' * 15).to_s
     end
   end
   context 'has 245$f field' do
@@ -802,9 +802,9 @@ RSpec.describe 'get_title_date_key' do
         { '245' => { 'ind1' => '0',
                      'ind2' => ' ',
                      'subfields' => [
-                                      { 'a' => 'record' },
-                                      { 'f' => "The year 1905 in the month of May" }
-                                    ] } }
+                       { 'a' => 'record' },
+                       { 'f' => 'The year 1905 in the month of May' }
+                     ] } }
       ]
     end
     it 'returns normalized string trimmed to 15 characters' do
@@ -821,8 +821,8 @@ RSpec.describe 'get_gov_doc_key' do
         { '086' => { 'ind1' => '0',
                      'ind2' => ' ',
                      'subfields' => [
-                                      { 'z' => 'A 1' }
-                                    ] } }
+                       { 'z' => 'A 1' }
+                     ] } }
       ]
     end
     it 'returns an empty character' do
@@ -835,8 +835,8 @@ RSpec.describe 'get_gov_doc_key' do
         { '086' => { 'ind1' => '0',
                      'ind2' => ' ',
                      'subfields' => [
-                                      { 'a' => 'Y 123.1:5' }
-                                    ] } }
+                       { 'a' => 'Y 123.1:5' }
+                     ] } }
       ]
     end
     it 'returns normalized string' do
@@ -852,21 +852,23 @@ RSpec.describe 'get_match_key' do
       { '086' => { 'ind1' => '0',
                    'ind2' => ' ',
                    'subfields' => [
-                                    { 'a' => 'A 1' }
-                                  ] } },
+                     { 'a' => 'A 1' }
+                   ] } },
       { '245' => { 'ind1' => '0',
                    'ind2' => ' ',
                    'subfields' => [
-                                    { 'a' => 'This is a record.' }
-                                  ] } },
+                     { 'a' => 'This is a record.' }
+                   ] } },
       { '300' => { 'ind1' => ' ',
                    'ind2' => ' ',
                    'subfields' => [
-                                    { 'a' => '2001 pages' }
-                                  ] } }
+                     { 'a' => '2001 pages' }
+                   ] } }
     ]
   end
-  let(:match_key) { 'this_is_a_record___________________________________________________________00002001________a___________________________________________________________________________1p' }
+  let(:match_key) do
+    'this_is_a_record___________________________________________________________00002001________a___________________________________________________________________________1p'
+  end
   it 'returns a complete match key' do
     expect(LspData.get_match_key(record)).to eq match_key
   end
