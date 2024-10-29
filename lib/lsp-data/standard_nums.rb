@@ -15,13 +15,10 @@ module LspData
   end
 
   def lccns(record)
-    lccn = []
-    f010 = record.fields('010').select { |f| f['a'] }
-    f010.each do |field|
-      value = StdNum::LCCN.normalize(field['a'])
-      lccn << value if value
-    end
-    lccn.uniq
+    record.fields('010')
+      .select { |f| f['a'] }
+      .filter_map { |f| StdNum::LCCN.normalize(f['a']) }
+      .uniq
   end
 
   def isbns(record)
