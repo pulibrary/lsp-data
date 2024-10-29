@@ -46,12 +46,9 @@ module LspData
 
   ### Calculate check digit for ISBN-10
   def checkdigit_isbn10(stem)
-    int_index = 0
-    int_sum = 0
-    stem.each_char do |digit|
-      int_sum += digit.to_i * (10 - int_index)
-      int_index += 1
-    end
+    int_sum = stem.chars
+      .each_with_index
+      .reduce(0) {|int_sum, (digit, int_index)| int_sum += digit.to_i * (10 - int_index) }
     mod = (11 - (int_sum % 11)) % 11
     mod == 10 ? 'X' : mod.to_s
   end
