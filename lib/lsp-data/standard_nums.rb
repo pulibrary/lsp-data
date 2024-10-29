@@ -131,10 +131,10 @@ module LspData
   end
 
   def clean_issn_string(issn)
-    issn.delete!('-')
-    issn.gsub!(/^\D+([0-9].*)$/, '\1')
-    issn.gsub!(/^([0-9]{4})\s+([0-9xX]{4}).*$/, '\1\2')
-    issn.gsub(/^([0-9]{7,}[^\s]+)\s.*$/, '\1')
+    issn.delete('-')
+      .gsub(/^\D+([0-9].*)$/, '\1')
+      .gsub(/^([0-9]{4})\s+([0-9xX]{4}).*$/, '\1\2')
+      .gsub(/^([0-9]{7,}[^\s]+)\s.*$/, '\1')
   end
 
   ### Normalize any given string that is supposed to include an ISSN
