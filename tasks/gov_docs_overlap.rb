@@ -59,7 +59,7 @@ File.open("#{output_dir}/marcive_oclc_nums.tsv", 'w') do |output|
   output.puts("MMS ID\OCLC Numbers")
   reader = MARC::XMLReader.new("#{input_dir}/marcive_bibs.xml", parser: 'magic', ignore_namespace: true)
   reader.each do |record|
-    oclc_nums = oclcs(record: record)
+    oclc_nums = LspData.oclcs(record: record)
     output.puts("#{record['001'].value}\t#{oclc_nums.join(' | ')}")
   end
 end
@@ -67,7 +67,7 @@ File.open("#{output_dir}/gov_docs_oclc_nums.tsv", 'w') do |output|
   output.puts("MMS ID\tOCLC Numbers")
   reader = MARC::XMLReader.new("#{input_dir}/gov_docs_bibs.xml", parser: 'magic', ignore_namespace: true)
   reader.each do |record|
-    oclc_nums = oclcs(record: record)
+    oclc_nums = LspData.oclcs(record: record)
     output.puts("#{record['001'].value}\t#{oclc_nums.join(' | ')}")
   end
 end
@@ -140,13 +140,13 @@ Dir.glob("#{input_dir}/new_fulldump/fulldump*.xml*").each do |file|
     next unless e_inventory.positive?
 
     mms_id = record['001'].value
-    match_key = get_match_key(record)
+    match_key = LspData.get_match_key(record)
     marcive_matches = marcive_match_keys[match_key]
     marcive_matches&.each do |marcive_bib|
       marcive_all_match_key_matches[marcive_bib] ||= []
       marcive_all_match_key_matches[marcive_bib] << mms_id
     end
-    oclc_nums = oclcs(record: record)
+    oclc_nums = LspData.oclcs(record: record)
     oclc_nums.each do |oclc_num|
       matches = marcive_oclc_nums[oclc_num]
       next if matches.nil?
