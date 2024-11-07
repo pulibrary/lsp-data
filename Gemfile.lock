@@ -1,10 +1,12 @@
 GIT
   remote: https://github.com/pulibrary/marc_cleanup.git
-  revision: 81c8857800a02b1e0bebd3ef773fc8b6a51ec043
-  tag: v0.9.0
+  revision: 6bf0973218409bb3fedc40eba0511e60603edc97
+  tag: v0.9.2
   specs:
-    marc_cleanup (0.9.0)
+    marc_cleanup (0.9.2)
       marc (~> 1.0)
+      nokogiri
+      unf (= 0.1.4)
 
 GEM
   remote: https://rubygems.org/
@@ -47,7 +49,7 @@ GEM
     irb (1.14.1)
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
-    json (2.7.3)
+    json (2.8.1)
     language_server-protocol (3.17.0.3)
     library_stdnums (1.6.0)
     marc (1.2.0)
@@ -69,7 +71,7 @@ GEM
     nokogiri (1.16.7-x86_64-linux)
       racc (~> 1.4)
     parallel (1.26.3)
-    parser (3.3.5.0)
+    parser (3.3.6.0)
       ast (~> 2.4.1)
       racc
     pry (0.14.2)
@@ -78,7 +80,7 @@ GEM
     pry-byebug (3.10.1)
       byebug (~> 11.0)
       pry (>= 0.13, < 0.15)
-    psych (5.1.2)
+    psych (5.2.0)
       stringio
     racc (1.8.1)
     rainbow (3.1.1)
@@ -101,7 +103,7 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.13.0)
     rspec-support (3.13.1)
-    rubocop (1.67.0)
+    rubocop (1.68.0)
       json (~> 2.3)
       language_server-protocol (>= 3.17.0)
       parallel (~> 1.10)
@@ -111,7 +113,7 @@ GEM
       rubocop-ast (>= 1.32.2, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 3.0)
-    rubocop-ast (1.32.3)
+    rubocop-ast (1.34.1)
       parser (>= 3.3.1.0)
     ruby-progressbar (1.13.0)
     ruby2_keywords (0.0.5)
@@ -122,7 +124,7 @@ GEM
       simplecov_json_formatter (~> 0.1)
     simplecov-html (0.13.1)
     simplecov_json_formatter (0.1.4)
-    stringio (3.1.1)
+    stringio (3.1.2)
     sync (0.5.0)
     term-ansicolor (1.11.2)
       tins (~> 1.0)
