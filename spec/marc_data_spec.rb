@@ -1,72 +1,7 @@
 # frozen_string_literal: true
 
 require_relative './../lib/lsp-data'
-
-RSpec.describe 'parse_call_number' do
-
-  context 'non-LC field has multiple Cutters' do
-    let(:primary_subfield) { MARC::Subfield.new('a', 'PS3556.S32') }
-    let(:item_subfields) { [
-                             MARC::Subfield.new('b', '.F2'),
-                             MARC::Subfield.new('b', '.G312')
-                           ] }
-    it 'returns all parts of the call number' do
-      target_hash = {
-                      is_lc: false,
-                      main_lc_class: nil,
-                      sub_lc_class: nil,
-                      classification: primary_subfield.value,
-                      full_call_num: 'PS3556.S32 .F2 .G312',
-                      cutters: ['.F2', '.G312']
-                    }
-      expect(LspData.parse_call_number(primary_subfield: primary_subfield,
-                                       item_subfields: item_subfields,
-                                       assume_lc: false)).to eq target_hash
-    end
-  end
-
-  context 'LC primary field does not start with a letter' do
-    let(:primary_subfield) { MARC::Subfield.new('a', '1PS3556.S32') }
-    let(:item_subfields) { [
-                             MARC::Subfield.new('b', '.F2'),
-                             MARC::Subfield.new('b', '.G312')
-                           ] }
-    it 'does not provide an LC class' do
-      target_hash = {
-                      is_lc: false,
-                      main_lc_class: nil,
-                      sub_lc_class: nil,
-                      classification: primary_subfield.value,
-                      full_call_num: '1PS3556.S32 .F2 .G312',
-                      cutters: ['.F2', '.G312']
-                    }
-      expect(LspData.parse_call_number(primary_subfield: primary_subfield,
-                                       item_subfields: item_subfields,
-                                       assume_lc: true)).to eq target_hash
-    end
-  end
-
-  context 'LC call number field is well-formed' do
-    let(:primary_subfield) { MARC::Subfield.new('a', 'PS3556.S32') }
-    let(:item_subfields) { [
-                             MARC::Subfield.new('b', '.F2')
-                           ] }
-    it 'parses the LC call number correctly' do
-      target_hash = {
-                      is_lc: true,
-                      main_lc_class: 'P',
-                      sub_lc_class: 'PS',
-                      classification: primary_subfield.value,
-                      full_call_num: 'PS3556.S32 .F2',
-                      cutters: ['.F2']
-                    }
-      expect(LspData.parse_call_number(primary_subfield: primary_subfield,
-                                       item_subfields: item_subfields,
-                                       assume_lc: true)).to eq target_hash
-    end
-  end
-end
-
+require 'byebug'
 RSpec.describe 'call_num_from_bib_field' do
   let(:leader) { '01104naa a2200289 i 4500' }
   let(:record) { MARC::Record.new_from_hash('fields' => fields, 'leader' => leader) }
@@ -84,8 +19,9 @@ RSpec.describe 'call_num_from_bib_field' do
     end
     it 'returns all LC call numbers' do
       target_array = ['M269 .C69', 'M3.1 .C69 2012']
-      expect(LspData.call_num_from_bib_field(record: record,
-                                       field_tag: '050')).to eq target_array
+      call_nums = LspData.call_num_from_bib_field(record: record,
+                                                  field_tag: '050')
+      expect(call_nums.map(&:full_call_num)).to eq target_array
     end
   end
   context 'record has 090 field and 050 field and 090 is target field' do
@@ -101,8 +37,9 @@ RSpec.describe 'call_num_from_bib_field' do
     end
     it 'returns LC call numbers from 090 field' do
       target_array = ['M3.1 .C69 2012']
-      expect(LspData.call_num_from_bib_field(record: record,
-                                       field_tag: '090')).to eq target_array
+      call_nums = LspData.call_num_from_bib_field(record: record,
+                                       field_tag: '090')
+      expect(call_nums.map(&:full_call_num)).to eq target_array
     end
   end
 end
@@ -166,11 +103,13 @@ RSpec.describe 'call_num_from_alma_holding_field' do
       ]
     end
     it 'returns correct call numbers' do
-      target_hash = { '2216124' => ['M269 .C69'] }
-      expect(LspData.call_num_from_alma_holding_field(record: record,
+      holding_id = '2216124'
+      target_array = ['M269 .C69']
+      call_nums = LspData.call_num_from_alma_holding_field(record: record,
                                                       field_tag: field_tag,
                                                       inst_suffix: inst_suffix,
-                                                      lc_only: false)).to eq target_hash
+                                                      lc_only: false)
+      expect(call_nums[holding_id].map(&:full_call_num)).to eq target_array
     end
   end
 
@@ -221,12 +160,16 @@ RSpec.describe 'all_call_nums_from_merged_bib' do
   end
 
   it 'returns correct call numbers' do
-    target_hash = { f050: ['M269 .C69'],
-                    f090: ['M3.1 .C69 2012'],
-                    holdings: { '2216124' => ['M3.1 .C69'] } }
-    expect(LspData.all_call_nums_from_merged_bib(record: record,
+    target_f050 = ['M269 .C69']
+    target_f090 = ['M3.1 .C69 2012']
+    holding_id = '2216124'
+    target_holding_call_nums = ['M3.1 .C69']
+    call_nums = LspData.all_call_nums_from_merged_bib(record: record,
                                                  inst_suffix: inst_suffix,
                                                  lc_only: true,
-                                                 holding_field_tag: holding_field_tag)).to eq target_hash
+                                                 holding_field_tag: holding_field_tag)
+    expect(call_nums[:f050].map(&:full_call_num)).to eq target_f050
+    expect(call_nums[:f090].map(&:full_call_num)).to eq target_f090
+    expect(call_nums[:holdings][holding_id].map(&:full_call_num)).to eq target_holding_call_nums
   end
 end

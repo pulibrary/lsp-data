@@ -3,44 +3,16 @@
 module LspData
   ### If specified as an LC call number, break it up into parts;
   ###   if not, return first subfield as full class and item subfield as Cutter
-  def parse_call_number(primary_subfield:, item_subfields:, assume_lc: true)
-    cutters = item_subfields.map(&:value)
-    full_call_num = "#{primary_subfield.value} #{cutters.join(' ')}".strip
-    is_lc = false
-    if assume_lc
-      main_lc_class = nil
-      sub_lc_class = nil
-      if primary_subfield.value[0] =~ /[A-Z]/
-        is_lc = true
-        main_lc_class = primary_subfield.value[0]
-        sub_lc_class = primary_subfield.value.gsub(/^([A-Z]+)[^A-Z].*$/, '\1')
-      end
-      { is_lc: is_lc,
-        main_lc_class: main_lc_class,
-        sub_lc_class: sub_lc_class,
-        classification: primary_subfield.value,
-        full_call_num: full_call_num,
-        cutters: cutters }
-    else
-      { is_lc: is_lc,
-        main_lc_class: nil,
-        sub_lc_class: nil,
-        classification: primary_subfield.value,
-        full_call_num: full_call_num,
-        cutters: cutters }
-    end
-  end
-
-  def call_num_from_bib_field(record:, field_tag:)
+  def call_num_from_bib_field(record:, field_tag:, assume_lc: true)
     return [] unless record[field_tag]
 
     call_nums = []
     record.fields(field_tag).each do |field|
-      call_num = field.subfields.select do |subfield|
-        %w[a b].include?(subfield.code)
-      end.map(&:value).join(' ')
-      call_num.strip!
-      call_nums << call_num
+      primary_subfield = field.subfields.select { |s| s.code == 'a' }.first
+      item_subfields = field.subfields.select { |s| s.code == 'b' }
+      call_nums << LspData::ParsedCallNumber.new(primary_subfield: primary_subfield,
+                                                 item_subfields: item_subfields,
+                                                 assume_lc: assume_lc)
     end
     call_nums
   end
@@ -56,10 +28,13 @@ module LspData
       next if lc_only && field.indicator1 != '0'
 
       holding_id = field['8']
-      call_num = field.subfields.select do |subfield|
-        %w[h i].include?(subfield.code)
-      end.map(&:value).join(' ')
-      call_num.strip!
+      primary_subfield = field.subfields.select { |s| s.code == 'h' }.first
+      item_subfields = field.subfields.select { |s| s.code == 'i' }
+      assume_lc = field.indicator1 == '0' ? true : false
+
+      call_num = LspData::ParsedCallNumber.new(primary_subfield: primary_subfield,
+                                                 item_subfields: item_subfields,
+                                                 assume_lc: assume_lc)
       hash[holding_id] ||= []
       hash[holding_id] << call_num
     end
