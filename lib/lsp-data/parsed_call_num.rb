@@ -1,4 +1,8 @@
+# frozen_string_literal: true
+
 module LspData
+  ### This class parses a call number; if it is assumed to be an LC call number,
+  ###   it splits the call number into its parts
   class ParsedCallNumber
     attr_reader :primary_subfield, :item_subfields, :assume_lc
 
@@ -10,26 +14,18 @@ module LspData
 
     def lc?
       if assume_lc
-       primary_subfield.value[0] =~ /[A-Z]/ ? true : false
+        primary_subfield.value[0] =~ /[A-Z]/ ? true : false
       else
-       false
+        false
       end
     end
 
     def primary_lc_class
-      if lc?
-        primary_subfield.value[0]
-      else
-        nil
-      end
+      primary_subfield.value[0] if lc?
     end
 
     def sub_lc_class
-      if lc?
-        primary_subfield.value.gsub(/^([A-Z]+)[^A-Z].*$/, '\1')
-      else
-        nil
-      end
+      primary_subfield.value.gsub(/^([A-Z]+)[^A-Z].*$/, '\1') if lc?
     end
 
     def classification
