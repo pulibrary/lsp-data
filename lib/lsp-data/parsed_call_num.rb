@@ -21,23 +21,24 @@ module LspData
     end
 
     def primary_lc_class
-      primary_subfield.value[0] if lc?
+      @primary_lc_class ||= primary_subfield.value[0] if lc?
+      @primary_lc_class
     end
 
     def sub_lc_class
-      primary_subfield.value.gsub(/^([A-Z]+)[^A-Z].*$/, '\1') if lc?
+      @sub_lc_class ||= primary_subfield.value.gsub(/^([A-Z]+)[^A-Z].*$/, '\1') if lc?
     end
 
     def classification
-      primary_subfield.value.strip
+      @classification ||= primary_subfield.value.strip
     end
 
     def cutters
-      item_subfields.map(&:value)
+      @cutters ||= item_subfields.map(&:value)
     end
 
     def full_call_num
-      "#{primary_subfield.value} #{cutters.join(' ')}".strip
+      @full_call_num ||= "#{primary_subfield.value} #{cutters.join(' ')}".strip
     end
   end
 end

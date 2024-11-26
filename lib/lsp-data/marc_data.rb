@@ -19,22 +19,23 @@ module LspData
 
   ### Call numbers are grouped by holding ID
   def call_num_from_alma_holding_field(record:, field_tag:, inst_suffix:, lc_only: true)
-    return { } unless record[field_tag]
+    return {} unless record[field_tag]
 
     hash = {}
-    record.fields(field_tag).select do |field|
+    holding_fields = record.fields(field_tag).select do |field|
       field['8'] =~ /22[0-9]+#{inst_suffix}$/
-    end.each do |field|
+    end
+    holding_fields.each do |field|
       next if lc_only && field.indicator1 != '0'
 
       holding_id = field['8']
       primary_subfield = field.subfields.select { |s| s.code == 'h' }.first
       item_subfields = field.subfields.select { |s| s.code == 'i' }
-      assume_lc = field.indicator1 == '0' ? true : false
+      assume_lc = field.indicator1 == '0'
 
       call_num = LspData::ParsedCallNumber.new(primary_subfield: primary_subfield,
-                                                 item_subfields: item_subfields,
-                                                 assume_lc: assume_lc)
+                                               item_subfields: item_subfields,
+                                               assume_lc: assume_lc)
       hash[holding_id] ||= []
       hash[holding_id] << call_num
     end
@@ -45,9 +46,9 @@ module LspData
     f050 = call_num_from_bib_field(record: record, field_tag: '050')
     f090 = call_num_from_bib_field(record: record, field_tag: '090')
     holdings = call_num_from_alma_holding_field(record: record,
-                                            field_tag: holding_field_tag,
-                                            inst_suffix: inst_suffix,
-                                            lc_only: lc_only)
+                                                field_tag: holding_field_tag,
+                                                inst_suffix: inst_suffix,
+                                                lc_only: lc_only)
     { f050: f050, f090: f090, holdings: holdings }
   end
 end
