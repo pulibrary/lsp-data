@@ -14,7 +14,7 @@ module LspData
 
     def lc?
       if assume_lc
-        primary_subfield.value[0] =~ /[A-Z]/ ? true : false
+        primary_subfield&.value =~ /^[A-Z]/ ? true : false
       else
         false
       end
@@ -30,7 +30,7 @@ module LspData
     end
 
     def classification
-      @classification ||= primary_subfield.value.strip
+      @classification ||= primary_subfield&.value&.strip
     end
 
     def cutters
@@ -38,7 +38,7 @@ module LspData
     end
 
     def full_call_num
-      @full_call_num ||= "#{primary_subfield.value} #{cutters.join(' ')}".strip
+      @full_call_num ||= "#{primary_subfield&.value} #{cutters.join(' ')}".strip
     end
   end
 end
