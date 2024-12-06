@@ -7,7 +7,8 @@ module LspData
     return [] unless record[field_tag]
 
     call_nums = []
-    record.fields(field_tag).each do |field|
+    fields_of_interest = record.fields(field_tag).select { |f| f['a'] }
+    fields_of_interest.each do |field|
       primary_subfield = field.subfields.select { |s| s.code == 'a' }.first
       item_subfields = field.subfields.select { |s| s.code == 'b' }
       call_nums << LspData::ParsedCallNumber.new(primary_subfield: primary_subfield,
@@ -23,7 +24,7 @@ module LspData
 
     hash = {}
     holding_fields = record.fields(field_tag).select do |field|
-      field['8'] =~ /22[0-9]+#{inst_suffix}$/
+      field['8'] =~ /22[0-9]+#{inst_suffix}$/ && field['h']
     end
     holding_fields.each do |field|
       next if lc_only && field.indicator1 != '0'
