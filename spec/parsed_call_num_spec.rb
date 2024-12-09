@@ -41,6 +41,25 @@ RSpec.describe LspData::ParsedCallNumber do
     end
   end
 
+  context 'LC primary field has no primary subfield' do
+    let(:assume_lc) { true }
+    let(:primary_subfield) { nil }
+    let(:item_subfields) { [
+                             MARC::Subfield.new('b', '.F2'),
+                             MARC::Subfield.new('b', '.G312')
+                           ] }
+
+    it 'returns nil values for LC classes and returns a full call number' do
+      expect(call_num.primary_lc_class).to be_nil
+      expect(call_num.sub_lc_class).to be_nil
+      expect(call_num.classification).to be_nil
+      expect(call_num.cutters).to eq ['.F2', '.G312']
+      expect(call_num.full_call_num).to eq '.F2 .G312'
+      expect(call_num.lc?).to be false
+    end
+  end
+
+
   context 'LC call number field is well-formed' do
     let(:assume_lc) { true }
     let(:primary_subfield) { MARC::Subfield.new('a', 'PS3556.S32') }
