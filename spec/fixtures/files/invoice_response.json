@@ -1,0 +1,154 @@
+{
+  "invoice": [
+    {
+      "id": "12345",
+      "number": "23456",
+      "vendor": {
+        "value": "VENDOR",
+        "desc": "Vendor"
+      },
+      "currency": {
+        "value": "JPY",
+        "desc": "Yen"
+      },
+      "owner": {
+        "value": "techserv"
+      },
+      "payment": {
+        "prepaid": false,
+        "internal_copy": false,
+        "payment_status": {
+          "value": "PAID",
+          "desc": "Paid"
+        },
+        "voucher_date": "2022-06-01Z",
+        "voucher_number": "A1111111",
+        "voucher_amount": "1837.38",
+        "voucher_currency": {
+          "value": "USD",
+          "desc": "US Dollar"
+        }
+      },
+      "invoice_date": "2022-01-28Z",
+      "vendor_account": "Account",
+      "total_amount": 1837.38,
+      "total_invoice_lines_amount": 1837.38,
+      "vendor_contact_person": {},
+      "payment_method": {
+        "value": "PAYMENT",
+        "desc": "Payment Method"
+      },
+      "reference_number": "",
+      "creation_form": {
+        "value": "MANUALLY",
+        "desc": "Manually"
+      },
+      "invoice_status": {
+        "value": "CLOSED",
+        "desc": "Closed"
+      },
+      "invoice_workflow_status": {},
+      "invoice_approval_status": {
+        "value": "APPROVED",
+        "desc": "Approved"
+      },
+      "approved_by": "Staff User",
+      "approval_date": "2022-05-27Z",
+      "additional_charges": {
+        "shipment": 0,
+        "overhead": 0,
+        "insurance": 0,
+        "discount": 0,
+        "use_pro_rata": false
+      },
+      "invoice_vat": {
+        "percentage": 0,
+        "type": {
+          "value": "INCLUSIVE",
+          "desc": "Inclusive"
+        },
+        "report_tax": false,
+        "vat_per_invoice_line": false,
+        "vat_code": {
+          "value": ""
+        },
+        "vat_amount": 0,
+        "expended_from_fund": true
+      },
+      "explicit_ratio": [],
+      "alert": [
+        {
+          "value": "DIFF_PRICE_THAN_POLINE",
+          "desc": "Some invoice lines differ in price from their linked PO line."
+        },
+        {
+          "value": "DIF_CURRENCY_THAN_PO",
+          "desc": "Currency different from PO"
+        }
+      ],
+      "note": [],
+      "number_of_lines": {
+        "value": 1,
+        "link": "https://api-na.hosted.exlibrisgroup.com/almaws/v1/acq/invoices/12345/lines"
+      },
+      "invoice_lines": {
+        "invoice_line": [
+          {
+            "id": "52345",
+            "type": {
+              "value": "REGULAR",
+              "desc": "Regular"
+            },
+            "number": "1",
+            "status": {
+              "value": "READY",
+              "desc": "Ready"
+            },
+            "price": 1837.38,
+            "quantity": 1,
+            "note": "170",
+            "po_line": "POL",
+            "price_note": "",
+            "total_price": 1837.38,
+            "vat_note": "Approximately 0.00 included in line Total Price.",
+            "check_subscription_date_overlap": false,
+            "fully_invoiced": false,
+            "additional_info": "",
+            "release_remaining_encumbrance": false,
+            "reporting_code": {
+              "value": "5678",
+              "desc": "Reporting Code"
+            },
+            "secondary_reporting_code": {
+              "value": ""
+            },
+            "tertiary_reporting_code": {
+              "value": ""
+            },
+            "invoice_line_vat": {
+              "percentage": 0,
+              "vat_code": {
+                "value": ""
+              },
+              "vat_amount": 0
+            },
+            "fund_distribution": [
+              {
+                "percent": 100,
+                "amount": 1837.38,
+                "fund_code": {
+                  "value": "Fund-Code",
+                  "desc": "Library Fund"
+                }
+              }
+            ],
+            "link": "https://api-na.hosted.exlibrisgroup.com/almaws/v1/acq/invoices/12345/lines/52345"
+          }
+        ],
+        "total_record_count": 1
+      },
+      "link": "https://api-na.hosted.exlibrisgroup.com/almaws/v1/acq/invoices/12345"
+    }
+  ],
+  "total_record_count": 1
+}
