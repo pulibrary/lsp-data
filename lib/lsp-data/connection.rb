@@ -9,4 +9,7 @@ module LspData
       faraday.adapter   Faraday.default_adapter
     end
   end
+  def parse_api_response(response)
+    { status: response.status, body: JSON.parse(response.body) }
+  end
 end
