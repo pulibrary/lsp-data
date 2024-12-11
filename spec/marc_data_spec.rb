@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_relative './../lib/lsp-data'
-require 'byebug'
 RSpec.describe 'call_num_from_bib_field' do
   let(:leader) { '01104naa a2200289 i 4500' }
   let(:record) { MARC::Record.new_from_hash('fields' => fields, 'leader' => leader) }
