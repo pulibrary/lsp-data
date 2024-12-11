@@ -2,7 +2,6 @@
 
 require_relative './../lib/lsp-data'
 require 'spec_helper'
-require 'byebug'
 RSpec.describe 'api_conn' do
   describe 'alma api connection' do
     let(:url) { 'https://api-na.exlibrisgroup.com' }

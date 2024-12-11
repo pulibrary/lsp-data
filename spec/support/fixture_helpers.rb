@@ -7,3 +7,8 @@ def stub_invoice_query(query:, fixture:)
   stub_request(:get, "https://api-na.exlibrisgroup.com/almaws/v1/acq/invoices/?limit=100&q=#{query}")
     .to_return(status: 200, body: data)
 end
+def stub_individual_invoice(fixture:)
+  file = File.open("#{FIXTURE_DIR}/#{fixture}")
+  data = File.read(file)
+  JSON.parse(data)
+end
