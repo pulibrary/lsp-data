@@ -2,7 +2,6 @@
 
 require_relative './../lib/lsp-data'
 require 'spec_helper'
-require 'byebug'
 RSpec.describe LspData::ApiInvoice do
   subject(:invoice) do
     described_class.new(invoice_json: stub_individual_invoice(fixture: fixture))
