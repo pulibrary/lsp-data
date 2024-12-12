@@ -47,4 +47,15 @@ RSpec.describe LspData::ApiInvoice do
       expect(invoice.additional_charges['shipment']).to eq BigDecimal('0')
     end
   end
+
+  context 'invoice retrieved via API with info missing from first invoice' do
+    let(:fixture) { 'individual_invoice_2.json' }
+    it 'returns expected invoice header information' do
+      expect(invoice.pid).to eq '11223847611702345'
+      expect(invoice.reference_number).to eq '14234-1'
+      expect(invoice.invoice_notes.first[:content]).to eq 'Invoice Includes Service Charge'
+      expect(invoice.invoice_notes.first[:creation_date]).to eq '2024-12-11'
+      expect(invoice.invoice_notes.first[:creator]).to eq 'System'
+    end
+  end
 end

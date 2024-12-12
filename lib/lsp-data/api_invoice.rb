@@ -74,17 +74,20 @@ module LspData
     def voucher_amount
       @voucher_amount ||= begin
                             amount = invoice_json['payment']['voucher_amount']
-                            if amount
+                            if amount.size.positive?
                               BigDecimal(amount.to_s)
                             end
                           end
     end
 
     def voucher_currency
-      @voucher_currency ||= {
-                              name: invoice_json['payment']['voucher_currency']['desc'],
-                              code: invoice_json['payment']['voucher_currency']['value']
-                            }
+      @voucher_currency ||= begin
+                              value = invoice_json['payment']['voucher_currency']['desc']
+                              {
+                                name: invoice_json['payment']['voucher_currency']['desc'],
+                                code: invoice_json['payment']['voucher_currency']['value']
+                              } if value
+                            end
     end
 
     def invoice_date
@@ -163,9 +166,8 @@ module LspData
     def invoice_notes
       @invoice_notes ||= invoice_json['note'].map do |note|
         { content: note['content'],
-          creation_date: note['creation_date'],
-          creator: note['created_by'],
-          type: note['type']
+          creation_date: note['creation_date'].gsub(/^(.*)Z$/, '\1'),
+          creator: note['created_by']
         }
       end
     end
