@@ -1,0 +1,152 @@
+{
+  "id": "11223847611702345",
+  "number": "1A",
+  "vendor": {
+    "value": "VENDOR",
+    "desc": "Vendor"
+  },
+  "currency": {
+    "value": "USD",
+    "desc": "US Dollar"
+  },
+  "owner": {
+    "value": "techserv"
+  },
+  "payment": {
+    "prepaid": false,
+    "internal_copy": false,
+    "payment_status": {
+      "value": "NOT_PAID",
+      "desc": "Not Paid"
+    },
+    "voucher_date": "2024-12-11Z",
+    "voucher_number": "",
+    "voucher_amount": "",
+    "voucher_currency": {
+      "value": ""
+    }
+  },
+  "invoice_date": "2024-12-11Z",
+  "total_amount": 313.39,
+  "total_invoice_lines_amount": 313.39,
+  "vendor_contact_person": {},
+  "payment_method": {
+    "value": "PAYMENT",
+    "desc": "Payment Method"
+  },
+  "reference_number": "14234-1",
+  "creation_form": {
+    "value": "EDI",
+    "desc": "EDIteur Invoice Message"
+  },
+  "invoice_status": {
+    "value": "ACTIVE",
+    "desc": "Active"
+  },
+  "invoice_workflow_status": {
+    "value": "Ready to be Paid",
+    "desc": "Waiting for Payment"
+  },
+  "invoice_approval_status": {
+    "value": "NOT_REQUIRED",
+    "desc": "Not required"
+  },
+  "approval_date": "2024-12-11Z",
+  "additional_charges": {
+    "shipment": 0,
+    "overhead": 0,
+    "insurance": 0,
+    "discount": 0,
+    "use_pro_rata": true
+  },
+  "invoice_vat": {
+    "percentage": 0,
+    "type": {
+      "value": "LINEEXCLUSIVE",
+      "desc": "Line Exclusive"
+    },
+    "report_tax": false,
+    "vat_per_invoice_line": false,
+    "vat_code": {
+      "value": ""
+    },
+    "vat_amount": 0,
+    "expended_from_fund": true
+  },
+  "explicit_ratio": [],
+  "alert": [
+    {
+      "value": "NOT_READY_LINES",
+      "desc": "Lines not ready"
+    }
+  ],
+  "note": [
+    {
+      "content": "Invoice Includes Service Charge",
+      "creation_date": "2024-12-11Z",
+      "created_by": "System"
+    }
+  ],
+  "number_of_lines": {
+    "value": 1,
+    "link": "https://api-na.hosted.exlibrisgroup.com/almaws/v1/acq/invoices/11223847611702345/lines"
+  },
+  "invoice_lines": {
+    "invoice_line": [
+      {
+        "id": "62345",
+        "type": {
+          "value": "REGULAR",
+          "desc": "Regular"
+        },
+        "number": "1",
+        "status": {
+          "value": "INREVIEW",
+          "desc": "In-Review"
+        },
+        "price": 305,
+        "quantity": 1,
+        "note": "PRINT + ONLINE",
+        "po_line": "POL1",
+        "price_note": "",
+        "total_price": 313.39,
+        "vat_note": "Approximately 0.00 included in line Total Price.",
+        "check_subscription_date_overlap": false,
+        "fully_invoiced": false,
+        "subscription_from_date": "2025-01-01Z",
+        "subscription_to_date": "2025-12-31Z",
+        "release_remaining_encumbrance": false,
+        "reporting_code": {
+          "value": "5678",
+          "desc": "Reporting Code"
+        },
+        "secondary_reporting_code": {
+          "value": ""
+        },
+        "tertiary_reporting_code": {
+          "value": ""
+        },
+        "invoice_line_vat": {
+          "percentage": 0,
+          "vat_code": {
+            "value": ""
+          },
+          "vat_amount": 0
+        },
+        "fund_distribution": [
+          {
+            "percent": 100,
+            "amount": 313.39,
+            "fund_code": {
+              "value": "Fund-Code",
+              "desc": "Library Fund"
+            }
+          }
+        ],
+        "link": "https://api-na.hosted.exlibrisgroup.com/almaws/v1/acq/invoices/11223847611702345/lines/62345"
+      }
+    ],
+    "total_record_count": 1
+  },
+  "link": "https://api-na.hosted.exlibrisgroup.com/almaws/v1/acq/invoices/11223847611702345"
+}

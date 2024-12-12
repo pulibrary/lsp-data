@@ -9,4 +9,5 @@ require_relative 'lsp-data/match_key_overlap'
 require_relative 'lsp-data/standard_nums'
 require_relative 'lsp-data/constants'
 require_relative 'lsp-data/parsed_call_num'
+require_relative 'lsp-data/api_invoice'
 include LspData
