@@ -4,7 +4,7 @@ require_relative './../lib/lsp-data'
 require 'spec_helper'
 RSpec.describe LspData::ApiInvoice do
   subject(:invoice) do
-    described_class.new(invoice_json: stub_individual_invoice(fixture: fixture))
+    described_class.new(invoice_json: stub_json_fixture(fixture: fixture))
   end
   context 'invoice retrieved via API' do
     let(:fixture) { 'individual_invoice.json' }
@@ -44,6 +44,10 @@ RSpec.describe LspData::ApiInvoice do
       expect(invoice.voucher_currency[:name]).to eq 'US Dollar'
       expect(invoice.voucher_currency[:code]).to eq 'USD'
       expect(invoice.additional_charges['shipment']).to eq BigDecimal('0')
+    end
+    it 'returns expected invoice lines' do
+      expect(invoice.invoice_lines.size).to eq 1
+      expect(invoice.invoice_lines[0].fund_distributions[0].percent).to eq BigDecimal('100')
     end
   end
 

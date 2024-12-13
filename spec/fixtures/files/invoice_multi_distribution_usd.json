@@ -1,0 +1,163 @@
+{
+  "id": "82345",
+  "number": "INV1",
+  "vendor": {
+    "value": "VENDOR",
+    "desc": "Vendor"
+  },
+  "currency": {
+    "value": "USD",
+    "desc": "US Dollar"
+  },
+  "owner": {
+    "value": "techserv"
+  },
+  "payment": {
+    "prepaid": false,
+    "internal_copy": false,
+    "payment_status": {
+      "value": "NOT_PAID",
+      "desc": "Not Paid"
+    },
+    "voucher_date": "2024-09-20Z",
+    "voucher_number": "",
+    "voucher_amount": "",
+    "voucher_currency": {
+      "value": ""
+    }
+  },
+  "invoice_date": "2024-09-19Z",
+  "vendor_account": "Account",
+  "total_amount": 33975.39,
+  "total_invoice_lines_amount": 33975.39,
+  "vendor_contact_person": {},
+  "payment_method": {
+    "value": "PAYMENT",
+    "desc": "Payment Method"
+  },
+  "reference_number": "",
+  "creation_form": {
+    "value": "MANUALLY",
+    "desc": "Manually"
+  },
+  "invoice_status": {
+    "value": "ACTIVE",
+    "desc": "Active"
+  },
+  "invoice_workflow_status": {
+    "value": "Ready to be Paid",
+    "desc": "Waiting for Payment"
+  },
+  "invoice_approval_status": {
+    "value": "APPROVED",
+    "desc": "Approved"
+  },
+  "approved_by": "Staff User",
+  "approval_date": "2024-09-23Z",
+  "additional_charges": {
+    "shipment": 0,
+    "overhead": 0,
+    "insurance": 0,
+    "discount": 0,
+    "use_pro_rata": false
+  },
+  "invoice_vat": {
+    "percentage": 0,
+    "type": {
+      "value": "INCLUSIVE",
+      "desc": "Inclusive"
+    },
+    "report_tax": false,
+    "vat_per_invoice_line": false,
+    "vat_code": {
+      "value": ""
+    },
+    "vat_amount": 0,
+    "expended_from_fund": true
+  },
+  "explicit_ratio": [],
+  "alert": [],
+  "note": [],
+  "number_of_lines": {
+    "value": 1,
+    "link": "https://api-na.hosted.exlibrisgroup.com/almaws/v1/acq/invoices/82345/lines"
+  },
+  "invoice_lines": {
+    "invoice_line": [
+      {
+        "id": "102345",
+        "type": {
+          "value": "REGULAR",
+          "desc": "Regular"
+        },
+        "number": "1",
+        "status": {
+          "value": "INREVIEW",
+          "desc": "In-Review"
+        },
+        "price": 33975.39,
+        "quantity": 1,
+        "note": "Title  :International Law Reports \r\n  Unit Price  :33975.39 \r\n ",
+        "po_line": "POL3",
+        "price_note": "",
+        "total_price": 33975.39,
+        "vat_note": "Approximately 0.00 included in line Total Price.",
+        "check_subscription_date_overlap": true,
+        "fully_invoiced": false,
+        "subscription_from_date": "2024-10-01Z",
+        "subscription_to_date": "2025-09-30Z",
+        "release_remaining_encumbrance": false,
+        "reporting_code": {
+          "value": "1984",
+          "desc": "1984 Code"
+        },
+        "secondary_reporting_code": {},
+        "tertiary_reporting_code": {},
+        "invoice_line_vat": {
+          "percentage": 0,
+          "vat_code": {
+            "value": ""
+          },
+          "vat_amount": 0
+        },
+        "fund_distribution": [
+          {
+            "percent": 10.8,
+            "amount": 3669.34,
+            "fund_code": {
+              "value": "Fund1",
+              "desc": "Fund One"
+            }
+          },
+          {
+            "percent": 4.5,
+            "amount": 1528.89,
+            "fund_code": {
+              "value": "Fund2",
+              "desc": "Fund Two"
+            }
+          },
+          {
+            "percent": 5.4,
+            "amount": 1834.68,
+            "fund_code": {
+              "value": "Fund3",
+              "desc": "Fund 3"
+            }
+          },
+          {
+            "percent": 79.3,
+            "amount": 26942.48,
+            "fund_code": {
+              "value": "Fund4",
+              "desc": "Fund Four"
+            }
+          }
+        ],
+        "link": "https://api-na.hosted.exlibrisgroup.com/almaws/v1/acq/invoices/82345/lines/102345"
+      }
+    ],
+    "total_record_count": 1
+  },
+  "link": "https://api-na.hosted.exlibrisgroup.com/almaws/v1/acq/invoices/82345"
+}

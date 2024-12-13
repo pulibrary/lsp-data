@@ -1,0 +1,59 @@
+{
+  "id": "72345",
+  "type": {
+    "value": "REGULAR",
+    "desc": "Regular"
+  },
+  "number": "1",
+  "status": {
+    "value": "READY",
+    "desc": "Ready"
+  },
+  "price": 1837.38,
+  "quantity": 1,
+  "note": "170",
+  "po_line": "POL",
+  "price_note": "",
+  "total_price": 1837.38,
+  "vat_note": "Approximately 0.00 included in line Total Price.",
+  "check_subscription_date_overlap": false,
+  "fully_invoiced": false,
+  "additional_info": "",
+  "release_remaining_encumbrance": false,
+  "reporting_code": {
+    "value": "5678",
+    "desc": "Reporting Code"
+  },
+  "secondary_reporting_code": {
+    "value": ""
+  },
+  "tertiary_reporting_code": {
+    "value": ""
+  },
+  "invoice_line_vat": {
+    "percentage": 0,
+    "vat_code": {
+      "value": ""
+    },
+    "vat_amount": 0
+  },
+  "fund_distribution": [
+    {
+      "percent": 80,
+      "amount": 1469.90,
+      "fund_code": {
+        "value": "Fund-Code",
+        "desc": "Library Fund"
+      }
+    },
+    {
+      "percent": 20,
+      "amount": 367.48,
+      "fund_code": {
+        "value": "Fund-Code2",
+        "desc": "Library Fund 2"
+      }
+    }
+  ],
+  "link": "https://api-na.hosted.exlibrisgroup.com/almaws/v1/acq/invoices/12345/lines/52345"
+}

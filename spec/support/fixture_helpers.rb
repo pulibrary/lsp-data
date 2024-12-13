@@ -8,7 +8,7 @@ def stub_invoice_query(query:, fixture:)
     .to_return(status: 200, body: data)
 end
 
-def stub_individual_invoice(fixture:)
+def stub_json_fixture(fixture:)
   file = File.open("#{FIXTURE_DIR}/#{fixture}")
   data = File.read(file)
   JSON.parse(data)

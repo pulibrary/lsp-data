@@ -163,5 +163,11 @@ module LspData
           creator: note['created_by'] }
       end
     end
+
+    def invoice_lines
+      @invoice_lines ||= invoice_json['invoice_lines']['invoice_line'].map do |line|
+        ApiInvoiceLine.new(invoice_line: line)
+      end
+    end
   end
 end
