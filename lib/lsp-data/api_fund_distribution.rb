@@ -21,9 +21,7 @@ module LspData
     def fund_code
       @fund_code ||= begin
         info = fund_distribution['fund_code']
-        if info
-          { name: info['desc'], code: info['value'] }
-        end
+        { name: info['desc'], code: info['value'] } if info
       end
     end
   end

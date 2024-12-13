@@ -76,9 +76,7 @@ module LspData
     def reporting_code
       @reporting_code ||= begin
         info = invoice_line['reporting_code']
-        if info['value']
-          { name: info['desc'], code: info['value'] }
-        end
+        { name: info['desc'], code: info['value'] } if info['value']
       end
     end
 
