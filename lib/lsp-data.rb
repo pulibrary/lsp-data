@@ -10,4 +10,6 @@ require_relative 'lsp-data/standard_nums'
 require_relative 'lsp-data/constants'
 require_relative 'lsp-data/parsed_call_num'
 require_relative 'lsp-data/api_invoice'
+require_relative 'lsp-data/api_invoice_line'
+require_relative 'lsp-data/api_fund_distribution'
 include LspData
