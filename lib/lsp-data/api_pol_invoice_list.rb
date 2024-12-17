@@ -33,7 +33,7 @@ module LspData
           end
         end
       end
-      @all_invoices = results
+      results
     end
 
     def api_call(offset:)
