@@ -17,10 +17,10 @@ RSpec.describe 'parse_api_response' do
   it 'parses the JSON API response correctly' do
     stub_invoice_query(query: 'pol_number~POL', fixture: 'invoice_response.json')
     response = conn.get do |req|
-      req.url('almaws/v1/acq/invoices/?q=pol_number~POL&limit=100')
+      req.url('almaws/v1/acq/invoices/?q=pol_number~POL&limit=100&offset=0&apikey=apikey')
     end
     parsed_response = LspData.parse_api_response(response)
     expect(parsed_response[:status]).to eq 200
-    expect(parsed_response[:body]['total_record_count']).to eq 1
+    expect(parsed_response[:body]['total_record_count']).to eq 101
   end
 end
