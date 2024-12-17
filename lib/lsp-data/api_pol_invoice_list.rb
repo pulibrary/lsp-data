@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 module LspData
-  ### Returns a hash with the response code and an array of invoices;
-  ###   if the response code is not 200, return an empty array
+  ### Represents the list of invoices returned from an invoice API call that
+  ###   finds invoices attached to a specific PO Line
   class ApiPolInvoiceList
     attr_reader :pol, :api_key, :conn
 
