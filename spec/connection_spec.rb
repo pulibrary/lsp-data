@@ -21,6 +21,6 @@ RSpec.describe 'parse_api_response' do
     end
     parsed_response = LspData.parse_api_response(response)
     expect(parsed_response[:status]).to eq 200
-    expect(parsed_response[:body]['total_record_count']).to eq 1
+    expect(parsed_response[:body]['total_record_count']).to eq 101
   end
 end

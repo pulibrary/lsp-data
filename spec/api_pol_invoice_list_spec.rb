@@ -11,13 +11,14 @@ RSpec.describe LspData::ApiPolInvoiceList do
   let(:url) { 'https://api-na.exlibrisgroup.com' }
   let(:conn) { LspData.api_conn(url) }
   let(:api_key) { 'apikey' }
-  context 'POL has invoices' do
+  context 'POL has invoices spread across two pages' do
     let(:pol) { 'POL' }
-    it 'returns one invoice' do
+    it 'returns both invoices' do
       stub_invoice_query(query: 'pol_number~POL', fixture: 'invoice_response.json')
-      expect(invoice_list.pol).to eq 'POL'
-      expect(invoice_list.invoices.size).to eq 1
-      expect(invoice_list.invoices.first.pid).to eq '12345'
+      stub_invoice_query(query: 'pol_number~POL', fixture: 'invoice_response_page_2.json', offset: 100)
+      expect(invoice_list.invoices.size).to eq 2
+      expect(invoice_list.invoices[0].pid).to eq '12345'
+      expect(invoice_list.invoices[1].pid).to eq '112345'
     end
   end
   context 'POL has no invoices' do

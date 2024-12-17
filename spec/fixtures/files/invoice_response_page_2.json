@@ -1,8 +1,8 @@
 {
   "invoice": [
     {
-      "id": "12345",
-      "number": "23456",
+      "id": "112345",
+      "number": "78910",
       "vendor": {
         "value": "VENDOR",
         "desc": "Vendor"
@@ -89,12 +89,12 @@
       "note": [],
       "number_of_lines": {
         "value": 1,
-        "link": "https://api-na.hosted.exlibrisgroup.com/almaws/v1/acq/invoices/12345/lines"
+        "link": "https://api-na.hosted.exlibrisgroup.com/almaws/v1/acq/invoices/112345/lines"
       },
       "invoice_lines": {
         "invoice_line": [
           {
-            "id": "52345",
+            "id": "502345",
             "type": {
               "value": "REGULAR",
               "desc": "Regular"
@@ -142,12 +142,12 @@
                 }
               }
             ],
-            "link": "https://api-na.hosted.exlibrisgroup.com/almaws/v1/acq/invoices/12345/lines/52345"
+            "link": "https://api-na.hosted.exlibrisgroup.com/almaws/v1/acq/invoices/112345/lines/502345"
           }
         ],
         "total_record_count": 1
       },
-      "link": "https://api-na.hosted.exlibrisgroup.com/almaws/v1/acq/invoices/12345"
+      "link": "https://api-na.hosted.exlibrisgroup.com/almaws/v1/acq/invoices/112345"
     }
   ],
   "total_record_count": 101
