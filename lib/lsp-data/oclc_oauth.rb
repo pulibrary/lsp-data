@@ -19,7 +19,6 @@ module LspData
       @response = parse_request
     end
 
-
     private
 
     def authorization
@@ -59,8 +58,7 @@ module LspData
       hour = time_parts[4].to_i
       minute = time_parts[5].to_i
       second = time_parts[6].to_i
-      standard_time = Time.utc(year, month, day, hour, minute, second)
-      standard_time.localtime
+      Time.utc(year, month, day, hour, minute, second).localtime
     end
   end
 end
