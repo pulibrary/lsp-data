@@ -1,0 +1,12 @@
+{
+  "access_token": "token",
+  "expires_at": "2025-01-06 15:28:30Z",
+  "authenticating_institution_id": "id",
+  "scope": "WorldCatMetadataAPI:get_holding_codes WorldCatMetadataAPI:manage_bibs WorldCatMetadataAPI:manage_institution_lhrs WorldCatMetadataAPI:view_summary_holdings WorldCatMetadataAPI:view_bib WorldCatMetadataAPI:view_marc_bib WorldCatMetadataAPI:view_brief_bib WorldCatMetadataAPI:view_retained_holdings WorldCatMetadataAPI:match_bibs WorldCatMetadataAPI:manage_institution_holdings WorldCatMetadataAPI:view_my_holdings WorldCatMetadataAPI:view_my_local_bib_data WorldCatMetadataAPI:manage_institution_lbds",
+  "principalID": "",
+  "context_institution_id": "id",
+  "scopes": "WorldCatMetadataAPI:get_holding_codes WorldCatMetadataAPI:manage_bibs WorldCatMetadataAPI:manage_institution_lhrs WorldCatMetadataAPI:view_summary_holdings WorldCatMetadataAPI:view_bib WorldCatMetadataAPI:view_marc_bib WorldCatMetadataAPI:view_brief_bib WorldCatMetadataAPI:view_retained_holdings WorldCatMetadataAPI:match_bibs WorldCatMetadataAPI:manage_institution_holdings WorldCatMetadataAPI:view_my_holdings WorldCatMetadataAPI:view_my_local_bib_data WorldCatMetadataAPI:manage_institution_lbds",
+  "token_type": "bearer",
+  "expires_in": 1199,
+  "principalIDNS": ""
+}
