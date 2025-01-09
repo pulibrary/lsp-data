@@ -21,6 +21,20 @@ def stub_oauth(fixture:, url:, scope:)
     to_return(status: 200, body: data)
 end
 
+def stub_oclc(fixture:, url:, token:, oclc_num:, desired_status:)
+  file = File.open("#{FIXTURE_DIR}/#{fixture}")
+  data = File.read(file)
+  stub_request(:get, "#{url}/manage/bibs/#{oclc_num}").
+    with(headers: {
+      'Accept' => 'application/marcxml+xml',
+      'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+      'Authorization' => "Bearer #{token}",
+      'Content-Type' => 'application/json',
+      'User-Agent' => 'Faraday v1.10.4'
+      }).
+    to_return(status: desired_status, body: data)
+end
+
 def stub_json_fixture(fixture:)
   file = File.open("#{FIXTURE_DIR}/#{fixture}")
   data = File.read(file)

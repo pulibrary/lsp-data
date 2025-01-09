@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
+  <record xmlns="http://www.loc.gov/MARC21/slim">
+    <leader>00000cam a2200000 i 4500</leader>
+    <controlfield tag="001">ocn1</controlfield>
+    <controlfield tag="003">OCoLC</controlfield>
+    <controlfield tag="005">20241030143125.4</controlfield>
+    <controlfield tag="008">131113r20132000cau      b    000 f eng d</controlfield>
+    <datafield tag="245" ind1="1" ind2="0">
+      <subfield code="a">Title</subfield>
+      <subfield code="c">Author</subfield>
+    </datafield>
+  </record>
