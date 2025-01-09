@@ -2,7 +2,6 @@
 
 require_relative './../lib/lsp-data'
 require 'spec_helper'
-require 'byebug'
 
 RSpec.describe LspData::OCLCRetrieve do
   subject(:retrieval) do

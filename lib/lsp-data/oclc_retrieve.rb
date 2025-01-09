@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'base64'
-
 module LspData
   ### This class retrieves a single record from OCLC when provided with
   ###   an OAuth tokenen, an API connection, and an OCLC number. An instance of the class
@@ -23,17 +21,17 @@ module LspData
     private
 
     def api_response
-      @response ||= begin
-                      info = retrieve_record
-                      record = nil
-                      status = info.status
-                      if status == 200
-                        raw_data = info.body
-                        temp_reader = MARC::XMLReader.new(StringIO.new(raw_data, 'r'))
-                        record = temp_reader.first
-                      end
-                      { status: status, record: record}
-                    end
+      info = retrieve_record
+      record = parse_record(info)
+      status = info.status
+      { status: status, record: record }
+    end
+
+    def parse_record(api_response)
+      return unless api_response.status == 200
+
+      temp_reader = MARC::XMLReader.new(StringIO.new(api_response.body, 'r'))
+      temp_reader.first
     end
 
     def retrieve_record
