@@ -2,7 +2,7 @@
 
 module LspData
   ### This class retrieves a single record from OCLC when provided with
-  ###   an OAuth tokenen, an API connection, and an OCLC number. An instance of the class
+  ###   an OAuth token, an API connection, and an OCLC number. An instance of the class
   ###   will return the following elements:
   ###     1. Record if successful
   ###     2. API Status Code
@@ -30,7 +30,7 @@ module LspData
     def parse_record(api_response)
       return unless api_response.status == 200
 
-      temp_reader = MARC::XMLReader.new(StringIO.new(api_response.body, 'r'))
+      temp_reader = MARC::XMLReader.new(StringIO.new(api_response.body, 'r'), parser: 'magic')
       temp_reader.first
     end
 
