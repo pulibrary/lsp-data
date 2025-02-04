@@ -8,6 +8,20 @@ def stub_invoice_query(query:, fixture:, offset: 0)
     .to_return(status: 200, body: data)
 end
 
+def stub_receive_response(pol:, item_id:, fixture:, status:)
+  file = File.open("#{FIXTURE_DIR}/#{fixture}")
+  data = File.read(file)
+  params = "apikey=apikey&op=receive&department=dept&department_library=lib"
+  url = "https://api-na.exlibrisgroup.com/almaws/v1/acq/po-lines/#{pol}/items/#{item_id}?#{params}"
+  stub_request(:post, url).
+    with(body: { }.to_json, headers: {
+      'Accept' => 'application/json',
+      'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+      'Content-Type' => 'application/json',
+      'User-Agent' => 'Faraday v1.10.4' }).
+    to_return(status: status, body:data)
+end
+
 def stub_oauth(fixture:, url:, scope:)
   file = File.open("#{FIXTURE_DIR}/#{fixture}")
   data = File.read(file)

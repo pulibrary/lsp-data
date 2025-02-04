@@ -1,0 +1,12 @@
+{
+  "errorsExist": true,
+  "errorList": {
+    "error": [
+      {
+        "errorCode": "401877",
+        "errorMessage": "Failed to receive the PO Line item. Errors: Item already received ; ",
+        "trackingId": "E01-0402145830-9REAA-AWAE1404857432"
+      }
+    ]
+  }
+}
