@@ -31,7 +31,7 @@ dept_library = ENV['RECEIVING_DEPT_LIBRARY']
 dept = ENV['RECEIVING_DEPT']
 responses = {} # hash of item IDs
 lines.each do |line|
-  receive = POLReceive.new(pol: line[:pol],
+  receive = PolReceive.new(pol: line[:pol],
                             item_id: line[:item_id],
                             conn: conn,
                             dept_library: dept_library,
@@ -42,12 +42,18 @@ end
 
 ### Step 3: Write out report
 File.open("#{output_dir}/items_autoreceived.tsv", 'w') do |output|
-  output.puts("Item ID\tPOL\tVendor Code\tBarcode\tMMS ID\tHoldings ID\tAPI Status Code\tErrors")
+  output.puts("POL\tTitle\tVendor Code\tVendor Account\tInvoice Status\tAcquisition Method\tFund Code\tPOL Creation Date\tItem ID\tBarcode\tMMS ID\tHolding ID\tAPI Status Code\tErrors")
   lines.each do |line|
     response = responses[line[:item_id]]
-    output.write("#{line[:item_id]}\t")
     output.write("#{line[:pol]}\t")
+    output.write("#{line[:title]}\t")
     output.write("#{line[:vendor_code]}\t")
+    output.write("#{line[:vendor_account]}\t")
+    output.write("#{line[:invoice_status]}\t")
+    output.write("#{line[:acq_method]}\t")
+    output.write("#{line[:fund_code]}\t")
+    output.write("#{line[:pol_creation_date]}\t")
+    output.write("#{line[:item_id]}\t")
     case response[:response][:status]
     when 200
       output.write("#{response[:response][:info][:barcode]}\t")
