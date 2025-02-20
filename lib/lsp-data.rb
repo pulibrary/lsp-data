@@ -15,5 +15,6 @@ require_relative 'lsp-data/api_fund_distribution'
 require_relative 'lsp-data/api_pol_invoice_list'
 require_relative 'lsp-data/oclc_oauth'
 require_relative 'lsp-data/oclc_retrieve'
+require_relative 'lsp-data/oclc_unset'
 require_relative 'lsp-data/pol_receive'
 include LspData
