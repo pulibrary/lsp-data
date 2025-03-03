@@ -18,7 +18,7 @@ RSpec.describe LspData::OCLCUnset do
     let(:token) { 'abc' }
 
     it 'returns message that the holding was unset' do
-      stub_unsend(fixture: 'oclc_unsend_success.json',
+      stub_unset(fixture: 'oclc_unset_success.json',
                   url: url,
                   oclc_num: oclc_num,
                   token: token,
@@ -34,7 +34,7 @@ RSpec.describe LspData::OCLCUnset do
     let(:token) { 'abc' }
 
     it 'returns message that the holding was already unset' do
-      stub_unsend(fixture: 'oclc_unsend_no_update.json',
+      stub_unset(fixture: 'oclc_unset_no_update.json',
                   url: url,
                   oclc_num: oclc_num,
                   token: token,

@@ -49,7 +49,7 @@ def stub_oclc(fixture:, url:, token:, oclc_num:, desired_status:)
     to_return(status: desired_status, body: data)
 end
 
-def stub_unsend(fixture:, url:, token:, oclc_num:, desired_status:)
+def stub_unset(fixture:, url:, token:, oclc_num:, desired_status:)
   file = File.open("#{FIXTURE_DIR}/#{fixture}")
   data = File.read(file)
   stub_request(:post, "#{url}/manage/institution/holdings/#{oclc_num}/unset").
