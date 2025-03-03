@@ -44,7 +44,7 @@ marc_reader = MARC::XMLReader.new("#{output_dir}/653_replaced.marcxml", parser: 
 marc_reader.each do |record|
   changed_mmsids << record['001'].value
   record.fields('653').each do |f|
-    term = f['a'].strip
+    term = f.to_s.strip
     term_hash[term] ||= { before_count: 0, after_count: 0 }
     term_hash[term][:after_count] += 1
   end
@@ -53,7 +53,7 @@ end
 marc_reader = MARC::XMLReader.new("#{output_dir}/653_original.marcxml", parser: 'magic', ignore_namespace: true)
 marc_reader.each do |record|
   record.fields('653').each do |f|
-    term = f['a'].strip
+    term = f.to_s.strip
     term_hash[term] ||= { before_count: 0, after_count: 0 }
     term_hash[term][:before_count] += 1
     term_hash[term][:after_count] += 1 unless changed_mmsids.include?(record['001'].value)
