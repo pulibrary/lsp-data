@@ -1,0 +1,9 @@
+{
+  "controlNumber": "1",
+  "requestedControlNumber": "1",
+  "institutionCode": "1",
+  "institutionSymbol": "LIB",
+  "success": true,
+  "message": "Unset Holdings Succeeded.",
+  "action": "Unset Holdings"
+}

@@ -1,0 +1,9 @@
+{
+  "controlNumber": "1",
+  "requestedControlNumber": "1",
+  "institutionCode": "1",
+  "institutionSymbol": "LIB",
+  "success": false,
+  "message": "WorldCat Holding already unset.",
+  "action": "Unset Holdings"
+}
