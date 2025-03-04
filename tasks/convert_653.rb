@@ -2,7 +2,6 @@
 
 require_relative './../lib/lsp-data'
 require 'CSV'
-require 'byebug'
 
 input_dir = ENV['DATA_INPUT_DIR']
 output_dir = ENV['DATA_OUTPUT_DIR']
