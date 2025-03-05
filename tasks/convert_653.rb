@@ -33,6 +33,7 @@ marc_writer = MARC::XMLWriter.new("#{output_dir}/653_replaced.marcxml")
 marc_reader.each do |record|
   count_653_before = record.fields('653').size
   record = MarcCleanup.replace_fields(field_array: replacements, record: record)
+  record = MarcCleanup.remove_duplicate_fields(record)
   marc_writer.write(record) if count_653_before != record.fields('653').size
 end
 marc_writer.close
