@@ -1,0 +1,152 @@
+{
+    "number": "POL-1",
+    "status": {
+      "value": "CLOSED",
+      "desc": "Closed"
+    },
+    "owner": {
+      "value": "techserv",
+      "desc": "Technical Services"
+    },
+    "type": {
+      "value": "PRINTED_BOOK_OT",
+      "desc": "Print Book - One Time"
+    },
+    "vendor": {
+      "value": "PBG",
+      "desc": "PBG Library Services"
+    },
+    "rush": false,
+    "price": {
+      "sum": "180.0",
+      "currency": {
+        "value": "USD",
+        "desc": "US Dollar"
+      }
+    },
+    "discount": "15.0",
+    "portfolios": {
+      "portfolio": [],
+      "total_record_count": 0
+    },
+    "license": {
+      "value": "",
+      "desc": ""
+    },
+    "url": "",
+    "vendor_account": "31",
+    "reclaim_interval": "0",
+    "expected_receipt_interval": "0",
+    "claiming_interval": "120",
+    "acquisition_method": {
+      "value": "PURCHASE",
+      "desc": "Purchase"
+    },
+    "no_charge": false,
+    "cancellation_restriction": false,
+    "vendor_reference_number": "03142025",
+    "source_type": {
+      "value": "IMPORT_EOD",
+      "desc": "Import EOD"
+    },
+    "po_number": "PO-11",
+    "additional_order_reference": "",
+    "invoice_reference": "24",
+    "resource_metadata": {
+      "title": "the art of pizza.",
+      "author": "",
+      "isbn": "",
+      "publisher": "",
+      "mms_id": {
+        "value": "9912344",
+        "link": "https://api-na.hosted.exlibrisgroup.com/almaws/v1/bibs/9912344"
+      },
+      "publication_place": "New York :",
+      "publication_year": "2024",
+      "vendor_title_number": "",
+      "system_control_number": [
+        ""
+      ]
+    },
+    "fund_distribution": [
+      {
+        "amount": {
+          "sum": "153.0",
+          "currency": {
+            "value": "USD",
+            "desc": "US Dollar"
+          }
+        },
+        "fund_code": {
+          "value": "Sociology",
+          "desc": "Sociology"
+        }
+      }
+    ],
+    "reporting_code": "3333",
+    "secondary_reporting_code": "",
+    "tertiary_reporting_code": "",
+    "fourth_reporting_code": "",
+    "fifth_reporting_code": "",
+    "vendor_note": "",
+    "receiving_note": "",
+    "alert": [
+      {
+        "value": "",
+        "desc": "The ordered resource already exists in the Inventory:  1 copies in library: Firestone Library."
+      },
+      {
+        "value": "",
+        "desc": "Poline created By EOD"
+      }
+    ],
+    "note": [
+      {
+        "note_text": "Non Shelf Ready Print Firm Order",
+        "creation_date": "2025-01-24Z",
+        "created_by": "System"
+      }
+    ],
+    "location": [
+      {
+        "quantity": 1,
+        "library": {
+          "value": "water",
+          "desc": "water"
+        },
+        "shelving_location": "stacks",
+        "holding": [
+          {
+            "id": "2212344",
+            "link": "https://api-na.hosted.exlibrisgroup.com/almaws/v1/bibs/9912344/holdings/2212344"
+          }
+        ],
+        "copy": [
+          {
+            "pid": "23212344",
+            "barcode": "barcode",
+            "item_policy": {
+              "value": "Gen",
+              "desc": "Gen"
+            },
+            "receive_date": "2025-03-11Z",
+            "expected_arrival_date": "2025-01-24Z",
+            "link": "https://api-na.hosted.exlibrisgroup.com/almaws/v1/bibs/9912344/holdings/2212344/items/2312344"
+          }
+        ]
+      }
+    ],
+    "base_status": "",
+    "access_provider": "",
+    "manual_renewal": false,
+    "renewal_cycle": {},
+    "renewal_period": 0,
+    "renewal_note": "",
+    "material_type": {
+      "value": "BOOK",
+      "desc": "Book"
+    },
+    "created_date": "2025-01-24Z",
+    "status_date": "2025-03-11Z",
+    "expected_receipt_date": "2025-01-23Z"
+  }
