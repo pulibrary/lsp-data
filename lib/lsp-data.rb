@@ -17,4 +17,5 @@ require_relative 'lsp-data/oclc_oauth'
 require_relative 'lsp-data/oclc_retrieve'
 require_relative 'lsp-data/oclc_unset'
 require_relative 'lsp-data/pol_receive'
+require_relative 'lsp-data/api_po_line'
 include LspData
