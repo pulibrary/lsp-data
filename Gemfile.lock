@@ -1,9 +1,9 @@
 GIT
   remote: https://github.com/pulibrary/marc_cleanup.git
-  revision: dae18c9126819116a82b893f8cde89a2906e70e0
-  tag: v0.9.5
+  revision: 7a7efbd92e1e55796146f75d5ae2d716e302a2c6
+  tag: v1.0.0
   specs:
-    marc_cleanup (0.9.5)
+    marc_cleanup (1.0.0)
       marc (~> 1.0)
       nokogiri
       unf (= 0.1.4)

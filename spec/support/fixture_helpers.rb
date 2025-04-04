@@ -68,3 +68,9 @@ def stub_json_fixture(fixture:)
   data = File.read(file)
   JSON.parse(data)
 end
+
+def stub_bib_record(fixture)
+  file = File.open("#{FIXTURE_DIR}/#{fixture}")
+  reader = MARC::XMLReader.new(file, parser: 'magic')
+  reader.first
+end
