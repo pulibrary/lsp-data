@@ -1,0 +1,84 @@
+{
+  "id": "53101234",
+  "is_local": true,
+  "is_standalone": false,
+  "resource_metadata": {
+    "title": "Zhu zi ping yi bu lu /",
+    "mms_id": {
+      "value": "99101234",
+      "link": "https://api-na.hosted.exlibrisgroup.com/almaws/v1/bibs/99101234"
+    }
+  },
+  "electronic_collection": {
+    "id": {
+      "value": "61101234",
+      "link": "https://api-na.hosted.exlibrisgroup.com/almaws/v1/electronic/e-collections/61101234"
+    },
+    "service": {
+      "value": "62101234",
+      "link": "https://api-na.hosted.exlibrisgroup.com/almaws/v1/electronic/e-collections/61101234/e-services/62101234"
+    }
+  },
+  "availability": {
+    "value": "11",
+    "desc": "Available"
+  },
+  "material_type": {
+    "value": "BOOK",
+    "desc": "Book"
+  },
+  "activation_date": "2021-08-10Z",
+  "library": {
+    "value": ""
+  },
+  "access_type": {},
+  "counter_platform": {
+    "value": ""
+  },
+  "linking_details": {
+    "url": "jkey=https://url.url.com/id=1",
+    "url_type": {
+      "value": "static"
+    },
+    "url_type_override": {
+      "value": "param"
+    },
+    "dynamic_url": "",
+    "dynamic_url_override": "",
+    "static_url": "jkey=https://url.url.com/id=1",
+    "static_url_override": "",
+    "parser_parameters": "",
+    "parser_parameters_override": "",
+    "proxy_enabled": {
+      "value": "false",
+      "desc": "No"
+    },
+    "proxy": ""
+  },
+  "coverage_details": {
+    "coverage_in_use": {
+      "value": "0",
+      "desc": "Only local"
+    },
+    "global_date_coverage_parameters": [],
+    "local_date_coverage_parameters": [],
+    "perpetual_date_coverage_parameters": []
+  },
+  "po_line": {
+    "value": ""
+  },
+  "public_access_model": {
+    "value": ""
+  },
+  "license": {
+    "value": ""
+  },
+  "pda": {
+    "value": "",
+    "link": ""
+  },
+  "authentication_note": "",
+  "public_note": "諸子平議補録",
+  "internal_description": "諸子平議補録",
+  "link": "https://api-na.hosted.exlibrisgroup.com/almaws/v1/bibs/99101234/portfolios/53101234"
+}
