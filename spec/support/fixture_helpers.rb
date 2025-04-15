@@ -22,6 +22,25 @@ def stub_receive_response(pol:, item_id:, fixture:, status:)
     to_return(status: status, body:data)
 end
 
+def stub_get_portfolio_response(mms_id:, portfolio_id:, fixture:)
+  file = File.open("#{FIXTURE_DIR}/#{fixture}")
+  data = File.read(file)
+  stub_request(:get, "https://api-na.exlibrisgroup.com/almaws/v1/bibs/#{mms_id}/portfolios/#{portfolio_id}?apikey=apikey")
+    .to_return(status: 200, body: data)
+end
+
+def stub_put_portfolio_response(mms_id:, portfolio_id:, fixture:, status:)
+  body = stub_json_fixture(fixture: fixture)
+  url = "https://api-na.exlibrisgroup.com/almaws/v1/bibs/#{mms_id}/portfolios/#{portfolio_id}?apikey=apikey"
+  stub_request(:put, url)
+    .with(body: body.to_json, headers: {
+      'Accept' => 'application/json',
+      'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+      'Content-Type' => 'application/json',
+      'User-Agent' => 'Faraday v1.10.4' })
+    .to_return(status: status, body: body.to_json)
+end
+
 def stub_oauth(fixture:, url:, scope:)
   file = File.open("#{FIXTURE_DIR}/#{fixture}")
   data = File.read(file)

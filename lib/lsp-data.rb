@@ -20,4 +20,6 @@ require_relative 'lsp-data/pol_receive'
 require_relative 'lsp-data/api_po_line'
 require_relative 'lsp-data/google_record_transform'
 require_relative 'lsp-data/google_export'
+require_relative 'lsp-data/api_retrieve_portfolio'
+require_relative 'lsp-data/api_update_portfolio'
 include LspData
