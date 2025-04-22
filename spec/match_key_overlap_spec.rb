@@ -101,6 +101,24 @@ RSpec.describe 'get_format_character' do
       expect(LspData.get_format_character(record)).to eq 'e'
     end
   end
+
+  context '337$a indicates an electronic resource' do
+    let(:record) { MARC::Record.new_from_hash('fields' => fields, 'leader' => leader) }
+    let(:fields) do
+      [
+        { '337' => { 'ind1' => ' ',
+                     'ind2' => ' ',
+                     'subfields' => [
+                       { 'a' => 'computer' },
+                       { 'b' => 'c'}
+                     ] } }
+      ]
+    end
+    it 'identifies the record as electronic' do
+      expect(LspData.get_format_character(record)).to eq 'e'
+    end
+  end
+
   context '007 format is computer file' do
     let(:record) { MARC::Record.new_from_hash('fields' => fields, 'leader' => leader) }
     let(:fields) { [{ '007' => 'C' }] }
@@ -216,40 +234,6 @@ RSpec.describe 'get_title_key' do
     end
   end
 end
-RSpec.describe 'get_gmd_key' do
-  let(:leader) { '01104naa a2200289 i 4500' }
-  context '245$h has [test]' do
-    let(:record) { MARC::Record.new_from_hash('fields' => fields, 'leader' => leader) }
-    let(:fields) do
-      [
-        { '245' => { 'ind1' => '0',
-                     'ind2' => ' ',
-                     'subfields' => [
-                       { 'a' => 'record' },
-                       { 'h' => '[test]' }
-                     ] } }
-      ]
-    end
-    it 'returns "test" padded to 5 characters' do
-      expect(LspData.get_gmd_key(record)).to eq 'test_'
-    end
-  end
-  context '245$h does not exist' do
-    let(:record) { MARC::Record.new_from_hash('fields' => fields, 'leader' => leader) }
-    let(:fields) do
-      [
-        { '245' => { 'ind1' => '0',
-                     'ind2' => ' ',
-                     'subfields' => [
-                       { 'a' => 'record' }
-                     ] } }
-      ]
-    end
-    it 'returns 5 underscores' do
-      expect(LspData.get_gmd_key(record)).to eq '_____'
-    end
-  end
-end
 RSpec.describe 'get_pub_date_key' do
   let(:record) { MARC::Record.new_from_hash('fields' => fields, 'leader' => leader) }
   let(:leader) { '01104nam a2200289 i 4500' }
@@ -263,6 +247,18 @@ RSpec.describe 'get_pub_date_key' do
       expect(LspData.get_pub_date_key(record)).to eq '1984'
     end
   end
+
+  context 'record has valid date2 in 008 that specifies a reprint' do
+    let(:fields) do
+      [
+        { '008' => '111111r19861984' }
+      ]
+    end
+    it 'returns date1 from 008' do
+      expect(LspData.get_pub_date_key(record)).to eq '1986'
+    end
+  end
+
   context 'record has invalid date2 in 008 and no 26x' do
     let(:fields) do
       [
@@ -455,8 +451,8 @@ RSpec.describe 'get_edition_key' do
                      ] } }
       ]
     end
-    it 'returns 3 underscores' do
-      expect(LspData.get_edition_key(record)).to eq '___'
+    it 'returns first edition key padded with underscores' do
+      expect(LspData.get_edition_key(record)).to eq '1__'
     end
   end
   context 'record has 250a with numbers 1-3 in word form' do
@@ -867,7 +863,7 @@ RSpec.describe 'get_match_key' do
     ]
   end
   let(:match_key) do
-    'this_is_a_record___________________________________________________________00002001________a___________________________________________________________________________1p'
+    'this_is_a_record______________________________________________________000020011_______a___________________________________________________________________________1p'
   end
   it 'returns a complete match key' do
     expect(LspData.get_match_key(record)).to eq match_key
