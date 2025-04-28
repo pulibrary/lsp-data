@@ -126,7 +126,7 @@ token_url = 'https://oauth.oclc.org/token'
 client_id = ENV['METADATA_API_ID']
 client_secret = ENV['METADATA_API_SECRET']
 scope = 'WorldCatMetadataAPI'
-oauth = OCLCOAuth.new(client_id: client_id,
+oauth = OAuth.new(client_id: client_id,
                       client_secret: client_secret,
                       url: token_url,
                       scope: scope)
@@ -139,7 +139,7 @@ oclc_only.each do |oclc_num|
   next if responses[oclc_num]
 
   if Time.now > (oauth_response[:expiration] - 60)
-    oauth = OCLCOAuth.new(client_id: client_id,
+    oauth = OAuth.new(client_id: client_id,
                           client_secret: client_secret,
                           url: token_url,
                           scope: scope)
