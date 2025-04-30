@@ -3,15 +3,15 @@
 require 'base64'
 
 module LspData
-  ### This class encapsulates OAuth authentication for OCLC. An instance of the class
+  ### This class encapsulates OAuth authentication. An instance of the class
   ###   will return the following elements:
   ###     1. Authentication token (return nil if unable to authenticate)
   ###     2. API Status Code
   ###     3. Expiration of token (return nil if unable to authenticate)
-  class OCLCOAuth
+  class OAuth
     attr_reader :client_id, :client_secret, :url, :scope, :response
 
-    def initialize(client_id:, client_secret:, url:, scope:)
+    def initialize(client_id:, client_secret:, url:, scope: nil)
       @client_id = client_id
       @client_secret = client_secret
       @url = url
@@ -31,7 +31,7 @@ module LspData
         req.headers['Accept'] = 'application/json'
         req.headers['Authorization'] = "Basic #{authorization}"
         req.params['grant_type'] = 'client_credentials'
-        req.params['scope'] = scope
+        req.params['scope'] = scope if scope
       end
     end
 
