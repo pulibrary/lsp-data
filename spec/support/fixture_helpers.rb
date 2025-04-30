@@ -88,6 +88,11 @@ def stub_json_fixture(fixture:)
   JSON.parse(data)
 end
 
+def stub_xml_fixture(fixture:)
+  file = "#{FIXTURE_DIR}/#{fixture}"
+  File.open(file) { |f| Nokogiri::XML(f) }
+end
+
 def stub_bib_record(fixture)
   file = File.open("#{FIXTURE_DIR}/#{fixture}")
   reader = MARC::XMLReader.new(file, parser: 'magic')
