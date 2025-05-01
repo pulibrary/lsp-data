@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<users>
+  <user>
+    <expiry_date>2026-08-01</expiry_date>
+    <purge_date>2027-08-01</purge_date>
+    <status>INACTIVE</status>
+    <user_statistics>
+      <user_statistic segment_type="External">
+        <statistic_category desc="EM">EM</statistic_category>
+      </user_statistic>
+    </user_statistics>
+    <user_group>P</user_group>
+    <primary_id>123456789</primary_id>
+    <first_name>First</first_name>
+    <last_name>Last</last_name>
+    <middle_name>Middle</middle_name>
+    <contact_info>
+      <addresses>
+        <address preferred="true" segment_type="External">
+          <line1>Physics</line1>
+          <line2>Physics Hall, Room 102</line2>
+          <city>Princeton</city>
+          <state_province>NJ</state_province>
+          <postal_code/>
+          <country>USA</country>
+          <address_types>
+            <address_type desc="work">work</address_type>
+          </address_types>
+        </address>
+        <address preferred="false" segment_type="External">
+          <line1>Address 1</line1>
+          <city>Home</city>
+          <state_province>NJ</state_province>
+          <postal_code/>
+          <country>USA</country>
+          <address_types>
+            <address_type desc="home">home</address_type>
+          </address_types>
+        </address>
+      </addresses>
+      <emails>
+        <email preferred="true" segment_type="External">
+          <email_address>email@princeton.edu</email_address>
+          <email_types>
+            <email_type desc="Work">work</email_type>
+          </email_types>
+        </email>
+      </emails>
+    </contact_info>
+    <user_identifiers>
+      <user_identifier segment_type="External">
+        <value>22101123456789</value>
+        <id_type desc="Barcode">BARCODE</id_type>
+        <status>ACTIVE</status>
+      </user_identifier>
+      <user_identifier segment_type="External">
+        <value>id12</value>
+        <id_type desc="NetID">NET_ID</id_type>
+        <status>ACTIVE</status>
+      </user_identifier>
+    </user_identifiers>
+  </user>
+</users>
