@@ -39,10 +39,10 @@
         </address>
       </addresses>
       <emails>
-        <email preferred="true" segment_type="External">
-          <email_address>email@princeton.edu</email_address>
+        <email preferred="false" segment_type="External">
+          <email_address>email@institution.edu</email_address>
           <email_types>
-            <email_type desc="Work">work</email_type>
+            <email_type desc="Personal">personal</email_type>
           </email_types>
         </email>
       </emails>
