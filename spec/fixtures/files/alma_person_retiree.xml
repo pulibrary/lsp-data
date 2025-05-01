@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
 <users>
   <user>
-    <expiry_date>2026-08-01</expiry_date>
-    <purge_date>2027-08-01</purge_date>
     <status>INACTIVE</status>
     <user_statistics>
       <user_statistic segment_type="External">
         <statistic_category desc="EM">EM</statistic_category>
       </user_statistic>
     </user_statistics>
+    <expiry_date>2026-08-01</expiry_date>
+    <purge_date>2027-08-01</purge_date>
     <user_group>P</user_group>
     <primary_id>123456789</primary_id>
     <first_name>First</first_name>

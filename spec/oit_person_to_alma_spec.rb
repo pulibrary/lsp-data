@@ -2,6 +2,7 @@
 
 require_relative './../lib/lsp-data'
 require 'spec_helper'
+require 'byebug'
 
 RSpec.describe LspData::OitPersonToAlma do
   subject(:person) do
@@ -16,7 +17,7 @@ RSpec.describe LspData::OitPersonToAlma do
     it 'transforms the person into an Alma person' do
       builder = Nokogiri::XML::Builder.new do |xml|
         xml.users do
-          OitPersonToAlma.new(person: person, xml: xml).convert
+          OitPersonToAlma.new(person: person, xml: xml).alma_person
         end
       end
       expect(builder.to_xml).to eq alma_xml.to_xml
@@ -31,7 +32,7 @@ RSpec.describe LspData::OitPersonToAlma do
     it 'transforms the person into an inactive Alma person' do
       builder = Nokogiri::XML::Builder.new do |xml|
         xml.users do
-          OitPersonToAlma.new(person: person, xml: xml).convert
+          OitPersonToAlma.new(person: person, xml: xml).alma_person
         end
       end
       expect(builder.to_xml).to eq alma_xml.to_xml
@@ -46,7 +47,7 @@ RSpec.describe LspData::OitPersonToAlma do
     it 'transforms the person into an inactive Alma person' do
       builder = Nokogiri::XML::Builder.new do |xml|
         xml.users do
-          OitPersonToAlma.new(person: person, xml: xml).convert
+          OitPersonToAlma.new(person: person, xml: xml).alma_person
         end
       end
       expect(builder.to_xml).to eq alma_xml.to_xml
