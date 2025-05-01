@@ -22,4 +22,5 @@ require_relative 'lsp-data/google_record_transform'
 require_relative 'lsp-data/google_export'
 require_relative 'lsp-data/api_retrieve_portfolio'
 require_relative 'lsp-data/api_update_portfolio'
+require_relative 'lsp-data/api_retrieve_po_line'
 include LspData

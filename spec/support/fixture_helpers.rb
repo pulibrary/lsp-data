@@ -29,6 +29,13 @@ def stub_get_portfolio_response(mms_id:, portfolio_id:, fixture:)
     .to_return(status: 200, body: data)
 end
 
+def stub_get_po_line_response(pol_id:, fixture:)
+  file = File.open("#{FIXTURE_DIR}/#{fixture}")
+  data = File.read(file)
+  stub_request(:get, "https://api-na.exlibrisgroup.com/almaws/v1/acq/po-lines/#{pol_id}?apikey=apikey")
+    .to_return(status: 200, body: data)
+end
+
 def stub_put_portfolio_response(mms_id:, portfolio_id:, fixture:, status:)
   body = stub_json_fixture(fixture: fixture)
   url = "https://api-na.exlibrisgroup.com/almaws/v1/bibs/#{mms_id}/portfolios/#{portfolio_id}?apikey=apikey"
