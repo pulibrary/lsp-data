@@ -38,9 +38,9 @@ RSpec.describe LspData::OitPersonToAlma do
     end
   end
 
-  context 'Person is an inactive graduate student' do
-    let(:oit_fixture) { 'oit_person_grad_ineligible.json' }
-    let(:alma_fixture) { 'alma_person_grad_ineligible.xml' }
+  context 'Person is an inactive undergraduate student' do
+    let(:oit_fixture) { 'oit_person_ugrd_ineligible.json' }
+    let(:alma_fixture) { 'alma_person_ugrd_ineligible.xml' }
     let(:person) { stub_json_fixture(fixture: oit_fixture) }
     let(:alma_xml) { stub_xml_fixture(fixture: alma_fixture) }
     it 'transforms the person into an inactive Alma person' do

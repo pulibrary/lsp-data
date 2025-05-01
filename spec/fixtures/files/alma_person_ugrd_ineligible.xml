@@ -6,10 +6,10 @@
     <status>INACTIVE</status>
     <user_statistics>
       <user_statistic segment_type="External">
-        <statistic_category desc="G5">G5</statistic_category>
+        <statistic_category desc="24">24</statistic_category>
       </user_statistic>
     </user_statistics>
-    <user_group>GRAD</user_group>
+    <user_group>UGRD</user_group>
     <primary_id>123456789</primary_id>
     <first_name>First</first_name>
     <last_name>Last</last_name>
@@ -17,21 +17,21 @@
     <contact_info>
       <addresses>
         <address preferred="true" segment_type="External">
-          <line1>Physics</line1>
-          <line2>Physics Hall, Room 102</line2>
+          <line1>1 Dorm Hall</line1>
           <city>Princeton</city>
           <state_province>NJ</state_province>
-          <postal_code/>
+          <postal_code>08544</postal_code>
           <country>USA</country>
           <address_types>
-            <address_type desc="work">work</address_type>
+            <address_type desc="school">school</address_type>
           </address_types>
         </address>
         <address preferred="false" segment_type="External">
-          <line1>Address 1</line1>
-          <city>Home</city>
+          <line1>1 1st St</line1>
+          <line2>Apt. 5</line1>
+          <city>Anywhere</city>
           <state_province>NJ</state_province>
-          <postal_code/>
+          <postal_code>08123</postal_code>
           <country>USA</country>
           <address_types>
             <address_type desc="home">home</address_type>

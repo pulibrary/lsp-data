@@ -62,14 +62,14 @@ module LspData
       xml.addresses do
         if ["UGRD", "SENR"].include?(person["PVPATRONGROUP"])
           create_address(type: "school", preferred: true, line1: person["DORM_ADDRESS1"], line2: person["DORM_ADDRESS2"], line3: person["DORM_ADDRESS3"],
-                         line4: person["DORM_ADDRESS4"], city: person["DORM_CITY"], state: person["DORM_STATE"], country: person["DORM_COUNTRY"], postal: person["DORM_postal"])
+                         line4: person["DORM_ADDRESS4"], city: person["DORM_CITY"], state: person["DORM_STATE"], country: person["DORM_COUNTRY"], postal: person["DORM_POSTAL"])
           create_address(type: "home", preferred: person["DORM_ADDRESS1"].to_s.empty?, line1: person["PERM_ADDRESS1"], line2: person["PERM_ADDRESS2"], line3: person["PERM_ADDRESS3"],
-                         line4: person["PERM_ADDRESS4"], city: person["PERM_CITY"], state: person["PERM_STATE"], country: person["PERM_COUNTRY"], postal: person["PERM_postal"])
+                         line4: person["PERM_ADDRESS4"], city: person["PERM_CITY"], state: person["PERM_STATE"], country: person["PERM_COUNTRY"], postal: person["PERM_POSTAL"])
         else
           create_address(type: "work", preferred: true, line1: person["CAMP_ADDRESS1"], line2: person["CAMP_ADDRESS2"], line3: person["CAMP_ADDRESS3"],
-                         line4: person["CAMP_ADDRESS4"], city: person["CAMP_CITY"], state: person["CAMP_STATE"], country: person["CAMP_COUNTRY"], postal: person["CAMP_postal"])
+                         line4: person["CAMP_ADDRESS4"], city: person["CAMP_CITY"], state: person["CAMP_STATE"], country: person["CAMP_COUNTRY"], postal: person["CAMP_POSTAL"])
           create_address(type: "home", preferred: person["CAMP_ADDRESS1"].to_s.empty?, line1: person["HOME_ADDRESS1"], line2: person["HOME_ADDRESS2"], line3: person["HOME_ADDRESS3"],
-                         line4: person["HOME_ADDRESS4"], city: person["HOME_CITY"], state: person["HOME_STATE"], country: person["HOME_COUNTRY"], postal: person["HOME_postal"])
+                         line4: person["HOME_ADDRESS4"], city: person["HOME_CITY"], state: person["HOME_STATE"], country: person["HOME_COUNTRY"], postal: person["HOME_POSTAL"])
         end
       end
     end
