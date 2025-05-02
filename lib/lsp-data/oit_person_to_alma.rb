@@ -14,8 +14,8 @@ module LspData
 
     def alma_person
       xml.user do
-        create_status(status_flag: person['ELIGIBLE_INELIGIBLE'])
-        create_user_statistics(statistic_category: person['PVSTATCATEGORY'])
+        create_status
+        create_user_statistics
         create_user_info
         create_contact_information
         create_identifiers
@@ -38,14 +38,13 @@ module LspData
 
     def create_user_info
       user_info.each do |key, value|
-        next unless value
-
-        xml << "<#{key}>#{value}<\/#{key}>"
+        xml << "<#{key}>#{value}<\/#{key}>" if value
       end
     end
 
-    def create_status(status_flag:)
-      return if status_flag.to_s.empty?
+    def create_status
+      status_flag = person['ELIGIBLE_INELIGIBLE'].to_s
+      return if status_flag.empty?
 
       if status_flag == 'E' && not_a_retiree?
         xml.status 'ACTIVE'
@@ -54,8 +53,9 @@ module LspData
       end
     end
 
-    def create_user_statistics(statistic_category:)
-      return if statistic_category.to_s.empty?
+    def create_user_statistics
+      statistic_category = person['PVSTATCATEGORY'].to_s
+      return if statistic_category.empty?
 
       xml.user_statistics do
         xml.user_statistic(segment_type: 'External') do
@@ -99,17 +99,18 @@ module LspData
 
     def create_emails
       xml.emails do
-        create_email(email: person['CAMP_EMAIL'], preferred: true, type: 'work', description: 'Work')
-        if person['CAMP_EMAIL'].to_s.empty?
-          create_email(email: person['HOME_EMAIL'], preferred: false, type: 'personal',
+        camp_email = person['CAMP_EMAIL'].to_s
+        if camp_email.empty?
+          create_email(email: person['HOME_EMAIL'].to_s, preferred: false, type: 'personal',
                        description: 'Personal')
+        else
+          create_email(email: camp_email, preferred: true, type: 'work',
+                       description: 'Work')
         end
       end
     end
 
     def create_email(email:, preferred:, type:, description:)
-      return if email.to_s.empty?
-
       xml.email(preferred:, segment_type: 'External') do
         xml.email_address email
         xml.email_types do
@@ -120,7 +121,7 @@ module LspData
 
     def create_identifiers
       xml.user_identifiers do
-        create_identifier(type: 'BARCODE', id: person['PU_BARCODE'], description: 'Barcode') if person['PU_BARCODE']
+        create_identifier(type: 'BARCODE', id: person['PU_BARCODE'], description: 'Barcode')
         create_identifier(type: 'NET_ID', id: person['CAMPUS_ID'], description: 'NetID')
       end
     end
@@ -149,7 +150,7 @@ module LspData
 
     def address_info(address_prefix)
       {
-        'line1' => person["#{address_prefix}_ADDRESS1"],
+        'line1' => person["#{address_prefix}_ADDRESS1"].to_s,
         'line2' => person["#{address_prefix}_ADDRESS2"],
         'line3' => person["#{address_prefix}_ADDRESS3"],
         'line4' => person["#{address_prefix}_ADDRESS4"],
@@ -162,7 +163,7 @@ module LspData
 
     def create_address(type:, preferred:)
       address_prefix = address_prefix(type)
-      return if person["#{address_prefix}_ADDRESS1"].to_s.empty?
+      return if person["#{address_prefix}_ADDRESS1"].empty?
 
       xml.address(preferred:, segment_type: 'External') do
         address_info(address_prefix).each do |key, value|
