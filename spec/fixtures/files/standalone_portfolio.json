@@ -1,0 +1,85 @@
+{
+  "id": "53101234",
+  "is_local": true,
+  "is_standalone": true,
+  "resource_metadata": {
+    "title": "0 yŏng zero yŏng : Kim Sa-gwa sosŏl.",
+    "mms_id": {
+      "value": "99101234",
+      "link": "https://api-na.hosted.exlibrisgroup.com/almaws/v1/bibs/99101234"
+    }
+  },
+  "electronic_collection": {
+    "id": {
+      "value": ""
+    },
+    "service": {
+      "value": ""
+    }
+  },
+  "availability": {
+    "value": "11",
+    "desc": "Available"
+  },
+  "material_type": {
+    "value": "BOOK",
+    "desc": "Book"
+  },
+  "expected_activation_date": "2022-11-11Z",
+  "library": {
+    "value": ""
+  },
+  "access_type": {},
+  "counter_platform": {
+    "value": ""
+  },
+  "linking_details": {
+    "url": "jkey=https://url.url.com/id=1",
+    "url_type": {
+      "value": "static"
+    },
+    "url_type_override": {
+      "value": "param"
+    },
+    "dynamic_url": "",
+    "dynamic_url_override": "",
+    "static_url": "jkey=https://url.url.com/id=1",
+    "static_url_override": "",
+    "parser_parameters": "",
+    "parser_parameters_override": "",
+    "proxy_enabled": {
+      "value": "true",
+      "desc": "Yes"
+    },
+    "proxy": "DEFAULT"
+  },
+  "coverage_details": {
+    "coverage_in_use": {
+      "value": ""
+    },
+    "global_date_coverage_parameters": [],
+    "local_date_coverage_parameters": [],
+    "perpetual_date_coverage_parameters": []
+  },
+  "po_line": {
+    "value": "POL-1",
+    "link": "https://api-na.hosted.exlibrisgroup.com/almaws/v1/acq/po-lines/POL-1"
+  },
+  "public_access_model": {
+    "value": ""
+  },
+  "license": {
+    "value": ""
+  },
+  "interface": {
+    "name": ""
+  },
+  "pda": {
+    "value": "",
+    "link": ""
+  },
+  "authentication_note": "",
+  "public_note": "",
+  "internal_description": "",
+  "link": "https://api-na.hosted.exlibrisgroup.com/almaws/v1/bibs/99101234/portfolios/53101234"
+}
