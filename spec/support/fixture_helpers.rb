@@ -48,17 +48,19 @@ def stub_put_portfolio_response(mms_id:, portfolio_id:, fixture:, status:)
     .to_return(status: status, body: body.to_json)
 end
 
-def stub_oauth(fixture:, url:, scope:)
+def stub_oauth(fixture:, url:, scope: nil)
   file = File.open("#{FIXTURE_DIR}/#{fixture}")
   data = File.read(file)
-  stub_request(:post, "#{url}?grant_type=client_credentials&scope=#{scope}").
-    with(headers: {
+  params = 'grant_type=client_credentials'.dup
+  params << "&scope=#{scope}" if scope
+  stub_request(:post, "#{url}?#{params}")
+    .with(headers: {
       'Accept' => 'application/json',
       'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
       'Authorization' => 'Basic aWQ6c2VjcmV0',
       'Content-Length' => '0',
-      'User-Agent' => 'Faraday v1.10.4' }).
-    to_return(status: 200, body: data)
+      'User-Agent' => 'Faraday v1.10.4' })
+    .to_return(status: 200, body: data)
 end
 
 def stub_oclc(fixture:, url:, token:, oclc_num:, desired_status:)
@@ -93,6 +95,11 @@ def stub_json_fixture(fixture:)
   file = File.open("#{FIXTURE_DIR}/#{fixture}")
   data = File.read(file)
   JSON.parse(data)
+end
+
+def stub_xml_fixture(fixture:)
+  file = "#{FIXTURE_DIR}/#{fixture}"
+  File.open(file) { |f| Nokogiri::XML(f) }
 end
 
 def stub_bib_record(fixture)
