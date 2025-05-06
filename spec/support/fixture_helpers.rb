@@ -22,6 +22,13 @@ def stub_receive_response(pol:, item_id:, fixture:, status:)
     to_return(status: status, body:data)
 end
 
+def stub_get_po_line_response(pol_id:, fixture:)
+  file = File.open("#{FIXTURE_DIR}/#{fixture}")
+  data = File.read(file)
+  stub_request(:get, "https://api-na.exlibrisgroup.com/almaws/v1/acq/po-lines/#{pol_id}?apikey=apikey")
+    .to_return(status: 200, body: data)
+end
+
 def stub_get_portfolio_response(mms_id:, portfolio_id:, fixture:)
   file = File.open("#{FIXTURE_DIR}/#{fixture}")
   data = File.read(file)
