@@ -29,6 +29,21 @@ def stub_get_po_line_response(pol_id:, fixture:)
     .to_return(status: 200, body: data)
 end
 
+def stub_put_po_line_response(pol_id:, redistribute_funds:, update_inventory:, fixture:, status:)
+  body = stub_json_fixture(fixture: fixture)
+  file = File.open("#{FIXTURE_DIR}/#{fixture}")
+  data = File.read(file)
+  params = "apikey=apikey&redistribute_funds=#{redistribute_funds}&update_inventory=#{update_inventory}"
+  url = "https://api-na.exlibrisgroup.com/almaws/v1/acq/po-lines/#{pol_id}?#{params}"
+  stub_request(:put, url)
+    .with(body: body.to_json, headers: {
+      'Accept' => 'application/json',
+      'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+      'Content-Type' => 'application/json',
+      'User-Agent' => 'Faraday v1.10.4' })
+    .to_return(status: status, body: body.to_json)
+end
+
 def stub_get_portfolio_response(mms_id:, portfolio_id:, fixture:)
   file = File.open("#{FIXTURE_DIR}/#{fixture}")
   data = File.read(file)
