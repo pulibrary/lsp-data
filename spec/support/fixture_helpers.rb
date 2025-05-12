@@ -40,7 +40,7 @@ def stub_put_po_line_response(pol_id:, redistribute_funds:, update_inventory:, f
       'Accept' => 'application/json',
       'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
       'Content-Type' => 'application/json',
-      'User-Agent' => 'Faraday v1.10.4' })
+      'User-Agent' => 'Ruby' })
     .to_return(status: status, body: body.to_json)
 end
 

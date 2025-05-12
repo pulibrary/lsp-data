@@ -5,8 +5,7 @@ require 'spec_helper'
 
 RSpec.describe LspData::ApiUpdatePoLine do
   subject(:retrieval) do
-    described_class.new(pol_id: pol_id,
-                        pol: pol,
+    described_class.new(pol: pol,
                         api_key: api_key,
                         conn: conn)
   end
