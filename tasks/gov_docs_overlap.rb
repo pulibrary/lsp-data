@@ -15,7 +15,7 @@ File.open("#{output_dir}/marcive_match_keys.tsv", 'w') do |output|
   output.puts("MMS ID\tMatch Key")
   reader = MARC::XMLReader.new("#{input_dir}/marcive_bibs.xml", parser: 'magic', ignore_namespace: true)
   reader.each do |record|
-    match_key = LspData.get_match_key(record)
+    match_key = MarcMatchKey::Key.new(record).key
     output.puts("#{record['001'].value}\t#{match_key}")
   end
 end
@@ -23,7 +23,7 @@ File.open("#{output_dir}/gov_docs_match_keys.tsv", 'w') do |output|
   output.puts("MMS ID\tMatch Key")
   reader = MARC::XMLReader.new("#{input_dir}/gov_docs_bibs.xml", parser: 'magic', ignore_namespace: true)
   reader.each do |record|
-    match_key = LspData.get_match_key(record)
+    match_key = MarcMatchKey::Key.new(record).key
     output.puts("#{record['001'].value}\t#{match_key}")
   end
 end
@@ -140,7 +140,7 @@ Dir.glob("#{input_dir}/new_fulldump/fulldump*.xml*").each do |file|
     next unless e_inventory.positive?
 
     mms_id = record['001'].value
-    match_key = LspData.get_match_key(record)
+    match_key = MarcMatchKey::Key.new(record).key
     marcive_matches = marcive_match_keys[match_key]
     marcive_matches&.each do |marcive_bib|
       marcive_all_match_key_matches[marcive_bib] ||= []
