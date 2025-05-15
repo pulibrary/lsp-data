@@ -179,7 +179,7 @@ Dir.glob("#{input_dir}/new_fulldump/fulldump*.xml*").each do |file|
     locations = f852.map { |field| "#{field['b']}$#{field['c']}" }.uniq
     next unless (recap_locations & locations).size.positive?
 
-    match_key = LspData.get_match_key(record)
+    match_key = MarcMatchKey::Key.new(record).key
     record = field_delete_by_tags(record: record, tags: %w[grk])
     new_field = MARC::DataField.new('grd', ' ', ' ', MARC::Subfield.new('a', match_key))
     record.append(new_field)
@@ -206,7 +206,7 @@ Dir.glob("#{input_dir}/partners/cul/CUL_20250421_095200/*.xml").each do |file|
     date1 = record['008'].value[7..10].to_i
     next unless date1 > 2009
 
-    match_key = LspData.get_match_key(record)
+    match_key = MarcMatchKey::Key.new(record).key
     record = field_delete_by_tags(record: record, tags: %w[grk])
     new_field = MARC::DataField.new('grd', ' ', ' ', MARC::Subfield.new('a', match_key))
     record.append(new_field)
@@ -222,7 +222,7 @@ Dir.glob("#{input_dir}/partners/cul/CUL_20250415_070000/*.xml").each do |file|
     date1 = record['008'].value[7..10].to_i
     next unless date1 > 2009
 
-    match_key = LspData.get_match_key(record)
+    match_key = MarcMatchKey::Key.new(record).key
     record = field_delete_by_tags(record: record, tags: %w[grk])
     new_field = MARC::DataField.new('grd', ' ', ' ', MARC::Subfield.new('a', match_key))
     record.append(new_field)
@@ -242,7 +242,7 @@ Dir.glob("#{input_dir}/partners/hl/HL_20250421_091500/*.xml").each do |file|
     date1 = record['008'].value[7..10].to_i
     next unless date1 > 2009
 
-    match_key = LspData.get_match_key(record)
+    match_key = MarcMatchKey::Key.new(record).key
     record = field_delete_by_tags(record: record, tags: %w[grk])
     new_field = MARC::DataField.new('grd', ' ', ' ', MARC::Subfield.new('a', match_key))
     record.append(new_field)
@@ -258,7 +258,7 @@ Dir.glob("#{input_dir}/partners/hl/HL_20250415_230000/*.xml").each do |file|
     date1 = record['008'].value[7..10].to_i
     next unless date1 > 2009
 
-    match_key = LspData.get_match_key(record)
+    match_key = MarcMatchKey::Key.new(record).key
     record = field_delete_by_tags(record: record, tags: %w[grk])
     new_field = MARC::DataField.new('grd', ' ', ' ', MARC::Subfield.new('a', match_key))
     record.append(new_field)
@@ -278,7 +278,7 @@ Dir.glob("#{input_dir}/partners/nypl/NYPL_20250415_150000/*.xml").each do |file|
     date1 = record['008'].value[7..10].to_i
     next unless date1 > 2009
 
-    match_key = LspData.get_match_key(record)
+    match_key = MarcMatchKey::Key.new(record).key
     record = field_delete_by_tags(record: record, tags: %w[grk])
     new_field = MARC::DataField.new('grd', ' ', ' ', MARC::Subfield.new('a', match_key))
     record.append(new_field)
@@ -294,7 +294,7 @@ Dir.glob("#{input_dir}/partners/cul/NYPL_20250421_101000/*.xml").each do |file|
     date1 = record['008'].value[7..10].to_i
     next unless date1 > 2009
 
-    match_key = LspData.get_match_key(record)
+    match_key = MarcMatchKey::Key.new(record).key
     record = field_delete_by_tags(record: record, tags: %w[grk])
     new_field = MARC::DataField.new('grd', ' ', ' ', MARC::Subfield.new('a', match_key))
     record.append(new_field)
