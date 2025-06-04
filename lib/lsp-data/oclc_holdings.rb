@@ -4,7 +4,6 @@ module LspData
   ### This class retrieves holdings from the OCLC Search API for a given OCLC number
   ### when provided with an OAuth token, an API connection, and an OCLC number.
   ### You can optionally provide specific OCLC symbols.
-  ### API endpoint is https://americas.discovery.api.oclc.org/worldcat/search/v2
   ### An instance of the class will return the following elements:
   ###   1. OCLC Symbols of holding libraries [up to 10 returned]
   ###   2. API Status Code

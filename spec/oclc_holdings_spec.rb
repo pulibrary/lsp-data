@@ -16,11 +16,33 @@ RSpec.describe LspData::OCLCHoldings do
     let(:token) { 'abc' }
     let(:target_symbols) { nil }
     it 'returns holdings list and status code' do
-      stub_oclc_holdings(fixture: 'valid_oclc_holding.json', url: url, oclc_num: oclc_num, token: token, desired_status: 200)
-      stub_oclc_holdings(fixture: 'valid_oclc_holding_page_2.json', url: url, oclc_num: oclc_num, token: token, offset: 50, desired_status: 200)
+      stub_oclc_holdings(fixture: 'valid_oclc_holding.json',
+                         url: url,
+                         oclc_num: oclc_num,
+                         token: token, desired_status: 200)
+      stub_oclc_holdings(fixture: 'valid_oclc_holding_page_2.json',
+                         url: url,
+                         oclc_num: oclc_num,
+                         token: token, offset: 50, desired_status: 200)
       expect(retrieval.holdings[:status]).to eq 200
       expect(retrieval.holdings[:holdings].size).to eq 53
       expect(retrieval.holdings[:holdings]).to include('ABY')
+    end
+  end
+
+  context 'target symbols provided for valid number' do
+    let(:oclc_num) { '1' }
+    let(:token) { 'abc' }
+    let(:target_symbols) { %w[ABW ABX ABY ABZ] }
+    it 'returns holdings list and status code' do
+      stub_oclc_holdings(fixture: 'valid_oclc_holding_target_symbols.json',
+                         url: url,
+                         oclc_num: oclc_num,
+                         target_symbols: target_symbols,
+                         token: token, desired_status: 200)
+      expect(retrieval.holdings[:status]).to eq 200
+      expect(retrieval.holdings[:holdings].size).to eq 3
+      expect(retrieval.holdings[:holdings]).to eq(%w[ABX ABY ABZ])
     end
   end
 end
