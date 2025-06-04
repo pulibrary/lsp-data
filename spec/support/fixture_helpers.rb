@@ -92,6 +92,24 @@ def stub_oclc(fixture:, url:, token:, oclc_num:, desired_status:)
     to_return(status: desired_status, body: data)
 end
 
+def stub_oclc_holdings(fixture:, url:, token:, oclc_num:, desired_status:, target_symbols: nil, offset: nil)
+  file = File.open("#{FIXTURE_DIR}/#{fixture}")
+  data = File.read(file)
+  params = 'limit=50'.dup
+  params << "&oclcNumber=#{oclc_num}"
+  params << "&heldBySymbol=#{target_symbols.join(',')}" if target_symbols
+  params << "&offset=#{offset}" if offset
+  stub_request(:get, "#{url}/bibs-holdings?#{params}").
+    with(headers: {
+      'Accept' => 'application/json',
+      'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+      'Authorization' => "Bearer #{token}",
+      'Content-Type' => 'application/json',
+      'User-Agent' => 'Faraday v1.10.4'
+      }).
+    to_return(status: desired_status, body: data)
+end
+
 def stub_unset(fixture:, url:, token:, oclc_num:, desired_status:)
   file = File.open("#{FIXTURE_DIR}/#{fixture}")
   data = File.read(file)

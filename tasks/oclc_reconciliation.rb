@@ -122,17 +122,15 @@ File.open("#{output_dir}/oclc_nums_to_unset.txt", 'w') do |output|
 end
 
 ### Unset the holdings using the OCLC metadata API
-token_url = 'https://oauth.oclc.org/token'
 client_id = ENV['METADATA_API_ID']
 client_secret = ENV['METADATA_API_SECRET']
 scope = 'WorldCatMetadataAPI'
 oauth = OAuth.new(client_id: client_id,
                       client_secret: client_secret,
-                      url: token_url,
+                      url: OCLC_OAUTH_ENDPOINT,
                       scope: scope)
 oauth_response = oauth.response
-url = 'https://metadata.api.oclc.org/worldcat'
-conn = LspData.api_conn(url)
+conn = LspData.api_conn(METADATA_API_ENDPOINT)
 responses = {}
 
 oclc_only.each do |oclc_num|
