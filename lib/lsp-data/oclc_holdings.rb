@@ -32,7 +32,7 @@ module LspData
 
     def subsequent_holdings(number)
       all = []
-      1.upto(number).each do |_call|
+      1.upto(number).each do
         api_response = api_call(offset: (number * 50))
         break if api_response[:status] != 200
 
