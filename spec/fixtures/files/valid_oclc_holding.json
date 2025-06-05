@@ -1,0 +1,409 @@
+{
+    "numberOfRecords": 1,
+    "briefRecords": [
+        {
+            "oclcNumber": "1",
+            "institutionHolding": {
+                "totalHoldingCount": 55,
+                "totalEditions": 1,
+                "briefHoldings": [
+                    {
+                        "country": "US",
+                        "state": "US-DC",
+                        "oclcSymbol": "AAA",
+                        "registryId": 1,
+                        "institutionNumber": 1,
+                        "institutionName": "Name 1"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-DC",
+                        "registryId": 2,
+                        "institutionNumber": 2,
+                        "institutionName": "Name 2"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-OH",
+                        "oclcSymbol": "AAB",
+                        "registryId": 3,
+                        "institutionNumber": 3,
+                        "institutionName": "Name 3"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-IL",
+                        "oclcSymbol": "AAC",
+                        "registryId": 4,
+                        "institutionNumber": 4,
+                        "institutionName": "Name 4"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-IL",
+                        "oclcSymbol": "AAD",
+                        "registryId": 5,
+                        "institutionNumber": 5,
+                        "institutionName": "Name 5"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-CA",
+                        "oclcSymbol": "AAE",
+                        "registryId": 6,
+                        "institutionNumber": 6,
+                        "institutionName": "Name 6"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-FL",
+                        "oclcSymbol": "AAF",
+                        "registryId": 7,
+                        "institutionNumber": 7,
+                        "institutionName": "Name 7"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-IL",
+                        "oclcSymbol": "AAG",
+                        "registryId": 8,
+                        "institutionNumber": 8,
+                        "institutionName": "Name 8"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-MD",
+                        "oclcSymbol": "AAH",
+                        "registryId": 9,
+                        "institutionNumber": 9,
+                        "institutionName": "Name 9"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-HI",
+                        "oclcSymbol": "AAI",
+                        "registryId": 10,
+                        "institutionNumber": 10,
+                        "institutionName": "Name 10"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-NJ",
+                        "oclcSymbol": "AAJ",
+                        "registryId": 11,
+                        "institutionNumber": 11,
+                        "institutionName": "Name 11"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-FL",
+                        "oclcSymbol": "AAK",
+                        "registryId": 12,
+                        "institutionNumber": 12,
+                        "institutionName": "Name 12"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-NY",
+                        "oclcSymbol": "AAL",
+                        "registryId": 13,
+                        "institutionNumber": 13,
+                        "institutionName": "Name 13"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-NY",
+                        "oclcSymbol": "AAM",
+                        "registryId": 14,
+                        "institutionNumber": 14,
+                        "institutionName": "Name 14"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-CT",
+                        "oclcSymbol": "AAN",
+                        "registryId": 15,
+                        "institutionNumber": 15,
+                        "institutionName": "Name 15"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-FL",
+                        "oclcSymbol": "AAO",
+                        "registryId": 16,
+                        "institutionNumber": 16,
+                        "institutionName": "Name 16"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-TX",
+                        "oclcSymbol": "AAP",
+                        "registryId": 17,
+                        "institutionNumber": 17,
+                        "institutionName": "Name 17"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-NM",
+                        "oclcSymbol": "AAQ",
+                        "registryId": 18,
+                        "institutionNumber": 18,
+                        "institutionName": "Name 18"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-AR",
+                        "oclcSymbol": "AAR",
+                        "registryId": 19,
+                        "institutionNumber": 19,
+                        "institutionName": "Name 19"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-AZ",
+                        "oclcSymbol": "AAS",
+                        "registryId": 20,
+                        "institutionNumber": 20,
+                        "institutionName": "Name 20"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-OH",
+                        "oclcSymbol": "AAT",
+                        "registryId": 21,
+                        "institutionNumber": 21,
+                        "institutionName": "Name 21"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-MA",
+                        "oclcSymbol": "AAU",
+                        "registryId": 22,
+                        "institutionNumber": 22,
+                        "institutionName": "Name 22"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-NY",
+                        "oclcSymbol": "AAV",
+                        "registryId": 23,
+                        "institutionNumber": 23,
+                        "institutionName": "Name 23"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-OH",
+                        "oclcSymbol": "AAW",
+                        "registryId": 24,
+                        "institutionNumber": 24,
+                        "institutionName": "Name 24"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-NY",
+                        "oclcSymbol": "AAX",
+                        "registryId": 25,
+                        "institutionNumber": 25,
+                        "institutionName": "Name 25"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-OH",
+                        "oclcSymbol": "AAY",
+                        "registryId": 26,
+                        "institutionNumber": 26,
+                        "institutionName": "Name 26"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-AL",
+                        "oclcSymbol": "AAZ",
+                        "registryId": 27,
+                        "institutionNumber": 27,
+                        "institutionName": "Name 27"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-NC",
+                        "oclcSymbol": "ABA",
+                        "registryId": 28,
+                        "institutionNumber": 28,
+                        "institutionName": "Name 28"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-IL",
+                        "oclcSymbol": "ABB",
+                        "registryId": 29,
+                        "institutionNumber": 29,
+                        "institutionName": "Name 29"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-MS",
+                        "oclcSymbol": "ABC",
+                        "registryId": 30,
+                        "institutionNumber": 30,
+                        "institutionName": "Name 30"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-NC",
+                        "oclcSymbol": "ABD",
+                        "registryId": 31,
+                        "institutionNumber": 31,
+                        "institutionName": "Name 31"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-NY",
+                        "oclcSymbol": "ABE",
+                        "registryId": 32,
+                        "institutionNumber": 32,
+                        "institutionName": "Name 32"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-DE",
+                        "oclcSymbol": "ABF",
+                        "registryId": 33,
+                        "institutionNumber": 33,
+                        "institutionName": "Name 33"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-MA",
+                        "oclcSymbol": "ABG",
+                        "registryId": 34,
+                        "institutionNumber": 34,
+                        "institutionName": "Name 34"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-IL",
+                        "oclcSymbol": "ABH",
+                        "registryId": 35,
+                        "institutionNumber": 35,
+                        "institutionName": "Name 35"
+                    },
+                    {
+                        "country": "TW",
+                        "oclcSymbol": "ABI",
+                        "registryId": 36,
+                        "institutionNumber": 36,
+                        "institutionName": "Name 36"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-IL",
+                        "oclcSymbol": "ABJ",
+                        "registryId": 37,
+                        "institutionNumber": 37,
+                        "institutionName": "Name 37"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-FL",
+                        "oclcSymbol": "ABK",
+                        "registryId": 38,
+                        "institutionNumber": 38,
+                        "institutionName": "Name 38"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-OH",
+                        "oclcSymbol": "ABL",
+                        "registryId": 39,
+                        "institutionNumber": 39,
+                        "institutionName": "Name 39"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-TX",
+                        "oclcSymbol": "ABM",
+                        "registryId": 40,
+                        "institutionNumber": 40,
+                        "institutionName": "Name 40"
+                    },
+                    {
+                        "country": "FR",
+                        "oclcSymbol": "ABN",
+                        "registryId": 41,
+                        "institutionNumber": 41,
+                        "institutionName": "Name 41"
+                    },
+                    {
+                        "country": "SI",
+                        "oclcSymbol": "ABO",
+                        "registryId": 42,
+                        "institutionNumber": 42,
+                        "institutionName": "Name 42"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-VA",
+                        "oclcSymbol": "ABP",
+                        "registryId": 43,
+                        "institutionNumber": 43,
+                        "institutionName": "Name 43"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-SC",
+                        "oclcSymbol": "ABQ",
+                        "registryId": 44,
+                        "institutionNumber": 44,
+                        "institutionName": "Name 44"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-OH",
+                        "oclcSymbol": "ABR",
+                        "registryId": 45,
+                        "institutionNumber": 45,
+                        "institutionName": "Name 45"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-IL",
+                        "oclcSymbol": "ABS",
+                        "registryId": 46,
+                        "institutionNumber": 46,
+                        "institutionName": "Name 46"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-SC",
+                        "oclcSymbol": "ABT",
+                        "registryId": 47,
+                        "institutionNumber": 47,
+                        "institutionName": "Name 47"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-CA",
+                        "oclcSymbol": "ABU",
+                        "registryId": 48,
+                        "institutionNumber": 48,
+                        "institutionName": "Name 48"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-TX",
+                        "oclcSymbol": "ABV",
+                        "registryId": 49,
+                        "institutionNumber": 49,
+                        "institutionName": "Name 49"
+                    },
+                    {
+                        "country": "TW",
+                        "oclcSymbol": "ABW",
+                        "registryId": 50,
+                        "institutionNumber": 50,
+                        "institutionName": "Name 50"
+                    }
+                ]
+            }
+        }
+    ]
+}

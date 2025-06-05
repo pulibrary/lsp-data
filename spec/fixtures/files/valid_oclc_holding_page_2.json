@@ -1,0 +1,53 @@
+{
+    "numberOfRecords": 1,
+    "briefRecords": [
+        {
+            "oclcNumber": "1",
+            "institutionHolding": {
+                "totalHoldingCount": 55,
+                "totalEditions": 1,
+                "briefHoldings": [
+                    {
+                        "country": "US",
+                        "state": "US-DC",
+                        "oclcSymbol": "ABX",
+                        "registryId": 51,
+                        "institutionNumber": 51,
+                        "institutionName": "Name 51"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-DC",
+                        "registryId": 52,
+                        "institutionNumber": 52,
+                        "institutionName": "Name 52"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-OH",
+                        "oclcSymbol": "ABY",
+                        "registryId": 53,
+                        "institutionNumber": 53,
+                        "institutionName": "Name 53"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-IL",
+                        "oclcSymbol": "ABZ",
+                        "registryId": 54,
+                        "institutionNumber": 54,
+                        "institutionName": "Name 54"
+                    },
+                    {
+                        "country": "US",
+                        "state": "US-IL",
+                        "oclcSymbol": "ACA",
+                        "registryId": 55,
+                        "institutionNumber": 55,
+                        "institutionName": "Name 55"
+                    }
+                ]
+            }
+        }
+    ]
+}
