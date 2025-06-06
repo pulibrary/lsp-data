@@ -35,6 +35,7 @@ GEM
     crack (1.0.0)
       bigdecimal
       rexml
+    csv (3.3.5)
     diff-lcs (1.5.1)
     docile (1.4.1)
     faraday (1.10.4)
@@ -173,6 +174,7 @@ PLATFORMS
 DEPENDENCIES
   base64
   coveralls_reborn
+  csv
   faraday (~> 1.0)
   irb
   library_stdnums (~> 1.6)
