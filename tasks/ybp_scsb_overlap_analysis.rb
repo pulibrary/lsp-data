@@ -25,126 +25,91 @@ def recap_location?(library:, location:)
   recap_locations.include?("#{library}$#{location}")
 end
 
+def partners_output_match_keys(input:, output:)
+  reader = MARC::XMLReader.new(input, parser: 'magic')
+  reader.each do |record|
+    next unless eligible_record?(record)
+
+    match_key = MarcMatchKey::Key.new(record).key
+    id = record['001'].value
+    output.puts("#{id}\t#{match_key}")
+  end
+end
+
+def add_matches_from_file(file:, matches:, inst_symbol:)
+  File.open(file, 'r') do |input|
+    while (line = input.gets)
+      line.chomp!
+      parts = line.split("\t")
+      id = parts[0]
+      key = parts[1]
+      matches[key] ||= {
+        scsbpul: [], scsbcul: [], scsbhl: [], scsbnypl: [],
+        oclcpul: [], oclccul: [], oclchl: [], oclcnypl: []
+      }
+      matches[key][inst_symbol] << id
+    end
+  end
+  matches
+end
+
 ### Step 1: Make tab-delimited files of each institution's SCSB IDs with
 ###   the match key for further overlap analysis
 
 input_dir = ENV['DATA_INPUT_DIR']
 output_dir = ENV['DATA_OUTPUT_DIR']
 
-File.open("#{output_dir}/cul_scsb_match_keys.tsv", 'w') do |output|
+File.open("#{output_dir}/cul_scsb_match_keys_2.tsv", 'w') do |output|
   Dir.glob("#{input_dir}/partners/cul/CUL_20250415_070000/*.xml").each do |file|
     puts File.basename(file)
-    reader = MARC::XMLReader.new(file, parser: 'magic')
-    reader.each do |record|
-      next unless eligible_record?(record)
-
-      match_key = MarcMatchKey::Key.new(record).key
-      id = record['001'].value
-      output.puts("#{id}\t#{match_key}")
-    end
+    partners_output_match_keys(input: file, output: output)
   end
   Dir.glob("#{input_dir}/partners/cul/CUL_20250421_095200/*.xml").each do |file|
     puts File.basename(file)
-    reader = MARC::XMLReader.new(file, parser: 'magic')
-    reader.each do |record|
-      next unless eligible_record?(record)
-
-      match_key = MarcMatchKey::Key.new(record).key
-      id = record['001'].value
-      output.puts("#{id}\t#{match_key}")
-    end
+    partners_output_match_keys(input: file, output: output)
   end
 end
 
 File.open("#{output_dir}/cul_oclc_match_keys.tsv", 'w') do |output|
   Dir.glob("#{input_dir}/metacoll*recentcul*.mrc").each do |file|
     puts File.basename(file)
-    reader = MARC::Reader.new(file)
-    reader.each do |record|
-      next unless eligible_record?(record)
-
-      match_key = MarcMatchKey::Key.new(record).key
-      id = record['001'].value
-      output.puts("#{id}\t#{match_key}")
-    end
+    partners_output_match_keys(input: file, output: output)
   end
 end
 
 File.open("#{output_dir}/hl_scsb_match_keys.tsv", 'w') do |output|
   Dir.glob("#{input_dir}/partners/hl/HL_20250415_230000/*.xml").each do |file|
     puts File.basename(file)
-    reader = MARC::XMLReader.new(file, parser: 'magic')
-    reader.each do |record|
-      next unless eligible_record?(record)
-
-      match_key = MarcMatchKey::Key.new(record).key
-      id = record['001'].value
-      output.puts("#{id}\t#{match_key}")
-    end
+    partners_output_match_keys(input: file, output: output)
   end
   Dir.glob("#{input_dir}/partners/hl/HL_20250421_091500/*.xml").each do |file|
     puts File.basename(file)
-    reader = MARC::XMLReader.new(file, parser: 'magic')
-    reader.each do |record|
-      next unless eligible_record?(record)
-
-      match_key = MarcMatchKey::Key.new(record).key
-      id = record['001'].value
-      output.puts("#{id}\t#{match_key}")
-    end
+    partners_output_match_keys(input: file, output: output)
   end
 end
 
 File.open("#{output_dir}/hul_oclc_match_keys.tsv", 'w') do |output|
   Dir.glob("#{input_dir}/metacoll*hulrecent*.mrc").each do |file|
     puts File.basename(file)
-    reader = MARC::Reader.new(file)
-    reader.each do |record|
-      next unless eligible_record?(record)
-
-      match_key = MarcMatchKey::Key.new(record).key
-      id = record['001'].value
-      output.puts("#{id}\t#{match_key}")
-    end
+    partners_output_match_keys(input: file, output: output)
   end
 end
 
 File.open("#{output_dir}/nypl_scsb_match_keys.tsv", 'w') do |output|
   Dir.glob("#{input_dir}/partners/nypl/NYPL_20250415_150000/*.xml").each do |file|
     puts File.basename(file)
-    reader = MARC::XMLReader.new(file, parser: 'magic')
-    reader.each do |record|
-      next unless eligible_record?(record)
-
-      match_key = MarcMatchKey::Key.new(record).key
-      id = record['001'].value
-      output.puts("#{id}\t#{match_key}")
-    end
+    partners_output_match_keys(input: file, output: output)
   end
   Dir.glob("#{input_dir}/partners/nypl/NYPL_20250421_101000/*.xml").each do |file|
     puts File.basename(file)
-    reader = MARC::XMLReader.new(file, parser: 'magic')
-    reader.each do |record|
-      next unless eligible_record?(record)
-
-      match_key = MarcMatchKey::Key.new(record).key
-      id = record['001'].value
-      output.puts("#{id}\t#{match_key}")
-    end
+    partners_output_match_keys(input: file, output: output)
   end
 end
 
 File.open("#{output_dir}/nypl_oclc_match_keys.tsv", 'w') do |output|
   Dir.glob("#{input_dir}/metacoll*nyplrecent*.mrc").each do |file|
     puts File.basename(file)
-    reader = MARC::Reader.new(file)
-    reader.each do |record|
-      next unless eligible_record?(record)
-
-      match_key = MarcMatchKey::Key.new(record).key
-      id = record['001'].value
-      output.puts("#{id}\t#{match_key}")
-    end
+    partners_output_match_keys(input: file, output: output)
   end
 end
 
@@ -172,163 +137,15 @@ non_recap.close
 ### Step 3: Perform overlap analysis; for each institution,
 ###   the match key is the key, bib IDs are the values
 matches = {}
-File.open("#{output_dir}/pul_non_recap_match_keys.tsv", 'r') do |input|
-  while (line = input.gets)
-    line.chomp!
-    parts = line.split("\t")
-    id = parts[0]
-    key = parts[1]
-    matches[key] ||= {
-      scsbpul: [],
-      scsbcul: [],
-      scsbhl: [],
-      scsbnypl: [],
-      oclcpul: [],
-      oclccul: [],
-      oclchl: [],
-      oclcnypl: []
-    }
-    matches[key][:oclcpul] << id
-  end
-end
-
-File.open("#{output_dir}/pul_recap_match_keys.tsv", 'r') do |input|
-  while (line = input.gets)
-    line.chomp!
-    parts = line.split("\t")
-    id = parts[0]
-    key = parts[1]
-    matches[key] ||= {
-      scsbpul: [],
-      scsbcul: [],
-      scsbhl: [],
-      scsbnypl: [],
-      oclcpul: [],
-      oclccul: [],
-      oclchl: [],
-      oclcnypl: []
-    }
-    matches[key][:scsbpul] << id
-  end
-end
-
-File.open("#{output_dir}/cul_scsb_match_keys.tsv", 'r') do |input|
-  while (line = input.gets)
-    line.chomp!
-    parts = line.split("\t")
-    id = parts[0]
-    key = parts[1]
-    matches[key] ||= {
-      scsbpul: [],
-      scsbcul: [],
-      scsbhl: [],
-      scsbnypl: [],
-      oclcpul: [],
-      oclccul: [],
-      oclchl: [],
-      oclcnypl: []
-    }
-    matches[key][:scsbcul] << id
-  end
-end
-File.open("#{output_dir}/hl_scsb_match_keys.tsv", 'r') do |input|
-  while (line = input.gets)
-    line.chomp!
-    parts = line.split("\t")
-    id = parts[0]
-    key = parts[1]
-    matches[key] ||= {
-      scsbpul: [],
-      scsbcul: [],
-      scsbhl: [],
-      scsbnypl: [],
-      oclcpul: [],
-      oclccul: [],
-      oclchl: [],
-      oclcnypl: []
-    }
-    matches[key][:scsbhl] << id
-  end
-end
-
-File.open("#{output_dir}/nypl_scsb_match_keys.tsv", 'r') do |input|
-  while (line = input.gets)
-    line.chomp!
-    parts = line.split("\t")
-    id = parts[0]
-    key = parts[1]
-    matches[key] ||= {
-      scsbpul: [],
-      scsbcul: [],
-      scsbhl: [],
-      scsbnypl: [],
-      oclcpul: [],
-      oclccul: [],
-      oclchl: [],
-      oclcnypl: []
-    }
-    matches[key][:scsbnypl] << id
-  end
-end
-
-File.open("#{output_dir}/cul_oclc_match_keys.tsv", 'r') do |input|
-  while (line = input.gets)
-    line.chomp!
-    parts = line.split("\t")
-    id = parts[0]
-    key = parts[1]
-    matches[key] ||= {
-      scsbpul: [],
-      scsbcul: [],
-      scsbhl: [],
-      scsbnypl: [],
-      oclcpul: [],
-      oclccul: [],
-      oclchl: [],
-      oclcnypl: []
-    }
-    matches[key][:oclccul] << id
-  end
-end
-File.open("#{output_dir}/hul_oclc_match_keys.tsv", 'r') do |input|
-  while (line = input.gets)
-    line.chomp!
-    parts = line.split("\t")
-    id = parts[0]
-    key = parts[1]
-    matches[key] ||= {
-      scsbpul: [],
-      scsbcul: [],
-      scsbhl: [],
-      scsbnypl: [],
-      oclcpul: [],
-      oclccul: [],
-      oclchl: [],
-      oclcnypl: []
-    }
-    matches[key][:oclchl] << id
-  end
-end
-
-File.open("#{output_dir}/nypl_oclc_match_keys.tsv", 'r') do |input|
-  while (line = input.gets)
-    line.chomp!
-    parts = line.split("\t")
-    id = parts[0]
-    key = parts[1]
-    matches[key] ||= {
-      scsbpul: [],
-      scsbcul: [],
-      scsbhl: [],
-      scsbnypl: [],
-      oclcpul: [],
-      oclccul: [],
-      oclchl: [],
-      oclcnypl: []
-    }
-    matches[key][:oclcnypl] << id
-  end
-end
+add_matches_from_file(file: "#{output_dir}/pul_non_recap_match_keys.tsv", matches: matches, inst_symbol: :oclcpul)
+add_matches_from_file(file: "#{output_dir}/pul_recap_match_keys.tsv", matches: matches, inst_symbol: :scsbpul)
+add_matches_from_file(file: "#{output_dir}/cul_oclc_match_keys.tsv", matches: matches, inst_symbol: :oclccul)
+add_matches_from_file(file: "#{output_dir}/cul_scsb_match_keys.tsv", matches: matches, inst_symbol: :scsbcul)
+add_matches_from_file(file: "#{output_dir}/cul_oclc_match_keys.tsv", matches: matches, inst_symbol: :oclccul)
+add_matches_from_file(file: "#{output_dir}/hl_scsb_match_keys.tsv", matches: matches, inst_symbol: :scsbhl)
+add_matches_from_file(file: "#{output_dir}/hul_oclc_match_keys.tsv", matches: matches, inst_symbol: :oclchl)
+add_matches_from_file(file: "#{output_dir}/nypl_scsb_match_keys.tsv", matches: matches, inst_symbol: :scsbnypl)
+add_matches_from_file(file: "#{output_dir}/nypl_oclc_match_keys.tsv", matches: matches, inst_symbol: :oclcnypl)
 
 ### Step 4: Output the ISBNs of matched titles that have
 ###   more than one institution; this will be used to retrieve prices from Gobi
