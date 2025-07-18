@@ -2,6 +2,10 @@
     "numberOfRecords": 1,
     "briefRecords": [
         {
+            "isbns": [
+                "9781234567890",
+                "1234567890"
+            ],
             "oclcNumber": "1",
             "institutionHolding": {
                 "totalHoldingCount": 3,
