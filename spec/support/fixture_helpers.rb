@@ -92,11 +92,11 @@ def stub_oclc(fixture:, url:, token:, oclc_num:, desired_status:)
     to_return(status: desired_status, body: data)
 end
 
-def stub_oclc_holdings(fixture:, url:, token:, oclc_num:, desired_status:, target_symbols: nil, offset: nil)
+def stub_oclc_holdings(fixture:, url:, token:, identifier:, desired_status:, target_symbols: nil, offset: nil)
   file = File.open("#{FIXTURE_DIR}/#{fixture}")
   data = File.read(file)
   params = 'limit=50'.dup
-  params << "&oclcNumber=#{oclc_num}"
+  params << "&#{identifier[:type]}=#{identifier[:value]}"
   params << "&heldBySymbol=#{target_symbols.join(',')}" if target_symbols
   params << "&offset=#{offset}" if offset
   stub_request(:get, "#{url}/bibs-holdings?#{params}").
