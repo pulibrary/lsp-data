@@ -3,6 +3,10 @@
     "briefRecords": [
         {
             "oclcNumber": "1",
+            "isbns": [
+                "9781234567890",
+                "1234567890"
+            ],
             "institutionHolding": {
                 "totalHoldingCount": 55,
                 "totalEditions": 1,
@@ -18,6 +22,7 @@
                     {
                         "country": "US",
                         "state": "US-DC",
+                        "oclcSymbol": "ACC",
                         "registryId": 52,
                         "institutionNumber": 52,
                         "institutionName": "Name 52"
