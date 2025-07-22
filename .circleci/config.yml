@@ -12,6 +12,7 @@ jobs:
     steps:
       - checkout
       - run: gem install bundler -v '2.5.22'
+      - run: sudo apt-get update && sudo apt-get install libyaz-dev
       - ruby/bundle-install
       - run:
           name: rspec
