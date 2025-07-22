@@ -13,6 +13,7 @@ gem 'unf', '0.1.4'
 gem 'coveralls_reborn'
 gem 'base64'
 gem 'csv'
+gem 'alexandria-zoom'
 
 group :development, :test do
   gem 'pry-byebug'
