@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+### Codebase for parsing LSP data
 module LspData
   ### This class makes a connection to a Z39.50 server.
   ### Required elements
@@ -22,5 +23,24 @@ module LspData
       conn.connect(host, port)
       @connection = conn
     end
+  end
+
+  ### index is a Bib-1 Use Attribute (see https://www.loc.gov/z3950/agency/defns/bib1.html)
+  ### nil records are included in results array to allow further action if needed
+  def search(index:, identifier:)
+    search_string = "@attr 1=#{index} #{identifier}"
+    response = connection.search(search_string)
+    results = []
+    response.records.each do |result|
+      results << (result.nil? ? result : record_from_result(result))
+    end
+    results
+  end
+
+  private
+
+  def record_from_result(result)
+    temp_reader = MARC::XMLReader.new(StringIO.new(result.xml, 'r'))
+    temp_reader.first
   end
 end
