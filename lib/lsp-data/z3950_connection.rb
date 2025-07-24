@@ -30,11 +30,9 @@ module LspData
   def search(index:, identifier:)
     search_string = "@attr 1=#{index} #{identifier}"
     response = connection.search(search_string)
-    results = []
-    response.records.each do |result|
-      results << (result.nil? ? result : record_from_result(result))
+    response.records.map do |result|
+      result.nil? ? result : record_from_result(result)
     end
-    results
   end
 
   private
