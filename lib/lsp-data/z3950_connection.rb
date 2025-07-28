@@ -25,10 +25,16 @@ module LspData
     end
   end
 
-  ### index is a Bib-1 Use Attribute (see https://www.loc.gov/z3950/agency/defns/bib1.html)
-  ### nil records are included in results array to allow further action if needed
-  def search(index:, identifier:)
+  ### This is a convenience method used to perform a single search by an ID such as OCLC #, ISBN, etc.
+  ### 'index' is the value of the Bib-1 Use Attribute (see https://www.loc.gov/z3950/agency/defns/bib1.html)
+  def search_by_id(index:, identifier:)
     search_string = "@attr 1=#{index} #{identifier}"
+    search(search_string)
+  end
+
+  ### General search method that accepts a raw PQF query (see https://software.indexdata.com/yaz/doc/tools.html#pqf-examples)
+  ### nil records are included in results array to allow further action if needed
+  def search(search_string)
     response = connection.search(search_string)
     response.records.map do |result|
       result.nil? ? result : record_from_result(result)
