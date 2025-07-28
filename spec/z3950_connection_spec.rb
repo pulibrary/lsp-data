@@ -24,7 +24,7 @@ RSpec.describe LspData::Z3950Connection do
     let(:identifier) { '9781984899422' }
 
     it 'returns a valid record' do
-      record = connection.search(index: index, identifier: identifier).first
+      record = connection.search_by_id(index: index, identifier: identifier).first
       f020 = record.fields('020').map { |field| field['a'] }
       expect(record.class).to eq MARC::Record
       expect(f020).to include identifier
