@@ -30,7 +30,7 @@ module LspData
 
     def filtered_records(title)
       all_records = records
-      all_records.select { |record| acceptable_record?(record, title) }
+      all_records&.select { |record| acceptable_record?(record, title) }
     end
 
     private
