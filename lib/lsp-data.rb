@@ -28,4 +28,5 @@ require_relative 'lsp-data/api_retrieve_portfolio'
 require_relative 'lsp-data/api_update_portfolio'
 require_relative 'lsp-data/oit_person_to_alma'
 require_relative 'lsp-data/z3950_connection'
+require_relative 'lsp-data/oclc_record_match'
 include LspData

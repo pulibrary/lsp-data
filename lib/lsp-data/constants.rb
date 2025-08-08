@@ -5,4 +5,6 @@ module LspData
   METADATA_API_ENDPOINT = 'https://metadata.api.oclc.org/worldcat'
   SEARCH_API_ENDPOINT = 'https://americas.discovery.api.oclc.org/worldcat/search/v2'
   OCLC_OAUTH_ENDPOINT = 'https://oauth.oclc.org/token'
+  OCLC_Z3950_DATABASE_NAME = 'OLUCWorldCat'
+  OCLC_Z3950_ENDPOINT = 'zcat.oclc.org'
 end
