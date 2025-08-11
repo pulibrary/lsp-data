@@ -11,8 +11,7 @@ RSpec.describe LspData::OCLCRecordMatch do
   let(:conn) do
     Z3950Connection.new(host: OCLC_Z3950_ENDPOINT,
                         database_name: OCLC_Z3950_DATABASE_NAME,
-                        credentials: { user: OCLC_Z3950_USER, password: OCLC_Z3950_PASSWORD }
-                       )
+                        credentials: { user: OCLC_Z3950_USER, password: OCLC_Z3950_PASSWORD })
   end
 
   context 'ISBN with at least one acceptable record and one unacceptable record' do
@@ -39,8 +38,27 @@ RSpec.describe LspData::OCLCRecordMatch do
 
     it 'returns the acceptable record in the filtered records' do
       select_records = match.filtered_records(title)
-      desired_record = select_records.find { |record| oclcs(record:record).first == identifier }
+      desired_record = select_records.find { |record| oclcs(record: record).first == identifier }
       expect(desired_record['001'].value).to eq 'on1147930017'
+    end
+  end
+
+  context 'record is returned from OCLC with 007 field that indicates electronic record' do
+    let(:leader) { '01104naa a2200289 i 4500' }
+    let(:fields) do
+      [
+        { '007' => 'c' },
+        { '245' => { 'indicator1' => '0',
+                     'indicator2' => '0',
+                     'subfields' => [{ 'a' => 'Electronic title' }] } }
+      ]
+    end
+    let(:record) { MARC::Record.new_from_hash('fields' => fields, 'leader' => leader) }
+    let(:identifier) { '9781984899422' }
+    let(:identifier_type) { 'isbn' }
+
+    it 'identifies the record as electronic' do
+      expect(match.send(:electronic_reproduction?, record)).to eq true
     end
   end
 end

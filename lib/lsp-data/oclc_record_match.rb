@@ -40,6 +40,7 @@ module LspData
         record.leader[6..7] == 'am'
     end
 
+    ### If the work is fiction, drama, or poetry, no LCSH required
     def belle_lettres?(record)
       %w[1 d f j m p].include?(record['008'].value[33])
     end
