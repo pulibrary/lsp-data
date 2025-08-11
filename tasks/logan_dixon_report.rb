@@ -111,6 +111,12 @@ def info_for_dixon_record(record)
   }
 end
 
+def info_for_electronic_record(record)
+  f951 = record.fields('951').select { |f| f['8'] =~ /^53[0-9]+6421$/ }
+  collections = f951.map { |f| f['n'] }.uniq
+  { mms_id: record['001'].value, collections: collections.reject(&:nil?) }
+end
+
 ### Create 2 hashes: one for unsuppressed bibs with a location of firestone$dixn
 ###   and one for unsuppressed bibs with electronic inventory with match key as the key
 ### The hash for the Dixon books will include the following for each bib:
@@ -139,14 +145,14 @@ Dir.glob("#{input_dir}/new_fulldump/fulldump*.xml*").each do |file|
   reader.each do |record|
     next if record.leader[5] == 'd'
 
-    match_key = MarcMatchKey::Key.new(record).key
+    match_key = MarcMatchKey::Key.new(record).key[0..-2]
     mms_id = record['001'].value
     if dixon_record?(record)
       dixon[match_key] ||= {}
       dixon[match_key][mms_id] = info_for_dixon_record(record)
     elsif record.fields('951').any? { |f| f['8'] =~ /^53[0-9]+6421$/ }
       electronic[match_key] ||= []
-      electronic[match_key] << mms_id
+      electronic[match_key] << info_for_electronic_record(record)
     end
   end
 end
@@ -157,7 +163,7 @@ end
 File.open("#{output_dir}/logan_report_dixon.tsv", 'w') do |output|
   output.write("Match Key\tDixon MMS ID\tBib Format\tTitle\tAuthor\t")
   output.write("008 Pub Date\t008 Pub Place\tPublication Date\tPublication Place\tPublisher\t")
-  output.puts("Imprint Statements\tISBNs\tOCLC Numbers\tMMS IDs of Electronic Matches")
+  output.puts("Imprint Statements\tISBNs\tOCLC Numbers\tMMS IDs of Electronic Matches\tElectronic Collection Names")
   dixon.each do |match_key, bibs|
     e_bibs = electronic[match_key]
     bibs.each do |mms_id, info|
@@ -170,13 +176,13 @@ File.open("#{output_dir}/logan_report_dixon.tsv", 'w') do |output|
       output.write("#{info[:publisher_info][:pub_date]}\t")
       output.write("#{info[:publisher_info][:pub_place]}\t")
       output.write("#{info[:publisher_info][:pub_name]}\t")
-      imprint_field_strings = info[:imprint_fields]
-      output.write("#{imprint_field_strings.map { |f| f[:text] }.join(' | ')}\t")
+      output.write("#{info[:imprint_fields].map { |f| f[:text] }.join(' | ')}\t")
       output.write("#{info[:isbns].join(' | ')}\t#{info[:oclcs].join(' | ')}\t")
       if e_bibs
-        output.puts(e_bibs.join(' | '))
+        output.write("#{e_bibs.map { |info| info[:mms_id] }.join(' | ')}\t")
+        output.puts(e_bibs.map { |info| info[:collections] }.flatten.uniq.join(' | '))
       else
-        output.puts('')
+        output.puts("\t")
       end
     end
   end
