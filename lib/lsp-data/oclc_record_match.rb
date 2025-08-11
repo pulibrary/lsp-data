@@ -60,11 +60,21 @@ module LspData
       record['040'] =~ /DLC/
     end
 
-    def electronic_reproduction?(record)
+    def lc?(record)
+      record.fields('050').any? { |f| f.indicator1 == '0' || f.indicator2 == '0' } &&
+        dlc040?(record) &&
+        record.fields('010').any? { |f| f['a'] }
+    end
+
+    def electronic_reproduction_fixed_fields?(record)
       record.fields('006').any? { |field| field.value[0] == 'm' } ||
-        record.fields('007').any? { |field| field.value[0] == 'c' } ||
+        record.fields('007').any? { |field| field.value[0] == 'c' }
+    end
+
+    def electronic_reproduction?(record)
+      electronic_reproduction_fixed_fields?(record) ||
         record.fields('245').any? { |field| field['h'] } ||
-        record.fields.any? { |field| field.tag == '533' }
+        record.fields('533').size.positive?
     end
 
     def normalize_string(string)
@@ -94,13 +104,17 @@ module LspData
       process_title(title) == process_title(record['245']['a'])
     end
 
-    def acceptable_record?(record, title)
+    def acceptable_non_lc?(record)
       acceptable_leader?(record) &&
         acceptable_f040b?(record) &&
         (belle_lettres?(record) || acceptable_subject?(record)) &&
         call_num050?(record) &&
-        title_match?(record, title) &&
-        electronic_reproduction?(record) == false
+        electronic_reproduction?(record)
+    end
+
+    def acceptable_record?(record, title)
+      (lc?(record) || pcc050?(record) || acceptable_non_lc?(record)) &&
+        title_match?(record, title)
     end
 
     def acceptable_f040b?(record)
