@@ -98,7 +98,7 @@ module LspData
 
     def process_title(title)
       normalized = normalize_string(title)
-      "#{normalized[5..9]}#{normalized[14..18]}"
+      "#{normalized[4..8]}#{normalized[14..18]}"
     end
 
     def title_match?(record, title)
