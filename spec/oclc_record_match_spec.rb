@@ -31,4 +31,16 @@ RSpec.describe LspData::OCLCRecordMatch do
       expect(unacceptable_cat_language).to eq false
     end
   end
+
+  context 'OCLC number provided for an acceptable record' do
+    let(:identifier) { '1147930017' }
+    let(:identifier_type) { 'oclc' }
+    let(:title) { 'Disability visibility' }
+
+    it 'returns the acceptable record in the filtered records' do
+      select_records = match.filtered_records(title)
+      desired_record = select_records.find { |record| oclcs(record:record).first == identifier }
+      expect(desired_record['001'].value).to eq 'on1147930017'
+    end
+  end
 end

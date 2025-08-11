@@ -63,8 +63,8 @@ module LspData
     def electronic_reproduction?(record)
       record.fields('006').any? { |field| field.value[0] == 'm' } ||
         record.fields('007').any? { |field| field.value[0] == 'c' } ||
-        record['245']['h'] ||
-        record['533']
+        record.fields('245').any? { |field| field['h'] } ||
+        record.fields.any? { |field| field.tag == '533' }
     end
 
     def normalize_string(string)
@@ -91,7 +91,6 @@ module LspData
     end
 
     def title_match?(record, title)
-      process_title(title)
       process_title(title) == process_title(record['245']['a'])
     end
 
