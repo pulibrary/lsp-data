@@ -110,7 +110,7 @@ module LspData
         acceptable_f040b?(record) &&
         (belle_lettres?(record) || acceptable_subject?(record)) &&
         call_num050?(record) &&
-        electronic_reproduction?(record)
+        (electronic_reproduction?(record) == false)
     end
 
     def acceptable_record?(record, title)
