@@ -18,6 +18,7 @@
 require 'coveralls'
 require 'simplecov'
 require 'webmock/rspec'
+require 'byebug'
 require_relative 'support/fixture_helpers'
 
 SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new(
