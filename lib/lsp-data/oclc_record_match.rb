@@ -36,13 +36,14 @@ module LspData
     private
 
     def acceptable_leader?(record)
-      [' ', '1', '4', 'I', 'M', 'L'].include?(record.leader[17]) &&
+      [' ', '1', '7', 'I', 'M', 'L'].include?(record.leader[17]) &&
         record.leader[6..7] == 'am'
     end
 
-    ### If the work is fiction, drama, or poetry, no LCSH required
+    ### If the work is fiction, drama, or poetry, no LCSH required, but LCGFT is
     def belle_lettres?(record)
-      %w[1 d f j m p].include?(record['008'].value[33])
+      %w[1 d f j m p].include?(record['008'].value[33]) &&
+        record.fields('655').any? { |field| field.indicator2 == '7' && field['2'] == 'lcgft'}
     end
 
     def acceptable_subject?(record)
@@ -54,7 +55,7 @@ module LspData
     end
 
     def call_num050?(record)
-      record.fields('050').any? { |f| f['a'] =~ /\d/ }
+      record.fields('050').any? { |f| f['a'] =~ /\d/ && f['b'] }
     end
 
     def dlc040?(record)
