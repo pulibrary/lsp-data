@@ -62,17 +62,35 @@ RSpec.describe LspData::OCLCRecordMatch do
     end
   end
 
-  context 'OCLC number provided for a work of Belles Lettres' do
+  context 'non-LC Belles Lettres record is returned from OCLC with LCGFT' do
+    let(:leader) { '01104nam a2200289 i 4500' }
+    let(:fields) do
+      [
+        { '008' => '12345s2024    ilu||||||||||||||||1|eng||' },
+        { '050' => { 'ind1' => ' ',
+                     'ind2' => '4',
+                     'subfields' => [
+                                      { 'a' => 'M269' },
+                                      { 'b' => '.A34 2024' }
+                                    ]} },
+        { '245' => { 'ind1' => '0',
+                     'ind2' => '0',
+                     'subfields' => [{ 'a' => 'The recognitions' }] } },
+        { '655' => { 'ind1' => ' ',
+                     'ind2' => '7',
+                     'subfields' => [
+                                      { 'a' => 'Fiction.' },
+                                      { '2' => 'lcgft' }
+                                    ]} }
+      ]
+    end
+    let(:record) { MARC::Record.new_from_hash('fields' => fields, 'leader' => leader) }
     let(:identifier) { '292012' }
     let(:identifier_type) { 'oclc' }
     let(:title) { 'The recognitions' }
 
-    it 'returns only records with LCGFT ' do
-      select_records = match.filtered_records(title)
-      lcgft_records = select_records.select do |record|
-        record.fields('655').any? { |field| field.indicator2 == '7' && field['2'] == 'lcgft' }
-      end
-      expect(lcgft_records.size).to eq select_records.size
+    it 'identifies the record as acceptable' do
+      expect(match.send(:acceptable_record?, record, title)).to eq true
     end
   end
 end

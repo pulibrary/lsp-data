@@ -43,7 +43,7 @@ module LspData
     ### If the work is fiction, drama, or poetry, no LCSH required, but LCGFT is
     def belle_lettres?(record)
       %w[1 d f j m p].include?(record['008'].value[33]) &&
-        record.fields('655').any? { |field| field.indicator2 == '7' && field['2'] == 'lcgft'}
+        record.fields('655').any? { |field| field.indicator2 == '7' && field['2'] == 'lcgft' }
     end
 
     def acceptable_subject?(record)
@@ -120,7 +120,7 @@ module LspData
     end
 
     def acceptable_f040b?(record)
-      record['040']['b'].nil? || record['040']['b'] == 'eng'
+      record['040'].nil? || record['040']['b'].nil? || record['040']['b'] == 'eng'
     end
   end
 end
