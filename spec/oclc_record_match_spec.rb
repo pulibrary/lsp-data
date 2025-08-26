@@ -61,4 +61,18 @@ RSpec.describe LspData::OCLCRecordMatch do
       expect(match.send(:electronic_reproduction?, record)).to eq true
     end
   end
+
+  context 'OCLC number provided for a work of Belles Lettres' do
+    let(:identifier) { '292012' }
+    let(:identifier_type) { 'oclc' }
+    let(:title) { 'The recognitions' }
+
+    it 'returns only records with LCGFT ' do
+      select_records = match.filtered_records(title)
+      lcgft_records = select_records.select do |record|
+        record.fields('655').any? { |field| field.indicator2 == '7' && field['2'] == 'lcgft' }
+      end
+      expect(lcgft_records.size).to eq select_records.size
+    end
+  end
 end
