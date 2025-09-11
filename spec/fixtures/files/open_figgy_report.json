@@ -1,0 +1,9 @@
+{
+    "visibility": {
+        "value": "open",
+        "label": "open",
+        "definition": "Open to the world. Anyone can view."
+    },
+    "portion_note": null,
+    "iiif_manifest_url": "https://figgy.princeton.edu/concern/scanned_resources/123/manifest"
+}
