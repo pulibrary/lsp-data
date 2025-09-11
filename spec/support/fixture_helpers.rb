@@ -51,6 +51,21 @@ def stub_get_portfolio_response(mms_id:, portfolio_id:, fixture:)
     .to_return(status: 200, body: data)
 end
 
+def stub_get_manifest_response(manifest_identifer:, fixture:)
+  file = File.open("#{FIXTURE_DIR}/#{fixture}")
+  data = File.read(file)
+  stub_request(:get, "https://figgy.princeton.edu/concern/scanned_resources/123/manifest")
+    .with(
+           headers: {
+                      'Accept'=>'application/json',
+       	              'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+       	              'Content-Type'=>'application/json',
+       	              'User-Agent'=>'Faraday v1.10.4'
+                    }
+         )
+    .to_return(status: 200, body: data)
+end
+
 def stub_put_portfolio_response(mms_id:, portfolio_id:, fixture:, status:)
   body = stub_json_fixture(fixture: fixture)
   url = "https://api-na.exlibrisgroup.com/almaws/v1/bibs/#{mms_id}/portfolios/#{portfolio_id}?apikey=apikey"

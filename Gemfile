@@ -14,6 +14,7 @@ gem 'coveralls_reborn'
 gem 'base64'
 gem 'csv'
 gem 'alexandria-zoom'
+gem 'logger'
 
 group :development, :test do
   gem 'pry-byebug'
