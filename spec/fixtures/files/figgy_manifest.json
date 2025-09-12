@@ -13,7 +13,7 @@
     }
   ],
   "thumbnail": {
-    "@id": "https://iiif-cloud.princeton.edu/iiif/1/file/default.jpg",
+    "@id": "https://iiif-cloud.princeton.edu/iiif/1/123intermediatefile/full/1000,/0/default.jpg",
     "service": {
       "@context": "http://iiif.io/api/image/2/context.json",
       "@id": "https://iiif-cloud.princeton.edu/iiif/1/file",

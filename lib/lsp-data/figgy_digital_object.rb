@@ -11,6 +11,7 @@ module LspData
   ###     1. Label
   ###     2. ARK
   ###     3. Thumbnail URL
+  ###     4. Collections
   class FiggyDigitalObject
     attr_reader :mms_id, :visibility, :manifest_url, :conn, :manifest_identifier
 
