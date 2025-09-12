@@ -44,7 +44,7 @@ RSpec.describe LspData::AlmaDigitalObject do # rubocop:disable Metrics/BlockLeng
       expect(alma_object.repository_code).to eq 'figgy-open'
       expect(alma_object.primary_identifier).to eq 'ab01cd39z'
       expect(alma_object.marc_record['999']['b']).to eq figgy_object.manifest_metadata[:label]
-      expect(alma_object.marc_record['999']['c']).to eq '1/file/default.jpg'
+      expect(alma_object.marc_record['999']['c']).to eq '1/123intermediatefile/square/225,/0/default.jpg'
     end
   end
 end

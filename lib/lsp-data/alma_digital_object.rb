@@ -15,7 +15,8 @@ module LspData
   ###       (e.g., Figgy open objects, Figgy private, Figgy princeton objects)
   ###   Additional elements for open items:
   ###     1. Label; will be in a 999$b
-  ###     2. Thumbnail URL unique identifier; will be in a 999$c
+  ###     2. Thumbnail URL unique identifier (with square formatting instead of
+  ###       the full resolution); will be in a 999$c
   class AlmaDigitalObject
     attr_reader :mms_id, :figgy_object, :repository_code, :iiif_manifest
 
@@ -86,7 +87,8 @@ module LspData
     end
 
     def thumbnail_identifier
-      figgy_object.manifest_metadata[:thumbnail].gsub(%r{^https://iiif-cloud.princeton.edu/iiif/(.*)$}, '\1')
+      raw_identifier = figgy_object.manifest_metadata[:thumbnail].gsub(%r{^https://iiif-cloud.princeton.edu/iiif/(.*intermediatefile).*$}, '\1')
+      "#{raw_identifier}/square/225,/0/default.jpg"
     end
 
     def collection_name

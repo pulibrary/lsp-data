@@ -25,7 +25,7 @@ RSpec.describe LspData::FiggyDigitalObject do # rubocop:disable Metrics/BlockLen
   context 'open visibility item' do
     let(:fixture) { 'open_figgy_report.json' }
     let(:manifest_fixture) { 'figgy_manifest.json' }
-    let(:thumbnail_url) { 'https://iiif-cloud.princeton.edu/iiif/1/file/default.jpg' }
+    let(:thumbnail_url) { 'https://iiif-cloud.princeton.edu/iiif/1/123intermediatefile/full/1000,/0/default.jpg' }
     let(:desired_manifest) do
       { ark: 'http://arks.princeton.edu/ark:/88435/ab01cd39z', label: 'Label',
         thumbnail: thumbnail_url, collections: ['Collection 1', 'Collection 2'] }
