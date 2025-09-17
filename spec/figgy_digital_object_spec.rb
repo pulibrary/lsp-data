@@ -38,4 +38,21 @@ RSpec.describe LspData::FiggyDigitalObject do # rubocop:disable Metrics/BlockLen
       expect(figgy_object.manifest_metadata).to eq desired_manifest
     end
   end
+
+  context 'open visibility item with no language tags' do
+    let(:fixture) { 'open_figgy_report.json' }
+    let(:manifest_fixture) { 'figgy_manifest_no_lang.json' }
+    let(:thumbnail_url) { 'https://iiif-cloud.princeton.edu/iiif/1/123intermediate_file/full/1000,/0/default.jpg' }
+    let(:url_unique_portion) { 'scanned_resources/123' }
+    let(:desired_manifest) do
+      { ark: 'http://arks.princeton.edu/ark:/88435/ab01cd39z', label: 'Label',
+        thumbnail: thumbnail_url, collections: ['Collection 1', 'Collection 2'] }
+    end
+
+    it 'has all manifest metadata' do
+      stub_get_manifest_response(manifest_unique_portion: url_unique_portion, fixture: manifest_fixture)
+      expect(figgy_object.visibility).to eq 'open'
+      expect(figgy_object.manifest_metadata).to eq desired_manifest
+    end
+  end
 end
