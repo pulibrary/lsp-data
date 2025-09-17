@@ -1,0 +1,22 @@
+{
+  "99206421": [
+    {
+      "visibility": {
+        "value": "authenticated",
+        "label": "princeton",
+        "definition": "Restricted access. Only users logged in with a Princeton University NetID can view."
+      },
+      "portion_note": null,
+      "iiif_manifest_url": "https://figgy.princeton.edu/concern/scanned_resources/123/manifest"
+    },
+    {
+      "visibility": {
+        "value": "authenticated",
+        "label": "princeton",
+        "definition": "Open to the world. Anyone can view."
+      },
+      "portion_note": "Sheet One",
+      "iiif_manifest_url": "https://figgy.princeton.edu/concern/scanned_resources/124/manifest"
+    }
+  ]
+}

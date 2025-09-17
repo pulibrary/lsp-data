@@ -51,10 +51,10 @@ def stub_get_portfolio_response(mms_id:, portfolio_id:, fixture:)
     .to_return(status: 200, body: data)
 end
 
-def stub_get_manifest_response(manifest_identifer:, fixture:)
+def stub_get_manifest_response(manifest_unique_portion:, fixture:)
   file = File.open("#{FIXTURE_DIR}/#{fixture}")
   data = File.read(file)
-  stub_request(:get, "https://figgy.princeton.edu/concern/scanned_resources/123/manifest")
+  stub_request(:get, "https://figgy.princeton.edu/concern/#{manifest_unique_portion}/manifest")
     .with(
            headers: {
                       'Accept'=>'application/json',
