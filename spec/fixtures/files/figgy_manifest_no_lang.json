@@ -1,0 +1,27 @@
+{
+  "@context": "http://iiif.io/api/presentation/2/context.json",
+  "type": "Manifest",
+  "id": "https://figgy.princeton.edu/concern/scanned_resources/123/manifest",
+  "label": "Label",
+  "metadata": [
+    {
+      "label": "Member Of Collections",
+      "value": [
+        "Collection 1",
+        "Collection 2"
+      ]
+    }
+  ],
+  "thumbnail": {
+    "@id": "https://iiif-cloud.princeton.edu/iiif/1/123intermediate_file/full/1000,/0/default.jpg",
+    "type": "Image",
+    "format": "image/jpeg",
+    "height": 150
+  },
+  "rendering": {
+    "@id": "http://arks.princeton.edu/ark:/88435/ab01cd39z",
+    "format": "text/html",
+    "type": "Text",
+    "label": "View in catalog"
+  }
+}

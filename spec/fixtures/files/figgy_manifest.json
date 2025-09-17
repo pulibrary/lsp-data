@@ -1,27 +1,55 @@
 {
   "@context": "http://iiif.io/api/presentation/2/context.json",
-  "@type": "sc:Manifest",
-  "@id": "https://figgy.princeton.edu/concern/scanned_resources/123/manifest",
-  "label": "Label",
+  "type": "Manifest",
+  "id": "https://figgy.princeton.edu/concern/scanned_resources/123/manifest",
+  "label": {
+    "eng": [
+      "Label"
+    ]
+  },
   "metadata": [
     {
-      "label": "Member Of Collections",
-      "value": [
-        "Collection 1",
-        "Collection 2"
-      ]
+      "label": {
+        "eng": [
+          "Member Of Collections"
+        ]
+      },
+      "value": {
+        "eng": [
+          "Collection 1",
+          "Collection 2"
+        ]
+      }
     }
   ],
-  "thumbnail": {
-    "@id": "https://iiif-cloud.princeton.edu/iiif/1/123intermediatefile/full/1000,/0/default.jpg",
-    "service": {
-      "@context": "http://iiif.io/api/image/2/context.json",
-      "@id": "https://iiif-cloud.princeton.edu/iiif/1/file",
-      "profile": "http://iiif.io/api/image/2/level2.json"
+  "thumbnail": [
+    {
+      "id": "https://iiif-cloud.princeton.edu/iiif/1/123intermediate_file/full/1000,/0/default.jpg",
+      "type": "Image",
+      "format": "image/jpeg",
+      "height": 150
     }
-  },
-  "rendering": {
-    "@id": "http://arks.princeton.edu/ark:/88435/ab01cd39z",
-    "format": "text/html"
-  }
+  ],
+  "rendering": [
+    {
+      "type": "Text",
+      "label": {
+        "en": [
+            "Download as PDF"
+          ]
+        },
+      "format": "application/pdf",
+      "id": "https://figgy.princeton.edu/concern/scanned_resources/123/pdf"
+    },
+    {
+    "id": "http://arks.princeton.edu/ark:/88435/ab01cd39z",
+    "format": "text/html",
+    "type": "Text",
+    "label": {
+      "en": [
+        "View in catalog"
+        ]
+      }
+    }
+  ]
 }

@@ -31,4 +31,5 @@ require_relative 'lsp-data/z3950_connection'
 require_relative 'lsp-data/oclc_record_match'
 require_relative 'lsp-data/figgy_digital_object'
 require_relative 'lsp-data/alma_digital_object'
+require_relative 'lsp-data/figgy_report'
 include LspData

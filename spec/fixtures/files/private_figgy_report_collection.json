@@ -1,0 +1,13 @@
+{
+  "9913506421": [
+    {
+      "visibility": {
+        "value": "restricted",
+        "label": "private",
+        "definition": "Only privileged users of this application can view."
+      },
+      "portion_note": "Entire book",
+      "iiif_manifest_url": "https://figgy.princeton.edu/concern/scanned_resources/123/manifest"
+    }
+  ]
+}

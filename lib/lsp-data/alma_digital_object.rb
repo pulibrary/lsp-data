@@ -23,24 +23,24 @@ module LspData
     def initialize(mms_id:, figgy_object:)
       @mms_id = mms_id
       @figgy_object = figgy_object
-      @repository_code = "figgy-#{figgy_object.visibility}"
-      @iiif_manifest = figgy_object.manifest_url
-    end
-
-    def primary_identifier
-      return @primary_identifier if defined?(@primary_identifier)
-
-      if figgy_object.visibility == 'open'
-        figgy_object.manifest_metadata[:ark].gsub(%r{^https?://arks\.princeton\.edu/ark:/88435/(.*)$}, '\1')
-      else
-        figgy_object.manifest_identifier
-      end
+      @repository_code = "figgy-#{figgy_object.visibility.gsub(/\s/, '_')}"
+      @primary_identifier = primary_identifier
     end
 
     def record
       return @record if defined?(@record)
 
       record_from_figgy_data
+    end
+
+    def primary_identifier
+      return @primary_identifier if defined?(@primary_identifier)
+
+      if figgy_object.visibility == 'open' && figgy_object.manifest_metadata
+        figgy_object.manifest_metadata[:ark].gsub(%r{^https?://arks\.princeton\.edu/ark:/88435/(.*)$}, '\1')
+      else
+        figgy_object.manifest_identifier
+      end
     end
 
     def marc_record
@@ -50,8 +50,8 @@ module LspData
       rec.leader = '#####ckm#a22#####2i#4500'
       rec.append(MARC::ControlField.new('001', mms_id))
       rec.append(title_field)
-      rec.append(inventory_field)
       rec.append(collection_field)
+      rec.append(inventory_field)
       @marc_record = rec
     end
 
@@ -61,7 +61,6 @@ module LspData
       Nokogiri::XML::Builder.new do |xml|
         xml.record do
           xml.header do
-            xml.identifier primary_identifier
             xml.setSpec 'Digital'
           end
           xml << "<metadata>#{marc_record.to_xml}<\/metadata>"
@@ -75,19 +74,23 @@ module LspData
       field
     end
 
+    def append_optional_inventory(field)
+      field.append(MARC::Subfield.new('b', figgy_object.manifest_metadata[:label]))
+      field.append(MARC::Subfield.new('c', thumbnail_identifier))
+    end
+
     def inventory_field
       field = MARC::DataField.new('999', ' ', ' ',
                                   MARC::Subfield.new('a', primary_identifier),
-                                  MARC::Subfield.new('d', iiif_manifest))
-      if figgy_object.visibility == 'open'
-        field.append(MARC::Subfield.new('b', figgy_object.manifest_metadata[:label]))
-        field.append(MARC::Subfield.new('c', thumbnail_identifier))
-      end
+                                  MARC::Subfield.new('d', figgy_object.manifest_url))
+      append_optional_inventory(field) if figgy_object.visibility == 'open' && figgy_object.manifest_metadata
       field
     end
 
     def thumbnail_identifier
-      raw_identifier = figgy_object.manifest_metadata[:thumbnail].gsub(%r{^https://iiif-cloud.princeton.edu/iiif/(.*intermediatefile).*$}, '\1')
+      raw_identifier = figgy_object.manifest_metadata[:thumbnail].gsub(
+        %r{^https://iiif-cloud.princeton.edu/iiif/(.*intermediate_?file).*$}, '\1'
+      )
       "#{raw_identifier}/square/225,/0/default.jpg"
     end
 
@@ -98,6 +101,7 @@ module LspData
     def collection_field
       field = MARC::DataField.new('987', ' ', ' ')
       field.append(MARC::Subfield.new('t', collection_name))
+      field
     end
   end
 end
