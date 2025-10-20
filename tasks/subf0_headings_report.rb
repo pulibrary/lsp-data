@@ -1,10 +1,26 @@
+# frozen_string_literal: true
+
 require_relative './../lib/lsp-data'
 
 input_dir = ENV['DATA_INPUT_DIR']
 output_dir = ENV['DATA_OUTPUT_DIR']
 
-subf0_counter = { cul: 0, nypl: 0, hl: 0 }
-no_subf0_counter = { cul: 0, nypl: 0, hl: 0 }
+subf0_counter = { cul: 0, nypl: 0, hl: 0, pul: 0 }
+no_subf0_counter = { cul: 0, nypl: 0, hl: 0, pul: 0 }
+
+Dir.glob("#{input_dir}/new_fulldump/fulldump*.xml*").each do |file|
+  puts File.basename(file)
+  reader = MARC::XMLReader.new(file, parser: 'magic', ignore_namespace: true)
+  reader.each do |record|
+    name_fields = record.fields(%w[100 110 111 130 700 710 711 730])
+    subf0_counter[:pul] += name_fields.select { |f| f['0'] =~ /loc\.gov/ }.size
+    no_subf0_counter[:pul] += name_fields.select { |f| f['0'].nil? || f['0'] !~ /loc\.gov/ }.size
+    subj_fields = record.fields(%w[600 610 611 630]).select { |f| f.indicator2 == '0' }
+    subf0_counter[:pul] += subj_fields.select { |f| f['0'] =~ /loc\.gov/ }.size
+    no_subf0_counter[:pul] += subj_fields.select { |f| f['0'].nil? || f['0'] !~ /loc\.gov/ }.size
+  end
+end
+
 ### Goal: Find how many name headings have subfield zero, vs. how many don't
 Dir.glob("#{input_dir}/partners/cul/scsb_shared/*.xml").each do |file|
   puts File.basename(file)
@@ -47,6 +63,7 @@ end
 
 File.open("#{output_dir}/heading_count.tsv", 'w') do |output|
   output.puts("Organization\tSubf0 headings\tNon-subf0 headings")
+  output.puts("PUL\t#{subf0_counter[:pul]}\t#{no_subf0_counter[:pul]}")
   output.puts("CUL\t#{subf0_counter[:cul]}\t#{no_subf0_counter[:cul]}")
   output.puts("HL\t#{subf0_counter[:hl]}\t#{no_subf0_counter[:hl]}")
   output.puts("NYPL\t#{subf0_counter[:nypl]}\t#{no_subf0_counter[:nypl]}")
