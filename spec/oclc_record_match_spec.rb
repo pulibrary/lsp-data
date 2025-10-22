@@ -48,9 +48,33 @@ RSpec.describe LspData::OCLCRecordMatch do
     let(:fields) do
       [
         { '007' => 'c' },
-        { '245' => { 'indicator1' => '0',
-                     'indicator2' => '0',
+        { '245' => { 'ind1' => '0', 'ind2' => '0',
                      'subfields' => [{ 'a' => 'Electronic title' }] } }
+      ]
+    end
+    let(:record) { MARC::Record.new_from_hash('fields' => fields, 'leader' => leader) }
+    let(:identifier) { '9781984899422' }
+    let(:identifier_type) { 'isbn' }
+
+    it 'identifies the record as electronic' do
+      expect(match.send(:electronic_reproduction?, record)).to eq true
+    end
+  end
+
+  context 'PCC record is returned from OCLC with 007 field that indicates electronic record' do
+    let(:leader) { '01104naa a2200289 i 4500' }
+    let(:fields) do
+      [
+        { '007' => 'c' },
+        { '245' => { 'ind1' => '0', 'ind2' => '0',
+                     'subfields' => [{ 'a' => 'Electronic title' }] } },
+        { '050' => { 'ind1' => ' ', 'ind2' => '4',
+                     'subfields' => [
+                       { 'a' => 'M269' },
+                       { 'b' => '.A34 2024' }
+                     ] } },
+        { '042' => { 'ind1' => ' ', 'ind2' => ' ',
+                     'subfields' => [{ 'a' => 'pcc' }] } }
       ]
     end
     let(:record) { MARC::Record.new_from_hash('fields' => fields, 'leader' => leader) }
@@ -67,21 +91,18 @@ RSpec.describe LspData::OCLCRecordMatch do
     let(:fields) do
       [
         { '008' => '12345s2024    ilu||||||||||||||||1|eng||' },
-        { '050' => { 'ind1' => ' ',
-                     'ind2' => '4',
+        { '050' => { 'ind1' => ' ', 'ind2' => '4',
                      'subfields' => [
-                                      { 'a' => 'M269' },
-                                      { 'b' => '.A34 2024' }
-                                    ]} },
-        { '245' => { 'ind1' => '0',
-                     'ind2' => '0',
+                       { 'a' => 'M269' },
+                       { 'b' => '.A34 2024' }
+                     ] } },
+        { '245' => { 'ind1' => '0', 'ind2' => '0',
                      'subfields' => [{ 'a' => 'The recognitions' }] } },
-        { '655' => { 'ind1' => ' ',
-                     'ind2' => '7',
+        { '655' => { 'ind1' => ' ', 'ind2' => '7',
                      'subfields' => [
-                                      { 'a' => 'Fiction.' },
-                                      { '2' => 'lcgft' }
-                                    ]} }
+                       { 'a' => 'Fiction.' },
+                       { '2' => 'lcgft' }
+                     ] } }
       ]
     end
     let(:record) { MARC::Record.new_from_hash('fields' => fields, 'leader' => leader) }
