@@ -120,8 +120,8 @@ end
 ###   item filtering will happen afterwards
 google_mms_ids = Set.new(google_candidates.keys)
 found_ids = Set.new
-report = File.open("#{output_dir}/google_books_candidates_report_new.tsv", 'w')
-writer = MARC::XMLWriter.new("#{output_dir}/google_books_candidates_marc_file_new.marcxml")
+report = File.open("#{output_dir}/google_books_candidates_report.tsv", 'w')
+writer = MARC::XMLWriter.new("#{output_dir}/google_books_candidates_marc_file.marcxml")
 report.write("MMS ID\tTitle\tAuthor\tPublisher Place\tPublisher Name\t")
 report.write("Publisher Date\t008 Publisher Place\t008 Date1\t")
 report.write("Physical Description\t008 Language\tHolding ID\tLibrary Code\t")
@@ -153,7 +153,7 @@ end
 report.close
 writer.close
 
-File.open("#{output_dir}/missing_ids_google_candidates_new.txt", 'w') do |output|
+File.open("#{output_dir}/missing_ids_google_candidates.txt", 'w') do |output|
   output.puts('MMS ID')
   missing_ids = google_mms_ids - found_ids
   missing_ids.each { |id| output.puts(id) }
