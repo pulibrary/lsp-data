@@ -1,15 +1,13 @@
 # frozen_string_literal: true
 
+# Methods to retrieve call number information from a MARC record
 module LspData
   ### If specified as an LC call number, break it up into parts;
   ###   if not, return first subfield as full class and item subfield as Cutter
   def call_num_from_bib_field(record:, field_tag:, assume_lc: true)
-    return [] unless record[field_tag]
-
     call_nums = []
-    fields_of_interest = record.fields(field_tag).select { |f| f['a'] }
-    fields_of_interest.each do |field|
-      primary_subfield = field.subfields.select { |s| s.code == 'a' }.first
+    record.fields(field_tag).select { |f| f['a'] }.each do |field|
+      primary_subfield = field.subfields.find { |s| s.code == 'a' }
       item_subfields = field.subfields.select { |s| s.code == 'b' }
       call_nums << LspData::ParsedCallNumber.new(primary_subfield: primary_subfield,
                                                  item_subfields: item_subfields,
@@ -18,27 +16,26 @@ module LspData
     call_nums
   end
 
-  ### Call numbers are grouped by holding ID
-  def call_num_from_alma_holding_field(record:, field_tag:, inst_suffix:, lc_only: true)
-    return {} unless record[field_tag]
-
-    hash = {}
-    holding_fields = record.fields(field_tag).select do |field|
+  def holding_fields_for_call_nums(field_array, inst_suffix, lc_only)
+    standard_fields = field_array.select do |field|
       field['8'] =~ /22[0-9]+#{inst_suffix}$/ && field['h']
     end
-    holding_fields.each do |field|
-      next if lc_only && field.indicator1 != '0'
+    if lc_only
+      standard_fields.select { |field| field.indicator1 == '0' }
+    else
+      standard_fields
+    end
+  end
 
+  ### Call numbers are grouped by holding ID
+  def call_num_from_alma_holding_field(record:, field_tag:, inst_suffix:, lc_only: true)
+    hash = {}
+    holding_fields_for_call_nums(record.fields(field_tag), inst_suffix, lc_only).each do |field|
       holding_id = field['8']
-      primary_subfield = field.subfields.select { |s| s.code == 'h' }.first
-      item_subfields = field.subfields.select { |s| s.code == 'i' }
-      assume_lc = field.indicator1 == '0'
-
-      call_num = LspData::ParsedCallNumber.new(primary_subfield: primary_subfield,
-                                               item_subfields: item_subfields,
-                                               assume_lc: assume_lc)
-      hash[holding_id] ||= []
-      hash[holding_id] << call_num
+      call_num = LspData::ParsedCallNumber.new(primary_subfield: field.subfields.find { |s| s.code == 'h' },
+                                               item_subfields: field.subfields.select { |s| s.code == 'i' },
+                                               assume_lc: field.indicator1 == '0')
+      hash[holding_id] = call_num
     end
     hash
   end
