@@ -35,8 +35,7 @@ module LspData
       call_num = LspData::ParsedCallNumber.new(primary_subfield: field.subfields.find { |s| s.code == 'h' },
                                                item_subfields: field.subfields.select { |s| s.code == 'i' },
                                                assume_lc: field.indicator1 == '0')
-      hash[holding_id] ||= []
-      hash[holding_id] << call_num
+      hash[holding_id] = call_num
     end
     hash
   end

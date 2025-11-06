@@ -37,7 +37,7 @@ RSpec.describe 'call_num_from_bib_field' do
     it 'returns LC call numbers from 090 field' do
       target_array = ['M3.1 .C69 2012']
       call_nums = LspData.call_num_from_bib_field(record: record,
-                                       field_tag: '090')
+                                                  field_tag: '090')
       expect(call_nums.map(&:full_call_num)).to eq target_array
     end
   end
@@ -103,12 +103,11 @@ RSpec.describe 'call_num_from_alma_holding_field' do
     end
     it 'returns correct call numbers' do
       holding_id = '2216124'
-      target_array = ['M269 .C69']
       call_nums = LspData.call_num_from_alma_holding_field(record: record,
-                                                      field_tag: field_tag,
-                                                      inst_suffix: inst_suffix,
-                                                      lc_only: false)
-      expect(call_nums[holding_id].map(&:full_call_num)).to eq target_array
+                                                           field_tag: field_tag,
+                                                           inst_suffix: inst_suffix,
+                                                           lc_only: false)
+      expect(call_nums[holding_id].full_call_num).to eq 'M269 .C69'
     end
   end
 
@@ -162,13 +161,12 @@ RSpec.describe 'all_call_nums_from_merged_bib' do
     target_f050 = ['M269 .C69']
     target_f090 = ['M3.1 .C69 2012']
     holding_id = '2216124'
-    target_holding_call_nums = ['M3.1 .C69']
     call_nums = LspData.all_call_nums_from_merged_bib(record: record,
-                                                 inst_suffix: inst_suffix,
-                                                 lc_only: true,
-                                                 holding_field_tag: holding_field_tag)
+                                                      inst_suffix: inst_suffix,
+                                                      lc_only: true,
+                                                      holding_field_tag: holding_field_tag)
     expect(call_nums[:f050].map(&:full_call_num)).to eq target_f050
     expect(call_nums[:f090].map(&:full_call_num)).to eq target_f090
-    expect(call_nums[:holdings][holding_id].map(&:full_call_num)).to eq target_holding_call_nums
+    expect(call_nums[:holdings][holding_id].full_call_num).to eq 'M3.1 .C69'
   end
 end
