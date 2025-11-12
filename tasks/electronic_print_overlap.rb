@@ -7,6 +7,7 @@
 
 require_relative './../lib/lsp-data'
 require 'csv'
+require 'bigdecimal'
 
 input_dir = ENV['DATA_INPUT_DIR']
 output_dir = ENV['DATA_OUTPUT_DIR']
@@ -14,12 +15,13 @@ output_dir = ENV['DATA_OUTPUT_DIR']
 ### Create a file of all barcodes accessioned into ReCAP 7/1/23 or earlier
 File.open("#{output_dir}/recap_accessions_fy23_before.txt", 'w') do |output|
   output.puts('barcode')
-  csv = CSV.open("#{input_dir}/LAS Tables/table250919.full.if.csv", 'r', headers: true, encoding: 'bom|utf-8')
-  csv.each do |row|
-    accession_date = DateTime.strptime(row['Accession Date'], '%m/%d/%y')
-    next if accession_date > DateTime.strptime('07-01-2023', '%m-%d-%Y')
+  CSV.open("#{input_dir}/LAS Tables/table250919.full.if.csv", 'r', headers: true, encoding: 'bom|utf-8') do |csv|
+    csv.each do |row|
+      accession_date = DateTime.strptime(row['Accession Date'], '%m/%d/%y')
+      next if accession_date > DateTime.strptime('07-01-2023', '%m-%d-%Y')
 
-    output.puts(row['Item BarCode'])
+      output.puts(row['Item BarCode'])
+    end
   end
 end
 
@@ -253,18 +255,155 @@ File.open("#{input_dir}/nypl_ebook_match.tsv", 'r') do |input|
   end
 end
 
+### We only care about match keys that have an ebook and at least one print copy
+match_to_ids.delete_if { |_key, sites| sites.size < 2 }
+
+### Retrieve a report of all MMS IDs that had print usage in FY24 through FY25;
+### For all IDs under a given key, total up the usage
+bib_usage = {}
+CSV.open("#{input_dir}/usage_all_mms_ids_fy24-fy25.csv", 'r', headers: true, encoding: 'bom|utf-8') do |csv|
+  csv.each do |row|
+    bib_usage[row['MMS Id']] = {
+      loans: BigDecimal(row['Loans (Not In House)']),
+      in_house: BigDecimal(row['Loans (In House)'])
+    }
+  end
+end
+
+### Connect SCSB barcodes to SCSB bib IDs
+scsb_bib_to_barcodes = {}
+File.open("#{input_dir}/cul_ebook_match.tsv", 'r') do |input|
+  input.gets
+  while (line = input.gets)
+    line.chomp!
+    parts = line.split("\t")
+    key = parts[2]
+    next if match_to_ids[key].nil?
+
+    bib_id = parts[0]
+    barcode = parts[1]
+    scsb_bib_to_barcodes[bib_id] ||= []
+    scsb_bib_to_barcodes[bib_id] << barcode
+  end
+end
+
+File.open("#{input_dir}/hl_ebook_match.tsv", 'r') do |input|
+  input.gets
+  while (line = input.gets)
+    line.chomp!
+    parts = line.split("\t")
+    key = parts[2]
+    next if match_to_ids[key].nil?
+
+    bib_id = parts[0]
+    barcode = parts[1]
+    scsb_bib_to_barcodes[bib_id] ||= []
+    scsb_bib_to_barcodes[bib_id] << barcode
+  end
+end
+
+File.open("#{input_dir}/nypl_ebook_match.tsv", 'r') do |input|
+  input.gets
+  while (line = input.gets)
+    line.chomp!
+    parts = line.split("\t")
+    key = parts[2]
+    next if match_to_ids[key].nil?
+
+    bib_id = parts[0]
+    barcode = parts[1]
+    scsb_bib_to_barcodes[bib_id] ||= []
+    scsb_bib_to_barcodes[bib_id] << barcode
+  end
+end
+
+### Load in SCSB usage per barcode
+scsb_barcode_usage = {}
+CSV.open("#{input_dir}/usage_scsb_borrowing_fy24-fy25.csv", 'r', headers: true, encoding: 'bom|utf-8') do |csv|
+  csv.each do |row|
+    barcode = row['Barcode']
+    usage = row['Loans (Not In House) from Resource Sharing Borrowing Request']
+    scsb_barcode_usage[barcode] ||= BigDecimal('0')
+    scsb_barcode_usage[barcode] += BigDecimal(usage)
+  end
+end
+
+key_usage = {}
+match_to_ids.each do |key, sites|
+  ids = sites[:ebook] + sites[:pul_print].to_a
+  pul_usages = bib_usage.select { |id, _usage| ids.include?(id) }
+  key_usage[key] ||= { loans: BigDecimal('0'), in_house: BigDecimal('0'), borrowing: BigDecimal('0') }
+  pul_usages.each_value do |usage|
+    key_usage[key][:loans] += usage[:loans]
+    key_usage[key][:in_house] += usage[:in_house]
+  end
+  scsb_bibs = sites[:cul].to_a + sites[:hl].to_a + sites[:nypl].to_a
+  scsb_bibs.each do |id|
+    barcodes = scsb_bib_to_barcodes[id]
+    barcodes.each do |barcode|
+      usage = scsb_barcode_usage[barcode]
+      key_usage[key][:borrowing] += usage if usage
+    end
+  end
+end
+
+### Load COUNTER TR_B1 usage by ISBN report obtained from Analytics for FY24-FY25
+isbn_usage = {}
+CSV.open("#{input_dir}/ebooks_with_print_sushi_fy24-fy25.csv", 'r', headers: true, encoding: 'bom|utf-8') do |csv|
+  csv.each do |row|
+    raw_isbn = row['Origin ISBN']
+    normal_isbn = isbn_normalize(raw_isbn)
+    isbn_usage[normal_isbn] ||= BigDecimal('0')
+    isbn_usage[normal_isbn] += BigDecimal(row['Unique Requests'])
+  end
+end
+
+### Link ISBNs to MMS IDs of electronic records
+bib_to_isbn = {}
+File.open("#{output_dir}/ebook_isbns.tsv", 'r') do |input|
+  input.gets
+  while (line = input.gets)
+    line.chomp!
+    parts = line.split("\t")
+    mms_id = parts[0]
+    isbn = parts[1]
+    bib_to_isbn[mms_id] ||= []
+    bib_to_isbn[mms_id] << isbn
+  end
+end
+
+### Add electronic usage to the key_usage hash
+match_to_ids.each do |key, sites|
+  ids = sites[:ebook]
+  total_usage = BigDecimal('0')
+  ids.each do |mms_id|
+    isbns = bib_to_isbn[mms_id]
+    next unless isbns
+
+    isbns.each do |isbn|
+      usage = isbn_usage[isbn]
+      total_usage += usage if usage
+    end
+  end
+  key_usage[key][:electronic] = total_usage
+end
+
 ### Report out the records that have print matches
 File.open("#{output_dir}/ebooks_with_print_matches.tsv", 'w') do |output|
-  output.puts("Match Key\tElectronic MMS IDs\tMatching Print Sites\tPUL Print MMS IDs\tCUL IDs\tHL IDs\tNYPL IDs")
+  output.write("Match Key\tElectronic MMS IDs\tMatching Print Sites\t")
+  output.puts("PUL Print MMS IDs\tCUL IDs\tHL IDs\tNYPL IDs\tLoans\tBrowses\tSCSB Borrowing\tElectronic Usage")
   match_to_ids.each do |key, sites|
-    next unless sites.size > 1
-
     output.write("#{key}\t")
     output.write("#{sites[:ebook].join(' | ')}\t")
     output.write("#{sites.keys.reject { |value| value == :ebook }.join(' | ')}\t")
-    output.write("#{sites[:pul_print].join(' | ')}\t") if sites[:pul_print]
-    output.write("#{sites[:cul].join(' | ')}\t") if sites[:cul]
-    output.write("#{sites[:hl].join(' | ')}\t") if sites[:hl]
-    output.puts(sites[:nypl].to_a.join(' | '))
+    output.write("#{sites[:pul_print].to_a.join(' | ')}\t")
+    output.write("#{sites[:cul].to_a.join(' | ')}\t")
+    output.write("#{sites[:hl].to_a.join(' | ')}\t")
+    output.write("#{sites[:nypl].to_a.join(' | ')}\t")
+    output.write("#{key_usage[key][:loans].to_s('F')}\t")
+    output.write("#{key_usage[key][:in_house].to_s('F')}\t")
+    output.write("#{key_usage[key][:borrowing].to_s('F')}\t")
+    output.puts(key_usage[key][:electronic].to_s('F'))
   end
 end
+nil
