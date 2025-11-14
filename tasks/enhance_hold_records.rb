@@ -14,7 +14,7 @@ def inventory_info(record)
 end
 
 def tracking_field
-  field = MARC::DataField.new('919', ' ', ' ')
+  field = MARC::DataField.new('917', ' ', ' ')
   field.append(MARC::Subfield.new('a', 'backlog_enhanced'))
   field.append(MARC::Subfield.new('b', Time.new.strftime('%Y-%m-%d')))
   field
@@ -38,7 +38,7 @@ header_row = [
   'Library Code', 'Location Code', 'Title', 'ISBNs', 'Matched OCLC Number'
 ]
 report.puts(header_row.join("\t"))
-fname = 'backlog_44628247440006421_20251022_201028[038].xml_new'
+fname = 'backlog_44877285080006421_20251114_141146[034].xml_new'
 reader = MARC::XMLReader.new("#{input_dir}/#{fname}", parser: 'magic', ignore_namespace: true)
 conn = nil
 reader.each do |record|
@@ -65,7 +65,7 @@ reader.each do |record|
     writer.write(cleaned_record)
     inventory_info(record).each do |item|
       report.write("#{mms_id}\t#{item[:inventory_num]}\t#{language_code}\t#{item[:library]}\t")
-      report.write("#{item[:location]}\t#{title}\t#{all_isbns.join(' | ')}\t#{oclcs(record: cleaned_record).first}")
+      report.puts("#{item[:location]}\t#{title}\t#{all_isbns.join(' | ')}\t#{oclcs(record: cleaned_record).first}")
     end
   end
   processed << mms_id
