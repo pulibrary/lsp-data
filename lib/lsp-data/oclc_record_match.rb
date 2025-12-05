@@ -21,7 +21,9 @@ module LspData
                        7
                      when 'oclc'
                        12
-                     end
+                     when 'url'
+                       1209
+                     end                     
       return unless search_index
 
       result = conn.search_by_id(index: search_index, identifier: identifier)
