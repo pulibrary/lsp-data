@@ -44,7 +44,10 @@ module LspData
   private
 
   def record_from_result(result)
-    temp_reader = MARC::XMLReader.new(StringIO.new(result.xml, 'r'))
+    raw = result.xml.dup
+    raw.force_encoding('utf-8')
+    raw.encode!('utf-8', invalid: :replace, undef: :replace, replace: '')
+    temp_reader = MARC::XMLReader.new(StringIO.new(raw, 'r'), parser: 'magic')
     temp_reader.first
   end
 end

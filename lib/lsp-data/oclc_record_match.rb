@@ -110,13 +110,12 @@ module LspData
       acceptable_leader?(record) &&
         acceptable_f040b?(record) &&
         (belle_lettres?(record) || acceptable_subject?(record)) &&
-        call_num050?(record) &&
-        (electronic_reproduction?(record) == false)
+        call_num050?(record)
     end
 
     def acceptable_record?(record, title)
       (lc?(record) || pcc050?(record) || acceptable_non_lc?(record)) &&
-        title_match?(record, title)
+        title_match?(record, title) && (electronic_reproduction?(record) == false)
     end
 
     def acceptable_f040b?(record)
