@@ -9,6 +9,61 @@ require_relative './../lib/lsp-data'
 require 'csv'
 require 'bigdecimal'
 
+def preferred_call_num(call_nums)
+  return call_nums[:holdings].first[1].first unless call_nums[:holdings].empty?
+  return call_nums[:f050].first unless call_nums[:f050].empty?
+
+  call_nums[:f090].first unless call_nums[:f090].empty?
+end
+
+def electronic_collections(record)
+  f951 = record.fields('951').select { |field| field['0'] =~ /6421$/ }
+  f951.map { |field| { coverage: field['k'], collection: field['n'] } }
+end
+
+def format_collections(electronic_collections)
+  array = []
+  electronic_collections.each do |electronic_collection|
+    string = ''.dup
+    string << electronic_collection[:collection] if electronic_collection[:collection]
+    string << ": #{electronic_collection[:coverage]}" if electronic_collection[:coverage].to_s != ''
+    array << string.gsub(/^: (.*)$/, '\1') if string.size.positive?
+  end
+  array.uniq.join(' | ')
+end
+
+def print_locations(record)
+  f852 = record.fields('852').select { |field| field['8'] =~ /^22[0-9]+6421$/ }
+  f852.map { |field| "#{field['b']}$#{field['c']}" }.uniq
+end
+
+def total_usage_per_group(match_info)
+  hash = {}
+  match_info[:pul_loans].each do |group, usage|
+    hash[group] ||= BigDecimal('0')
+    hash[group] += usage
+  end
+  match_info[:partner_loans].each do |group, usage|
+    hash[group] ||= BigDecimal('0')
+    hash[group] += usage
+  end
+  hash
+end
+
+def write_partner_key_info(record:, output:, recap_accessions:, electronic_match_keys:)
+  bc_matches = record.fields('876').select { |f| recap_accessions.include?(f['p']) }
+  return if bc_matches.empty?
+
+  key = MarcMatchKey::Key.new(record).key[0..-2]
+  return unless electronic_match_keys.include?(key)
+
+  bc_matches.each do |field|
+    output.write("#{record['001'].value}\t")
+    output.write("#{field['p']}\t")
+    output.puts(key)
+  end
+end
+
 input_dir = ENV['DATA_INPUT_DIR']
 output_dir = ENV['DATA_OUTPUT_DIR']
 
@@ -124,17 +179,10 @@ File.open("#{output_dir}/cul_ebook_match.tsv", 'w') do |output|
     reader.each do |record|
       next unless record.leader[6..7] == 'am'
 
-      bc_matches = record.fields('876').select { |f| recap_accessions.include?(f['p']) }
-      next if bc_matches.empty?
-
-      key = MarcMatchKey::Key.new(record).key[0..-2]
-      next unless electronic_match_keys.include?(key)
-
-      bc_matches.each do |field|
-        output.write("#{record['001'].value}\t")
-        output.write("#{field['p']}\t")
-        output.puts(key)
-      end
+      write_partner_key_info(record: record,
+                             output: output,
+                             recap_accessions: recap_accessions,
+                             electronic_match_keys: electronic_match_keys)
     end
   end
 end
@@ -145,19 +193,10 @@ File.open("#{output_dir}/hl_ebook_match.tsv", 'w') do |output|
     puts File.basename(file)
     reader = MARC::XMLReader.new(file, parser: 'magic')
     reader.each do |record|
-      next unless record.leader[6..7] == 'am'
-
-      bc_matches = record.fields('876').select { |f| recap_accessions.include?(f['p']) }
-      next if bc_matches.empty?
-
-      key = MarcMatchKey::Key.new(record).key[0..-2]
-      next unless electronic_match_keys.include?(key)
-
-      bc_matches.each do |field|
-        output.write("#{record['001'].value}\t")
-        output.write("#{field['p']}\t")
-        output.puts(key)
-      end
+      write_partner_key_info(record: record,
+                             output: output,
+                             recap_accessions: recap_accessions,
+                             electronic_match_keys: electronic_match_keys)
     end
   end
 end
@@ -168,19 +207,10 @@ File.open("#{output_dir}/nypl_ebook_match.tsv", 'w') do |output|
     puts File.basename(file)
     reader = MARC::XMLReader.new(file, parser: 'magic')
     reader.each do |record|
-      next unless record.leader[6..7] == 'am'
-
-      bc_matches = record.fields('876').select { |f| recap_accessions.include?(f['p']) }
-      next if bc_matches.empty?
-
-      key = MarcMatchKey::Key.new(record).key[0..-2]
-      next unless electronic_match_keys.include?(key)
-
-      bc_matches.each do |field|
-        output.write("#{record['001'].value}\t")
-        output.write("#{field['p']}\t")
-        output.puts(key)
-      end
+      write_partner_key_info(record: record,
+                             output: output,
+                             recap_accessions: recap_accessions,
+                             electronic_match_keys: electronic_match_keys)
     end
   end
 end
@@ -258,15 +288,64 @@ end
 ### We only care about match keys that have an ebook and at least one print copy
 match_to_ids.delete_if { |_key, sites| sites.size < 2 }
 
+all_pul_ids = Set.new
+match_to_ids.each_value do |sites|
+  sites[:ebook].each { |id| all_pul_ids << id }
+  sites[:pul_print]&.each { |id| all_pul_ids << id }
+end
+
+### Retrieve LC call numbers, electronic collection names, and PUL print locations
+###   from PUL Print and Electronic records for keys with more than one site
+bib_info = {} # MMS ID is the key
+Dir.glob("#{input_dir}/new_fulldump/fulldump*.xml*").each do |file|
+  puts File.basename(file)
+  reader = MARC::XMLReader.new(file, parser: 'magic', ignore_namespace: true)
+  reader.each do |record|
+    mms_id = record['001'].value
+    next unless all_pul_ids.include?(mms_id)
+
+    hash = {}
+    hash[:lc_call_nums] = all_call_nums_from_merged_bib(record: record, inst_suffix: '6421')
+    hash[:electronic_collections] = electronic_collections(record)
+    hash[:print_locations] = print_locations(record)
+    bib_info[mms_id] = hash
+  end
+end
+
 ### Retrieve a report of all MMS IDs that had print usage in FY24 through FY25;
-### For all IDs under a given key, total up the usage
-bib_usage = {}
+bib_loans = {}
+CSV.open("#{input_dir}/usage_all_mms_ids_fy24-fy25_user_group.csv", 'r', headers: true, encoding: 'bom|utf-8') do |csv|
+  csv.each do |row|
+    mms_id = row['MMS Id']
+    next unless all_pul_ids.include?(mms_id)
+
+    bib_loans[mms_id] ||= {
+      'P Faculty & Professional' => BigDecimal('0'),
+      'GRAD Graduate Student' => BigDecimal('0'),
+      'UGRD Undergraduate' => BigDecimal('0'),
+      'SENR Senior Undergraduate' => BigDecimal('0'),
+      'REG Regular Staff' => BigDecimal('0'),
+      'GST Guest Patron' => BigDecimal('0'),
+      'CAR1 Carrel 1' => BigDecimal('0'),
+      'Affiliate' => BigDecimal('0'),
+      'Affiliate-P Faculty Affiliate' => BigDecimal('0'),
+      'CAR2 Carrel 2' => BigDecimal('0'),
+      'LMAN Library Maintenance' => BigDecimal('0'),
+      'ILL ILS: Loan' => BigDecimal('0'),
+      'Access Patron' => BigDecimal('0')
+    }
+    bib_loans[mms_id][row['Patron Group']] += BigDecimal(row['Loans (Not In House)'])
+  end
+end
+
+### Retrieve a report of all MMS IDs that had In House Loans in FY24 through FY25
+bib_in_house = {}
 CSV.open("#{input_dir}/usage_all_mms_ids_fy24-fy25.csv", 'r', headers: true, encoding: 'bom|utf-8') do |csv|
   csv.each do |row|
-    bib_usage[row['MMS Id']] = {
-      loans: BigDecimal(row['Loans (Not In House)']),
-      in_house: BigDecimal(row['Loans (In House)'])
-    }
+    mms_id = row['MMS Id']
+    next unless all_pul_ids.include?(mms_id)
+
+    bib_in_house[mms_id] = BigDecimal(row['Loans (In House)'])
   end
 end
 
@@ -319,32 +398,65 @@ end
 
 ### Load in SCSB usage per barcode
 scsb_barcode_usage = {}
-CSV.open("#{input_dir}/usage_scsb_borrowing_fy24-fy25.csv", 'r', headers: true, encoding: 'bom|utf-8') do |csv|
+CSV.open("#{input_dir}/usage_all_resource_sharing_fy24-fy25_user_group.csv", 'r', headers: true,
+                                                                                  encoding: 'bom|utf-8') do |csv|
   csv.each do |row|
     barcode = row['Barcode']
-    usage = row['Loans (Not In House) from Resource Sharing Borrowing Request']
-    scsb_barcode_usage[barcode] ||= BigDecimal('0')
-    scsb_barcode_usage[barcode] += BigDecimal(usage)
+    scsb_barcode_usage[barcode] ||= {
+      'P Faculty & Professional' => BigDecimal('0'),
+      'GRAD Graduate Student' => BigDecimal('0'),
+      'UGRD Undergraduate' => BigDecimal('0'),
+      'SENR Senior Undergraduate' => BigDecimal('0'),
+      'REG Regular Staff' => BigDecimal('0'),
+      'GST Guest Patron' => BigDecimal('0'),
+      'CAR1 Carrel 1' => BigDecimal('0'),
+      'Affiliate' => BigDecimal('0'),
+      'Affiliate-P Faculty Affiliate' => BigDecimal('0'),
+      'CAR2 Carrel 2' => BigDecimal('0'),
+      'LMAN Library Maintenance' => BigDecimal('0'),
+      'ILL ILS: Loan' => BigDecimal('0'),
+      'Access Patron' => BigDecimal('0')
+    }
+    scsb_barcode_usage[barcode][row['Patron Group']] += BigDecimal(row['Loans (Not In House)'])
   end
 end
 
-key_usage = {}
-match_to_ids.each do |key, sites|
-  ids = sites[:ebook] + sites[:pul_print].to_a
-  pul_usages = bib_usage.select { |id, _usage| ids.include?(id) }
-  key_usage[key] ||= { loans: BigDecimal('0'), in_house: BigDecimal('0'), borrowing: BigDecimal('0') }
-  pul_usages.each_value do |usage|
-    key_usage[key][:loans] += usage[:loans]
-    key_usage[key][:in_house] += usage[:in_house]
-  end
-  scsb_bibs = sites[:cul].to_a + sites[:hl].to_a + sites[:nypl].to_a
-  scsb_bibs.each do |id|
-    barcodes = scsb_bib_to_barcodes[id]
-    barcodes.each do |barcode|
-      usage = scsb_barcode_usage[barcode]
-      key_usage[key][:borrowing] += usage if usage
+### Gather loans per user group by match key
+match_to_ids.each_value do |info|
+  pul_ids = info[:ebook]
+  pul_ids += info[:pul_print] if info[:pul_print]
+  pul_loans = {}
+  partner_ids = []
+  partner_ids += info[:cul] if info[:cul]
+  partner_ids += info[:nypl] if info[:nypl]
+  partner_ids += info[:hl] if info[:hl]
+  in_house = BigDecimal('0')
+  pul_ids.each do |id|
+    in_house += bib_in_house[id] if bib_in_house[id]
+    loan_info = bib_loans[id]
+    next unless loan_info
+
+    loan_info.each do |group, count|
+      pul_loans[group] ||= BigDecimal('0')
+      pul_loans[group] += count
     end
   end
+  info[:pul_loans] = pul_loans
+  info[:in_house] = in_house
+  partner_loans = {}
+  partner_ids.each do |bib_id|
+    barcodes = scsb_bib_to_barcodes[bib_id]
+    barcodes.each do |barcode|
+      usage_info = scsb_barcode_usage[barcode]
+      next unless usage_info
+
+      usage_info.each do |group, count|
+        partner_loans[group] ||= BigDecimal('0')
+        partner_loans[group] += count
+      end
+    end
+  end
+  info[:partner_loans] = partner_loans
 end
 
 ### Load COUNTER TR_B1 usage by ISBN report obtained from Analytics for FY24-FY25
@@ -372,38 +484,98 @@ File.open("#{output_dir}/ebook_isbns.tsv", 'r') do |input|
   end
 end
 
-### Add electronic usage to the key_usage hash
-match_to_ids.each do |key, sites|
-  ids = sites[:ebook]
+### Group the bib info by match key
+match_to_ids.each_value do |match_info|
+  call_num = nil
+  match_info[:electronic_collections] = []
+  match_info[:print_locations] = []
   total_usage = BigDecimal('0')
-  ids.each do |mms_id|
-    isbns = bib_to_isbn[mms_id]
-    next unless isbns
+  match_info[:pul_print]&.each do |id|
+    info = bib_info[id]
+    next unless info
 
-    isbns.each do |isbn|
+    match_info[:electronic_collections] += info[:electronic_collections]
+    match_info[:print_locations] += info[:print_locations]
+    call_num = preferred_call_num(info[:lc_call_nums]) if call_num.nil?
+  end
+  match_info[:ebook].each do |id|
+    isbns = bib_to_isbn[id]
+    isbns&.each do |isbn|
       usage = isbn_usage[isbn]
       total_usage += usage if usage
     end
+    info = bib_info[id]
+    next unless info
+
+    match_info[:electronic_collections] += info[:electronic_collections]
+    match_info[:print_locations] += info[:print_locations]
+    call_num = preferred_call_num(info[:lc_call_nums]) if call_num.nil?
   end
-  key_usage[key][:electronic] = total_usage
+  match_info[:electronic] = total_usage
+  match_info[:lc_call_num] = call_num
 end
 
 ### Report out the records that have print matches
 File.open("#{output_dir}/ebooks_with_print_matches.tsv", 'w') do |output|
   output.write("Match Key\tElectronic MMS IDs\tMatching Print Sites\t")
-  output.puts("PUL Print MMS IDs\tCUL IDs\tHL IDs\tNYPL IDs\tLoans\tBrowses\tSCSB Borrowing\tElectronic Usage")
-  match_to_ids.each do |key, sites|
+  output.write("PUL Print MMS IDs\tCUL IDs\tHL IDs\tNYPL IDs\t")
+  output.write("LC Class\tLC Subclass\tLC Classification\tLC Call Number\tPUL Print Locations\t")
+  output.write("Electronic Collections\tElectronic Usage\tBrowses\tHas Loans?\tHas SCSB Borrowing?\t")
+  output.write("Faculty Usage\tFaculty Affiliate Usage\tStaff Usage\tGraduate Usage\tAffiliate Usage\t")
+  output.write("Senior Usage\tUndergraduate Usage\tGuest Usage\tCAR1 Usage\tCAR2 Usage\t")
+  output.puts("ILL Usage\tAccess Patron Usage\tLMAN Usage")
+  match_to_ids.each do |key, info|
+    keys_to_reject = %i[
+      ebook print_locations electronic_collections electronic
+      in_house pul_loans partner_loans lc_call_num
+    ]
+    site_blob = info.keys.reject { |symbol| keys_to_reject.include?(symbol) }
+    all_usage = total_usage_per_group(info)
     output.write("#{key}\t")
-    output.write("#{sites[:ebook].join(' | ')}\t")
-    output.write("#{sites.keys.reject { |value| value == :ebook }.join(' | ')}\t")
-    output.write("#{sites[:pul_print].to_a.join(' | ')}\t")
-    output.write("#{sites[:cul].to_a.join(' | ')}\t")
-    output.write("#{sites[:hl].to_a.join(' | ')}\t")
-    output.write("#{sites[:nypl].to_a.join(' | ')}\t")
-    output.write("#{key_usage[key][:loans].to_s('F')}\t")
-    output.write("#{key_usage[key][:in_house].to_s('F')}\t")
-    output.write("#{key_usage[key][:borrowing].to_s('F')}\t")
-    output.puts(key_usage[key][:electronic].to_s('F'))
+    output.write("#{info[:ebook].join(' | ')}\t")
+    output.write("#{site_blob.join(' | ')}\t")
+    output.write("#{info[:pul_print].to_a.join(' | ')}\t")
+    output.write("#{info[:cul].to_a.join(' | ')}\t")
+    output.write("#{info[:hl].to_a.join(' | ')}\t")
+    output.write("#{info[:nypl].to_a.join(' | ')}\t")
+    if info[:lc_call_num]
+      output.write("#{info[:lc_call_num].primary_lc_class}\t")
+      output.write("#{info[:lc_call_num].sub_lc_class}\t")
+      output.write("#{info[:lc_call_num].classification}\t")
+      output.write("#{info[:lc_call_num].full_call_num}\t")
+    else
+      output.write("\t\t\t\t")
+    end
+    output.write("#{info[:print_locations].join(' | ')}\t")
+    output.write("#{format_collections(info[:electronic_collections])}\t")
+    output.write("#{info[:electronic].to_s('F')}\t")
+    output.write("#{info[:in_house].to_s('F')}\t")
+    if info[:pul_loans].any? { |_group, count| count > BigDecimal('0') }
+      output.write("true\t")
+    else
+      output.write("false\t")
+    end
+    if info[:partner_loans].any? { |_group, count| count > BigDecimal('0') }
+      output.write("true\t")
+    else
+      output.write("false\t")
+    end
+    if all_usage.empty?
+      output.puts("0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0")
+    else
+      output.write("#{all_usage['P Faculty & Professional'].to_s('F')}\t")
+      output.write("#{all_usage['Affiliate-P Faculty Affiliate'].to_s('F')}\t")
+      output.write("#{all_usage['REG Regular Staff'].to_s('F')}\t")
+      output.write("#{all_usage['GRAD Graduate Student'].to_s('F')}\t")
+      output.write("#{all_usage['Affiliate'].to_s('F')}\t")
+      output.write("#{all_usage['SENR Senior Undergraduate'].to_s('F')}\t")
+      output.write("#{all_usage['UGRD Undergraduate'].to_s('F')}\t")
+      output.write("#{all_usage['GST Guest Patron'].to_s('F')}\t")
+      output.write("#{all_usage['CAR1 Carrel 1'].to_s('F')}\t")
+      output.write("#{all_usage['CAR2 Carrel 2'].to_s('F')}\t")
+      output.write("#{all_usage['ILL ILS: Loan'].to_s('F')}\t")
+      output.write("#{all_usage['Access Patron'].to_s('F')}\t")
+      output.puts(all_usage['LMAN Library Maintenance'].to_s('F'))
+    end
   end
 end
-nil
