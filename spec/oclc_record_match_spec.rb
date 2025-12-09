@@ -114,4 +114,17 @@ RSpec.describe LspData::OCLCRecordMatch do
       expect(match.send(:acceptable_record?, record, title)).to eq true
     end
   end
+
+  context 'URL portion is provided for search' do
+    let(:identifier) { 'jingdian.ancientbooks.cn/6/book/5054683' }
+    let(:identifier_type) { 'url' }
+
+    it 'returns records that contain the URL' do
+      records = match.records
+      records_with_url = records.select do |record|
+        record.fields('856').any? { |field| field['u'] =~ /#{identifier}$/ }
+      end
+      expect(records.size).to eq records_with_url.size
+    end
+  end
 end
