@@ -15,16 +15,15 @@ module LspData
       @conn = conn
     end
 
-    def records
-      search_index = case identifier_type
-                     when 'isbn'
-                       7
-                     when 'oclc'
-                       12
-                     end
-      return unless search_index
+    def search_index
+      { 'isbn' => 7, 'oclc' => 12, 'url' => 1209 }
+    end
 
-      result = conn.search_by_id(index: search_index, identifier: identifier)
+    def records
+      index = search_index[identifier_type]
+      return unless index
+
+      result = conn.search_by_id(index: index, identifier: identifier)
       result.reject(&:nil?)
     end
 
