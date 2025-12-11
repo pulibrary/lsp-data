@@ -10,13 +10,13 @@ module LspData
 
     def initialize(pol:, api_key:, conn:, update_inventory: false,
                    redistribute_funds: false)
-      @pol_id ||= pol['number']
+      @pol_id = pol['number']
       @pol = pol
       @api_key = api_key
       @conn = conn
       @redistribute_funds = redistribute_funds
       @update_inventory = update_inventory
-      @response ||= update_po_line
+      @response = update_po_line
     end
 
     private

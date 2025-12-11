@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'faraday'
+
+# Standardized method to make an API call and parse its response
 module LspData
   def api_conn(url)
     Faraday.new(url: url) do |faraday|
@@ -9,6 +11,7 @@ module LspData
       faraday.adapter   Faraday.default_adapter
     end
   end
+
   def parse_api_response(response)
     { status: response.status, body: JSON.parse(response.body) }
   end

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# A collection of classes and methods to manipulate LSP Data
 module LspData
   ### Updates an existing portfolio for a given MMS ID and portfolio ID
   ###   with the body in JSON format; portfolio is provided as a hash
