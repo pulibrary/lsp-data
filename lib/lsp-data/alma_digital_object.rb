@@ -63,7 +63,7 @@ module LspData
           xml.header do
             xml.setSpec 'Digital'
           end
-          xml << "<metadata>#{marc_record.to_xml}<\/metadata>"
+          xml << "<metadata>#{marc_record.to_xml}</metadata>"
         end
       end.to_xml
     end
