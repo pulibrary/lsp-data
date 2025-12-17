@@ -10,10 +10,10 @@
 
 ### To produce an accurate report, constituent and host records need to be incorporated
 ### This means that a bib record can have no holdings of its own but be attached to a host record
-require_relative './../lib/lsp-data'
+require_relative '../lib/lsp-data'
 
-input_dir = ENV['DATA_INPUT_DIR']
-output_dir = ENV['DATA_OUTPUT_DIR']
+input_dir = ENV.fetch('DATA_INPUT_DIR', nil)
+output_dir = ENV.fetch('DATA_OUTPUT_DIR', nil)
 
 ### Store physical holdings information for host records separately for merging in later
 host_records = {}
@@ -61,7 +61,7 @@ host_records.each do |host_id, host_info|
     next unless bib_info[constituent_id]
 
     bib_info[constituent_id][:hosts] << host_id # in case the constituent record doesn't have the host ID
-    bib_info[constituent_id][:locations] << host_info[:locations]
+    bib_info[constituent_id][:locations] += host_info[:locations]
     bib_info[constituent_id][:holdings_call_nums].merge!(host_info[:holdings_call_nums])
   end
 end
@@ -69,7 +69,6 @@ output = File.open("#{output_dir}/task0406692.tsv", 'w')
 output.write("MMS ID\tTitle\tHolding ID\tCall Number From Holdings\tLibrary\t")
 output.puts("Location\tDate1\tDate2\tLanguage Code\tEncoding Level\t300 Field\t338 Field\tHost IDs")
 bib_info.each do |mms_id, info|
-  puts mms_id
   info[:locations].each do |location_info|
     call_num = info[:holdings_call_nums][location_info[:holding_id]]&.full_call_num
     output.write("#{mms_id}\t")
