@@ -1,6 +1,11 @@
 {
   "99206421": [
     {
+      "label": {
+        "@value": "Label",
+        "@language": "eng"
+      },
+      "ark": "http://arks.princeton.edu/ark:/88435/ab01cd37z",
       "visibility": {
         "value": "authenticated",
         "label": "princeton",
@@ -10,6 +15,8 @@
       "iiif_manifest_url": "https://figgy.princeton.edu/concern/scanned_resources/123/manifest"
     },
     {
+      "label": "Label 2",
+      "ark": "http://arks.princeton.edu/ark:/88435/ab01cd36z",
       "visibility": {
         "value": "authenticated",
         "label": "princeton",

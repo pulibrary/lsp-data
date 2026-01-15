@@ -14,7 +14,7 @@ RSpec.describe LspData::FiggyReport do
     let(:mms_id) { '9913506421' }
 
     it 'returns an array of one AlmaDigitalObject for the MMS ID' do
-      expect(figgy_report.mms_hash[mms_id].first.primary_identifier).to eq '123'
+      expect(figgy_report.mms_hash[mms_id].first.marc_record['999']['a']).to eq '123'
       expect(figgy_report.mms_hash[mms_id].size).to eq 1
     end
   end
@@ -24,7 +24,7 @@ RSpec.describe LspData::FiggyReport do
     let(:mms_id) { '99206421' }
 
     it 'returns only the object for the null portion note' do
-      expect(figgy_report.mms_hash[mms_id].first.primary_identifier).to eq '123'
+      expect(figgy_report.mms_hash[mms_id].first.marc_record['999']['a']).to eq '123'
       expect(figgy_report.mms_hash[mms_id].size).to eq 1
     end
   end

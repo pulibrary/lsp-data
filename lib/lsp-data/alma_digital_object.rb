@@ -3,8 +3,7 @@
 module LspData
   ### Transform a FiggyDigitalObject into XML that Alma can ingest
   ###   Mandatory elements:
-  ###     1. Identifier (for open items, the unique ID of the ARK; for other items,
-  ###       the unique ID of the manifest); will be in a 999$a
+  ###     1. Identifier (the unique ID of the manifest; will be in a 999$a
   ###     2. Repository code based on visibility (figgy-private, figgy-open, etc.);
   ###       this will be an attribute separate from the XML
   ###     3. IIIF Manifest; will be in a 999$d
@@ -13,10 +12,7 @@ module LspData
   ###     6. Collection; will be in 987$t;
   ###       for now, there will be one collection per object derived from the visibility
   ###       (e.g., Figgy open objects, Figgy private, Figgy princeton objects)
-  ###   Additional elements for open items:
-  ###     1. Label; will be in a 999$b
-  ###     2. Thumbnail URL unique identifier (with square formatting instead of
-  ###       the full resolution); will be in a 999$c
+  ###     7. Label: will be in a 999$b
   class AlmaDigitalObject
     attr_reader :mms_id, :figgy_object, :repository_code, :iiif_manifest
 
@@ -24,23 +20,12 @@ module LspData
       @mms_id = mms_id
       @figgy_object = figgy_object
       @repository_code = "figgy-#{figgy_object.visibility.gsub(/\s/, '_')}"
-      @primary_identifier = primary_identifier
     end
 
     def record
       return @record if defined?(@record)
 
       record_from_figgy_data
-    end
-
-    def primary_identifier
-      return @primary_identifier if defined?(@primary_identifier)
-
-      if figgy_object.visibility == 'open' && figgy_object.manifest_metadata
-        figgy_object.manifest_metadata[:ark].gsub(%r{^https?://arks\.princeton\.edu/ark:/88435/(.*)$}, '\1')
-      else
-        figgy_object.manifest_identifier
-      end
     end
 
     def marc_record
@@ -74,24 +59,11 @@ module LspData
       field
     end
 
-    def append_optional_inventory(field)
-      field.append(MARC::Subfield.new('b', figgy_object.manifest_metadata[:label]))
-      field.append(MARC::Subfield.new('c', thumbnail_identifier))
-    end
-
     def inventory_field
-      field = MARC::DataField.new('999', ' ', ' ',
-                                  MARC::Subfield.new('a', primary_identifier),
-                                  MARC::Subfield.new('d', figgy_object.manifest_url))
-      append_optional_inventory(field) if figgy_object.visibility == 'open' && figgy_object.manifest_metadata
-      field
-    end
-
-    def thumbnail_identifier
-      raw_identifier = figgy_object.manifest_metadata[:thumbnail].gsub(
-        %r{^https://iiif-cloud.princeton.edu/iiif/(.*intermediate_?file).*$}, '\1'
-      )
-      "#{raw_identifier}/square/225,/0/default.jpg"
+      MARC::DataField.new('999', ' ', ' ',
+                          MARC::Subfield.new('a', figgy_object.manifest_identifier),
+                          MARC::Subfield.new('b', figgy_object.label),
+                          MARC::Subfield.new('d', figgy_object.manifest_url))
     end
 
     def collection_name
