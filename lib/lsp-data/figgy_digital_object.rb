@@ -10,24 +10,22 @@ module LspData
   ###    5. Label
   ###    6. ARK
   class FiggyDigitalObject
-    attr_reader :mms_id, :visibility, :manifest_url, :conn,
-                :manifest_identifier, :manifest_unique_portion, :ark, :label
+    attr_reader :mms_id, :visibility, :manifest_url,
+                :manifest_identifier, :ark, :label
 
-    def initialize(manifest_info:, mms_id:, conn:)
+    def initialize(manifest_info:, mms_id:)
       @visibility = manifest_info['visibility']['label']
       @manifest_url = manifest_info['iiif_manifest_url']
-      @manifest_unique_portion = manifest_url.gsub(%r{^.*concern/([^/]+/[^/]+)/.*$}, '\1')
       @manifest_identifier ||= identifier_from_manifest_url
       @ark = manifest_info['ark']
       @mms_id = mms_id
-      @conn = conn
       @label = label_from_manifest(manifest_info['label'])
     end
 
     private
 
     def identifier_from_manifest_url
-      manifest_unique_portion.gsub(%r{^[^/]+/([^/]+)$}, '\1')
+      manifest_url.gsub(%r{^.*concern/[^/]+/([^/]+)/.*$}, '\1')
     end
 
     def label_from_manifest(label_info)

@@ -8,11 +8,10 @@ RSpec.describe LspData::AlmaDigitalObject do # rubocop:disable Metrics/BlockLeng
   subject(:alma_object) do
     described_class.new(mms_id: mms_id, figgy_object: figgy_object)
   end
-  let(:conn) { LspData.api_conn('https://figgy.princeton.edu/concern') }
   let(:mms_id) { '99129146648906421' }
   let(:figgy_object) do
     FiggyDigitalObject.new(manifest_info: stub_json_fixture(fixture: fixture),
-                           mms_id: mms_id, conn: conn)
+                           mms_id: mms_id)
   end
 
   context 'private visibility Figgy object' do

@@ -5,9 +5,8 @@ require 'spec_helper'
 
 RSpec.describe LspData::FiggyDigitalObject do # rubocop:disable Metrics/BlockLength
   subject(:figgy_object) do
-    described_class.new(manifest_info: stub_json_fixture(fixture: fixture), mms_id: mms_id, conn: conn)
+    described_class.new(manifest_info: stub_json_fixture(fixture: fixture), mms_id: mms_id)
   end
-  let(:conn) { LspData.api_conn('https://figgy.princeton.edu/concern/') }
   let(:mms_id) { '99129146648906421' }
 
   context 'private visibility item' do

@@ -5,9 +5,8 @@ require 'spec_helper'
 
 RSpec.describe LspData::FiggyReport do
   subject(:figgy_report) do
-    described_class.new(report: stub_json_fixture(fixture: fixture), conn: conn)
+    described_class.new(report: stub_json_fixture(fixture: fixture))
   end
-  let(:conn) { LspData.api_conn('https://figgy.princeton.edu/concern') }
 
   context 'MMS ID has one manifest with a portion note' do
     let(:fixture) { 'private_figgy_report_collection.json' }

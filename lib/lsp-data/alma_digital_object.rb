@@ -34,7 +34,7 @@ module LspData
       rec = MARC::Record.new
       rec.leader = '#####ckm#a22#####2i#4500'
       rec.append(MARC::ControlField.new('001', mms_id))
-      rec.append(title_field)
+      rec.append(MARC::DataField.new('245', '0', '0', MARC::Subfield.new('a', 'digital inventory')))
       rec.append(collection_field)
       rec.append(inventory_field)
       @marc_record = rec
@@ -51,12 +51,6 @@ module LspData
           xml << "<metadata>#{marc_record.to_xml}</metadata>"
         end
       end.to_xml
-    end
-
-    def title_field
-      field = MARC::DataField.new('245', '0', '0')
-      field.append(MARC::Subfield.new('a', 'digital inventory'))
-      field
     end
 
     def inventory_field
