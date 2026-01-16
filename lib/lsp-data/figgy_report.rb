@@ -6,10 +6,9 @@ module LspData
   ### If there is only one manifest with the MMS ID, return that object as an array;
   ### If there are multiple manifests, only return objects where the portion_note is null
   class FiggyReport
-    attr_reader :conn, :report
+    attr_reader :report
 
-    def initialize(report:, conn:)
-      @conn = conn
+    def initialize(report:)
       @report = report
     end
 
@@ -34,7 +33,7 @@ module LspData
         hash[mms_id] += relevant_manifests(manifests).map do |manifest|
           AlmaDigitalObject.new(mms_id: mms_id,
                                 figgy_object: FiggyDigitalObject.new(manifest_info: manifest,
-                                                                     conn: conn, mms_id: mms_id))
+                                                                     mms_id: mms_id))
         end
       end
       hash

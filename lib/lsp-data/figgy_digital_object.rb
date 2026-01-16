@@ -6,99 +6,33 @@ module LspData
   ###    1. Visibility (princeton, open, reading room, private, on campus) (taken from the visibility label)
   ###    2. MMS ID (key of the hash)
   ###    3. IIIF Manifest URL
-  ### If the visibility is open, retrieve the metadata from the manifest and add
-  ###   the following features:
-  ###     1. Label
-  ###     2. ARK
-  ###     3. Thumbnail URL
-  ###     4. Collections
+  ###    4. Manifest identifier (unique portion of Manifest URL)
+  ###    5. Label
+  ###    6. ARK
   class FiggyDigitalObject
-    attr_reader :mms_id, :visibility, :manifest_url, :conn,
-                :manifest_identifier, :manifest_unique_portion
+    attr_reader :mms_id, :visibility, :manifest_url,
+                :manifest_identifier, :ark, :label
 
-    def initialize(manifest_info:, mms_id:, conn:)
+    def initialize(manifest_info:, mms_id:)
       @visibility = manifest_info['visibility']['label']
       @manifest_url = manifest_info['iiif_manifest_url']
-      @manifest_unique_portion = manifest_url.gsub(%r{^.*concern/([^/]+/[^/]+)/.*$}, '\1')
       @manifest_identifier ||= identifier_from_manifest_url
+      @ark = manifest_info['ark']
       @mms_id = mms_id
-      @conn = conn
-      @manifest_metadata = manifest_metadata
-    end
-
-    def manifest_metadata
-      return @manifest_metadata if defined?(@manifest_metadata)
-
-      all_metadata = manifest
-      return @manifest_metadata = nil if all_metadata.nil?
-
-      body = all_metadata[:body]
-      @manifest_metadata = metadata_from_manifest(body)
+      @label = label_from_manifest(manifest_info['label'])
     end
 
     private
 
-    def metadata_from_manifest(body)
-      {
-        ark: ark(body),
-        thumbnail: thumbnail(body),
-        label: label(body),
-        collections: collections(body)
-      }
-    end
-
     def identifier_from_manifest_url
-      manifest_unique_portion.gsub(%r{^[^/]+/([^/]+)$}, '\1')
+      manifest_url.gsub(%r{^.*concern/[^/]+/([^/]+)/.*$}, '\1')
     end
 
-    def label(body)
-      if body['label'].instance_of?(String)
-        body['label']
+    def label_from_manifest(label_info)
+      if label_info.instance_of?(String)
+        label_info
       else
-        body['label']['eng'].first
-      end
-    end
-
-    def thumbnail(body)
-      if body['thumbnail'].instance_of?(Array)
-        body['thumbnail'].find { |object| object['format'] == 'image/jpeg' }['id']
-      else
-        body['thumbnail']['@id']
-      end
-    end
-
-    def ark(body)
-      if body['rendering'].instance_of?(Array)
-        body['rendering'].find { |object| object['format'] == 'text/html' }['id']
-      else
-        body['rendering']['@id']
-      end
-    end
-
-    def collections(body)
-      english_label = body['metadata'].find { |object| object['label']['eng']&.include?('Member Of Collections') }
-      if english_label
-        english_label['value']['eng']
-      else
-        body['metadata'].find { |object| object['label'] == 'Member Of Collections' }&.[]('value')
-      end
-    end
-
-    ### Figgy does not return the body in JSON format if the status is not 200
-    def manifest
-      return unless visibility == 'open'
-
-      response = api_call
-      return unless response.status == 200
-
-      parse_api_response(response)
-    end
-
-    def api_call
-      conn.get do |req|
-        req.url "#{manifest_unique_portion}/manifest"
-        req.headers['Content-Type'] = 'application/json'
-        req.headers['Accept'] = 'application/json'
+        label_info['@value']
       end
     end
   end

@@ -1,6 +1,8 @@
 {
   "9913506421": [
     {
+      "label": "Label",
+      "ark": "http://arks.princeton.edu/ark:/88435/ab01cd34z",
       "visibility": {
         "value": "restricted",
         "label": "private",
