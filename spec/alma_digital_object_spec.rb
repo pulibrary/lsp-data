@@ -29,14 +29,14 @@ RSpec.describe LspData::AlmaDigitalObject do # rubocop:disable Metrics/BlockLeng
 
   context 'open visibility Figgy object' do
     let(:fixture) { 'open_figgy_report.json' }
-    let(:manifest_fixture) { 'figgy_manifest.json' }
     let(:manifest_url) { 'https://figgy.princeton.edu/concern/scanned_resources/123/manifest' }
-
+    let(:xml_fixture) { stub_xml_fixture(fixture: 'alma_digital_record.xml') }
     it 'has all required elements' do
       expect(alma_object.repository_code).to eq 'figgy-open'
       expect(alma_object.marc_record['999']['a']).to eq '123'
       expect(alma_object.marc_record['999']['b']).to eq 'Label'
       expect(alma_object.marc_record['999']['d']).to eq manifest_url
+      expect(alma_object.record).to eq xml_fixture.to_xml.gsub("<?xml version=\"1.0\"?>\n", '')
     end
   end
 end

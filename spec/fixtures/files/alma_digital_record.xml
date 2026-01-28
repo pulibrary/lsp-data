@@ -1,0 +1,23 @@
+<record>
+  <header>
+    <setSpec>Digital</setSpec>
+  </header>
+  <metadata>
+    <record xmlns="http://www.loc.gov/MARC21/slim">
+      <leader>ZZZZZckmZa22ZZZZZ2iZ4500</leader>
+      <controlfield tag="001">99129146648906421</controlfield>
+      <datafield ind1="0" ind2="0" tag="245">
+        <subfield code="a">digital inventory</subfield>
+      </datafield>
+      <datafield ind1=" " ind2=" " tag="987">
+        <subfield code="t">Figgy open objects</subfield>
+      </datafield>
+      <datafield ind1=" " ind2=" " tag="999">
+        <subfield code="a">123</subfield>
+        <subfield code="b">Label</subfield>
+        <subfield code="c">ab01cd39z</subfield>
+        <subfield code="d">https://figgy.princeton.edu/concern/scanned_resources/123/manifest</subfield>
+      </datafield>
+    </record>
+  </metadata>
+</record>
