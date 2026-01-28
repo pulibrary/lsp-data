@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative './../lib/lsp-data'
+require_relative '../lib/lsp-data'
 require 'spec_helper'
 
 RSpec.describe LspData::FiggyDigitalObject do # rubocop:disable Metrics/BlockLength
@@ -19,6 +19,15 @@ RSpec.describe LspData::FiggyDigitalObject do # rubocop:disable Metrics/BlockLen
       expect(figgy_object.manifest_identifier).to eq '123'
       expect(figgy_object.ark).to eq 'http://arks.princeton.edu/ark:/88435/ab01cd39z'
       expect(figgy_object.label).to eq 'Label'
+    end
+  end
+
+  context 'private visibility item with nil label' do
+    let(:fixture) { 'private_figgy_report_nil_label.json' }
+
+    it 'has empty label' do
+      expect(figgy_object.manifest_identifier).to eq '123'
+      expect(figgy_object.label).to eq ''
     end
   end
 

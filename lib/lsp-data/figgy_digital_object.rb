@@ -31,6 +31,8 @@ module LspData
     def label_from_manifest(label_info)
       if label_info.instance_of?(String)
         label_info
+      elsif label_info.nil?
+        ''
       else
         label_info['@value']
       end

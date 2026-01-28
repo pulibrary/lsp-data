@@ -3,7 +3,9 @@
 module LspData
   ### Transform a FiggyDigitalObject into XML that Alma can ingest
   ###   Mandatory elements:
-  ###     1. Identifier (the unique ID of the manifest; will be in a 999$a
+  ###     1. Identifier (the unique ID of the manifest; will be in a 999$a)
+  ###     2. Unique part of the ARK (will be in a 999$c);
+  ###       this will be transformed into the full ARK in Alma
   ###     2. Repository code based on visibility (figgy-private, figgy-open, etc.);
   ###       this will be an attribute separate from the XML
   ###     3. IIIF Manifest; will be in a 999$d
@@ -42,6 +44,9 @@ module LspData
 
     private
 
+    ### Alma cannot process files if the XML version is declared
+    ### See https://knowledge.exlibrisgroup.com/@api/deki/files/46942/OAI_MARC_SAMPLE.xml?revision=1
+    ###   for the schema details
     def record_from_figgy_data
       Nokogiri::XML::Builder.new do |xml|
         xml.record do
@@ -50,13 +55,18 @@ module LspData
           end
           xml << "<metadata>#{marc_record.to_xml}</metadata>"
         end
-      end.to_xml
+      end.to_xml.gsub("<?xml version=\"1.0\"?>\n", '')
+    end
+
+    def unique_ark_portion(ark)
+      ark.gsub(%r{^https?://arks.princeton.edu/ark:/88435/(.*)$}, '\1')
     end
 
     def inventory_field
       MARC::DataField.new('999', ' ', ' ',
                           MARC::Subfield.new('a', figgy_object.manifest_identifier),
                           MARC::Subfield.new('b', figgy_object.label),
+                          MARC::Subfield.new('c', unique_ark_portion(figgy_object.ark)),
                           MARC::Subfield.new('d', figgy_object.manifest_url))
     end
 

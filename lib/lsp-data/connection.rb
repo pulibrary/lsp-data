@@ -12,7 +12,15 @@ module LspData
     end
   end
 
+  def valid_json?(json)
+    JSON.parse(json)
+    true
+  rescue JSON::ParserError
+    false
+  end
+
   def parse_api_response(response)
-    { status: response.status, body: JSON.parse(response.body) }
+    body = valid_json?(response.body) ? JSON.parse(response.body) : response.body
+    { status: response.status, body: body }
   end
 end

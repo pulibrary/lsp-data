@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative './../lib/lsp-data'
+require_relative '../lib/lsp-data'
 require 'byebug'
 require 'spec_helper'
 
@@ -18,11 +18,11 @@ RSpec.describe LspData::AlmaDigitalObject do # rubocop:disable Metrics/BlockLeng
     let(:fixture) { 'private_figgy_report.json' }
     let(:manifest_url) { 'https://figgy.princeton.edu/concern/scanned_resources/123/manifest' }
     it 'has all required elements' do
-      nokogiri_record = Nokogiri::XML(alma_object.record)
       expect(alma_object.mms_id).to eq mms_id
       expect(alma_object.repository_code).to eq 'figgy-private'
       expect(alma_object.marc_record['999']['a']).to eq '123'
       expect(alma_object.marc_record['999']['b']).to eq 'Label'
+      expect(alma_object.marc_record['999']['c']).to eq 'ab01cd39z'
       expect(alma_object.marc_record['999']['d']).to eq manifest_url
     end
   end

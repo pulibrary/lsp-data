@@ -1,0 +1,34 @@
+{
+  "9913506421": [
+      {
+          "ark": "http://arks.princeton.edu/ark:/88435/zy3f10fs17a",
+          "iiif_manifest_url": "https://figgy.princeton.edu/concern/scanned_resources/123/manifest",
+          "label": {
+              "@value": "Label",
+              "@language": "en"
+          },
+          "portion_note": "Portion note 1",
+          "visibility": {
+              "value": "open",
+              "label": "open",
+              "definition": "Open to the world. Anyone can view."
+          }
+      }
+  ],
+  "9923506421": [
+      {
+          "ark": "http://arks.princeton.edu/ark:/88435/aa1a11aa111",
+          "iiif_manifest_url": "https://figgy.princeton.edu/concern/scanned_resources/124/manifest",
+          "label": {
+              "@value": "Label 2",
+              "@language": "en"
+          },
+          "portion_note": "Portion note 2",
+          "visibility": {
+              "value": "open",
+              "label": "open",
+              "definition": "Open to the world. Anyone can view."
+          }
+      }
+  ]
+}
