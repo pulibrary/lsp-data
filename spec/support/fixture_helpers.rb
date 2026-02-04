@@ -78,6 +78,19 @@ def stub_oauth(fixture:, url:, scope: nil)
     .to_return(status: 200, body: data)
 end
 
+def stub_figgy(fixture: nil, auth_token:, desired_status:)
+  file = File.open("#{FIXTURE_DIR}/#{fixture}")
+  data = fixture.nil? ? '' : File.read(file)
+  stub_request(:get, "https://figgy.princeton.edu/reports/mms_records.json?auth_token=#{auth_token}")
+    .with(headers: {
+      'Accept' => 'application/json',
+      'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+      'Content-Type' => 'application/json',
+      'User-Agent' => 'Faraday v1.10.4'
+    })
+    .to_return(status: desired_status, body: data, headers: {})
+end
+
 def stub_oclc(fixture:, url:, token:, oclc_num:, desired_status:)
   file = File.open("#{FIXTURE_DIR}/#{fixture}")
   data = File.read(file)
