@@ -53,7 +53,7 @@ File.open("#{output_dir}/read_report_task0415257.tsv", 'w') do |output|
     pul_matches = matches[isbn]
     if pul_matches
       electronic_bibs = pul_matches.select { |_mms_id, types| types[:electronic] }.keys
-      print_bibs = pul_matches.select { |_mms_id, types| types[:print] }.keys
+      print_bibs = pul_matches.select { |_mms_id, types| types[:physical] }.keys
       output.write("#{print_bibs.join(' | ')}\t")
       output.puts(electronic_bibs.join(' | '))
     else
