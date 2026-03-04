@@ -118,12 +118,12 @@ end
 output.close
 
 ### Produce summaries based on the full report, to avoid having to look at raw data
-### Usage by location and LC Class
+### Usage by location, LC Class, and year
 ###   a. Total number of items used at all
 ###   b. Total number of items not used at all
 ###   c. Total loans
 ###   d. Total browses
-location_hash = {} # Library, locations, Main Class, Full Class, Class Number, Items
+location_hash = {} # Library, locations, Main Class, Full Class, Class Number, Year, Items
 File.open("#{output_dir}/knowlton_book_usage_by_location.tsv", 'r') do |input|
   input.gets
   while (line = input.gets)
@@ -135,31 +135,35 @@ File.open("#{output_dir}/knowlton_book_usage_by_location.tsv", 'r') do |input|
     full_class = parts[5] == '' ? 'Undefined' : parts[5]
     class_num = parts[6] == '' ? 'Undefined' : parts[6]
     item_id = parts[10]
+    year = parts[2]
     usage_hash = { loans: parts[13].to_i, browses: parts[14].to_i }
     location_hash[library] ||= {}
     location_hash[library][location] ||= {}
     location_hash[library][location][main_class] ||= {}
     location_hash[library][location][main_class][full_class] ||= {}
     location_hash[library][location][main_class][full_class][class_num] ||= {}
-    location_hash[library][location][main_class][full_class][class_num][item_id] = usage_hash
+    location_hash[library][location][main_class][full_class][class_num][year] ||= {}
+    location_hash[library][location][main_class][full_class][class_num][year][item_id] = usage_hash
   end
 end
 
 File.open("#{output_dir}/knowlton_book_usage_by_location_summary.tsv", 'w') do |output|
   output.write("Library\tLocation\tLC Main Class\tLC Full Class\tLC Classification Number\t")
-  output.puts("Items With Usage\tItems with No Usage\tTotal Loans\tTotal Browses")
+  output.puts("Year of Publication\tItems With Usage\tItems with No Usage\tTotal Loans\tTotal Browses")
   location_hash.each do |library, loc_info|
     loc_info.each do |location, main|
       main.each do |main_class, full|
         full.each do |full_class, num|
-          num.each do |class_num, items|
-            no_usage = items.select { |_id, usage| (usage[:loans] + usage[:browses]).zero? }.size
-            has_usage = items.reject { |_id, usage| (usage[:loans] + usage[:browses]).zero? }.size
-            loans = items.values.map { |usage| usage[:loans] }.sum
-            browses = items.values.map { |usage| usage[:browses] }.sum
-            output.write("#{library}\t#{location}\t#{main_class}\t")
-            output.write("#{full_class}\t#{class_num}\t#{has_usage}\t")
-            output.puts("#{no_usage}\t#{loans}\t#{browses}")
+          num.each do |class_num, years|
+            years.each do |year, items|
+              no_usage = items.select { |_id, usage| (usage[:loans] + usage[:browses]).zero? }.size
+              has_usage = items.reject { |_id, usage| (usage[:loans] + usage[:browses]).zero? }.size
+              loans = items.values.map { |usage| usage[:loans] }.sum
+              browses = items.values.map { |usage| usage[:browses] }.sum
+              output.write("#{library}\t#{location}\t#{main_class}\t")
+              output.write("#{full_class}\t#{class_num}\t#{year}\t")
+              output.puts("#{has_usage}\t#{no_usage}\t#{loans}\t#{browses}")
+            end
           end
         end
       end
