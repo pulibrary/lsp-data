@@ -68,6 +68,8 @@ def add_isbn_matches(conn:, row:)
   return hash unless hash[:tracking_id] =~ /ISBN/
 
   normalized_isbn = isbn_normalize(hash[:tracking_id].gsub(/^ISBN (.*)$/, '\1'))
+  return hash if normalized_isbn.nil?
+
   hash[:matches] += filtered_matches(identifier: normalized_isbn, identifier_type: 'isbn', conn: conn, row: row)
   hash
 end
