@@ -53,8 +53,10 @@ def series_requirement?(row:, record:)
 end
 
 def filtered_matches(identifier:, identifier_type:, conn:, row:)
+  chinese_conv = ChineseConversion.new
   OCLCRecordMatch.new(identifier: identifier, identifier_type: identifier_type, conn: conn)
-                 .records.reject do |record|
+                 .records.map { |record| chinese_conv.convert_rec_to_trad(chi_simp_rec: record) }
+                 .reject do |record|
                    invalid_record?(record) &&
                      !matched_title?(row: row, record: record) &&
                      !series_requirement?(row: row, record: record)
