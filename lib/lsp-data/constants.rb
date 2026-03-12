@@ -9,4 +9,6 @@ module LspData
   OCLC_Z3950_ENDPOINT = 'zcat.oclc.org'
   OCLC_Z3950_USER = ENV.fetch('OCLC_Z3950_USER', nil)
   OCLC_Z3950_PASSWORD = ENV.fetch('OCLC_Z3950_PASSWORD', nil)
+  ROOT_DIR = File.join(File.dirname(__FILE__), '../..')
+  SIMP_TRAD_TABLE = YAML.load_file("#{ROOT_DIR}/yaml/chi_simp_trad_table.yml")['simp_to_trad']
 end
