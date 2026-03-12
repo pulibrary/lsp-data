@@ -64,8 +64,12 @@ end
 
 # Converts an entire MARC record object from Simplified to Traditional characters
 def convert_rec_to_trad(chi_simp_rec:)
-  chi_simp_mrc = ChineseConversion.new(chi_simp_rec.to_marc)
-  MARC::Record.new_from_marc(chi_simp_mrc.converted)
+  chi_simp_rec.fields('010'..'899').each do |field|
+    field.subfields.each do |subfield|
+      subfield.value = ChineseConversion.new(subfield.value).converted
+    end
+  end
+  chi_simp_rec
 end
 
 def add_isbn_matches(conn:, row:)
