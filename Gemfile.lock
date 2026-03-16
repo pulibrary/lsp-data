@@ -181,6 +181,7 @@ GEM
       addressable (>= 2.8.0)
       crack (>= 0.3.2)
       hashdiff (>= 0.4.0, < 2.0.0)
+    yaml (0.3.0)
 
 PLATFORMS
   aarch64-linux-gnu
@@ -212,6 +213,7 @@ DEPENDENCIES
   simplecov-html
   unf (= 0.1.4)
   webmock
+  yaml
 
 BUNDLED WITH
    2.6.2

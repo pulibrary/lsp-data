@@ -54,11 +54,22 @@ end
 
 def filtered_matches(identifier:, identifier_type:, conn:, row:)
   OCLCRecordMatch.new(identifier: identifier, identifier_type: identifier_type, conn: conn)
-                 .records.reject do |record|
+                 .records.map { |record| convert_rec_to_trad(chi_simp_rec: record) }
+                 .reject do |record|
                    invalid_record?(record) &&
                      !matched_title?(row: row, record: record) &&
                      !series_requirement?(row: row, record: record)
                  end
+end
+
+# Converts an entire MARC record object from Simplified to Traditional characters
+def convert_rec_to_trad(chi_simp_rec:)
+  chi_simp_rec.fields('010'..'899').each do |field|
+    field.subfields.each do |subfield|
+      subfield.value = ChineseConversion.new(subfield.value).converted
+    end
+  end
+  chi_simp_rec
 end
 
 def add_isbn_matches(conn:, row:)
@@ -68,6 +79,8 @@ def add_isbn_matches(conn:, row:)
   return hash unless hash[:tracking_id] =~ /ISBN/
 
   normalized_isbn = isbn_normalize(hash[:tracking_id].gsub(/^ISBN (.*)$/, '\1'))
+  return hash if normalized_isbn.nil?
+
   hash[:matches] += filtered_matches(identifier: normalized_isbn, identifier_type: 'isbn', conn: conn, row: row)
   hash
 end
@@ -87,7 +100,6 @@ csv.each do |row|
 
   urls = [row['URL'].gsub(%r{^https?://(.*)$}, '\1')]
   urls << row['唯一标识符'] if row['唯一标识符'] =~ /^ZHB/
-  urls << row['著录号'] if row['著录号'] =~ /^ZSK/
   matches = []
   tracking_id = nil
   urls.each do |url|

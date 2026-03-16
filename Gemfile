@@ -15,6 +15,7 @@ gem 'base64'
 gem 'csv'
 gem 'alexandria-zoom'
 gem 'logger'
+gem 'yaml'
 
 group :development, :test do
   gem 'pry-byebug'
