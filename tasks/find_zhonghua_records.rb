@@ -54,22 +54,11 @@ end
 
 def filtered_matches(identifier:, identifier_type:, conn:, row:)
   OCLCRecordMatch.new(identifier: identifier, identifier_type: identifier_type, conn: conn)
-                 .records.map { |record| convert_rec_to_trad(chi_simp_rec: record) }
-                 .reject do |record|
+                 .records.reject do |record|
                    invalid_record?(record) &&
                      !matched_title?(row: row, record: record) &&
                      !series_requirement?(row: row, record: record)
                  end
-end
-
-# Converts an entire MARC record object from Simplified to Traditional characters
-def convert_rec_to_trad(chi_simp_rec:)
-  chi_simp_rec.fields('010'..'899').each do |field|
-    field.subfields.each do |subfield|
-      subfield.value = ChineseConversion.new(subfield.value).converted
-    end
-  end
-  chi_simp_rec
 end
 
 def add_isbn_matches(conn:, row:)
