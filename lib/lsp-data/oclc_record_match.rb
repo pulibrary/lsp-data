@@ -16,7 +16,7 @@ module LspData
     end
 
     def search_index
-      { 'isbn' => 7, 'oclc' => 12, 'url' => 1209 }
+      { 'isbn' => 7, 'oclc' => 12, 'url' => 1209, 'lccn' => 9 }
     end
 
     def records
@@ -24,7 +24,7 @@ module LspData
       return unless index
 
       result = conn.search_by_id(index: index, identifier: identifier)
-      result.reject(&:nil?)
+      result.compact
     end
 
     def filtered_records(title)
