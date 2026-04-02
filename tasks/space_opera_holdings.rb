@@ -14,15 +14,15 @@ def identifiers_from_row(row)
   }
 end
 
-def process_oclc_record(title_id:, record:, num_hash:, record_hash:)
+def process_oclc_record(title_id:, record:, num_hash:, goldrush_hash:)
   oclc_num = oclcs(record: record).first
   num_hash[title_id] ||= []
-  record_hash[title_id] ||= []
   return if num_hash[title_id].include?(oclc_num)
 
-  record.append(MARC::DataField.new('999', ' ', ' ', ['a', MarcMatchKey::Key.new(record).key[0..-2]]))
+  goldrush_key = MarcMatchKey::Key.new(record).key[0..-2]
+  goldrush_hash[goldrush_key] ||= []
+  goldrush_hash[goldrush_key] << oclc_num
   num_hash[title_id] << oclc_num
-  record_hash[title_id] << record
 end
 
 ### 1. Retrieve all records by ISBN and OCLC number identifiers from OCLC via Z39.50
@@ -31,7 +31,7 @@ end
 ### 2. Link the retrieved records to the title_id from the original database
 ###   and generate GoldRush keys for each title
 title_id_to_oclc_nums = {}
-records_by_title_id = {}
+goldrush_to_oclc = {}
 
 conn = Z3950Connection.new(host: OCLC_Z3950_ENDPOINT, database_name: OCLC_Z3950_DATABASE_NAME,
                            credentials: { user: OCLC_Z3950_USER, password: OCLC_Z3950_PASSWORD })
@@ -42,21 +42,24 @@ CSV.open("#{input_dir}/Space Opera V2.csv", 'r', headers: true, encoding: 'bom|u
     records = OCLCRecordMatch.new(identifier: oclc, identifier_type: 'oclc', conn: conn).records
     records.each do |record|
       process_oclc_record(title_id: title_id, record: record,
-                          num_hash: title_id_to_oclc_nums, record_hash: records_by_title_id)
+                          num_hash: title_id_to_oclc_nums, goldrush_hash: goldrush_to_oclc)
     end
   end
   identifiers[:isbns].each do |isbn|
     records = OCLCRecordMatch.new(identifier: isbn, identifier_type: 'isbn', conn: conn).records
     records.each do |record|
       process_oclc_record(title_id: title_id, record: record,
-                          num_hash: title_id_to_oclc_nums, record_hash: records_by_title_id)
+                          num_hash: title_id_to_oclc_nums, goldrush_hash: goldrush_to_oclc)
     end
   end
+  # LCCNs produced unreliable matches, but one title only has LCCN
+  next unless title_id_to_oclc_nums[title_id].to_a.empty?
+
   identifiers[:lccns].each do |lccn|
     records = OCLCRecordMatch.new(identifier: lccn, identifier_type: 'lccn', conn: conn).records
     records.each do |record|
       process_oclc_record(title_id: title_id, record: record,
-                          num_hash: title_id_to_oclc_nums, record_hash: records_by_title_id)
+                          num_hash: title_id_to_oclc_nums, goldrush_hash: goldrush_to_oclc)
     end
   end
 end
@@ -76,25 +79,23 @@ title_id_to_oclc_nums.each_value do |oclc_nums|
   oclc_nums.each do |oclc_num|
     next if holdings_by_oclc_num[oclc_num]
 
-    puts oclc_num
-    holdings_by_oclc_num[oclc_num] = OCLCHoldings.new(identifier: { type: 'oclcNumber', value: oclc_num },
-                                                      conn: conn, token: oauth_response[:token]).holdings
+    if (oauth_response[:expiration] - Time.now) < 120.0
+      oauth = OAuth.new(client_id: client_id,
+                        client_secret: client_secret,
+                        url: OCLC_OAUTH_ENDPOINT,
+                        scope: scope)
+      oauth_response = oauth.response
+    end
+    holdings = OCLCHoldings.new(identifier: { type: 'oclcNumber', value: oclc_num },
+                                conn: conn, token: oauth_response[:token]).holdings
+    holdings_by_oclc_num[oclc_num] = holdings
   end
 end
 ### 4. Use the GoldRush match key to match on all titles in Alma [omit the last character]
-goldrush_to_oclc = {}
-records_by_title_id.each_value do |records|
-  records.each do |record|
-    oclc_num = oclcs(record: record).first
-    goldrush_to_oclc[record['999']['a']] ||= []
-    goldrush_to_oclc[record['999']['a']] << oclc_num
-  end
-end
 all_goldrush_keys = Set.new(goldrush_to_oclc.keys)
 
 goldrush_to_alma = {} # goldrush key to inventory type to MMS IDs
 Dir.glob("#{input_dir}/new_fulldump/fulldump*.xml*").each do |file|
-  puts File.basename(file)
   MARC::XMLReader.new(file, parser: 'magic', ignore_namespace: true).each do |record|
     next if record.leader[5] == 'd'
 
