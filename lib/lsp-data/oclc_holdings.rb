@@ -25,7 +25,7 @@ module LspData
 
     def holdings
       initial_response = api_call
-      holdings = holdings_from_response(initial_response[:body])
+      holdings = holdings_from_response(initial_response)
       return { status: initial_response[:status], holdings: holdings } if holdings.empty?
 
       total_holdings_count = initial_response[:body]['briefRecords'].first['institutionHolding']['totalHoldingCount']
@@ -42,17 +42,19 @@ module LspData
         api_response = api_call(offset: (number * 50))
         break if api_response[:status] != 200
 
-        all += holdings_from_response(api_response[:body])
+        all += holdings_from_response(api_response)
       end
       all
     end
 
     def holdings_from_response(response)
-      records = response['briefRecords'].first
-      return [] unless records && records['institutionHolding']['totalHoldingCount'] != 0
+      return [] unless response[:status] == 200
+
+      records = response[:body]['briefRecords'].first
+      return [] unless records['institutionHolding']['totalHoldingCount'] != 0
 
       records['institutionHolding']['briefHoldings'].map { |holding| holding['oclcSymbol'] }
-                                                    .reject(&:nil?)
+                                                    .compact
     end
 
     def api_params(offset:)
