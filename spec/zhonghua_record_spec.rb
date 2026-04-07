@@ -22,7 +22,7 @@ RSpec.describe LspData::ZhonghuaRecord do
           '唯一标识符' => 'ZHB011009379',
           '标准编号' => 'ISBN 978-7-101-14689-9',
           '题名' => 'CHINESE_TITLE',
-          '其他题名信息' => 'CHINESE_SERIES'
+          '其他题名信息' => 'CHINESE_SERIES',
           '丛编' => '中華經典名著全本全注全譯叢書'
         }
       ]
