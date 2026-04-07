@@ -113,7 +113,7 @@ end
 ### Indicates the kind of title (used to determine the MARC and spreadsheet
 ###   fields to use for matching)
 def title_type(row)
-  if row['其他题名信息']
+  if row['其他题名信息'].match(/^*/)
     'collection'
   else
     'single'
