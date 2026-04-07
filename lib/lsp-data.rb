@@ -34,4 +34,5 @@ require_relative 'lsp-data/figgy_digital_object'
 require_relative 'lsp-data/alma_digital_object'
 require_relative 'lsp-data/figgy_report'
 require_relative 'lsp-data/chinese_conversion'
+require_relative 'lsp-data/zhonghua_record'
 include LspData
