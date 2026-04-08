@@ -43,10 +43,6 @@ module LspData
       replace_field(record: record, field: MARC::DataField.new('956', '4', '1', MARC::Subfield.new('u', "https://#{url}")))
     end
 
-    def new_field(tag:, ind1:, ind2:, subfield:, content:)
-      MARC::DataField.new(tag, ind1, ind2, MARC::Subfield.new(subfield, content))
-    end
-
     ### Retrieves a WorldCat record using the search data in the first row
     def retrieve_record
       search_keys.each do |key|
