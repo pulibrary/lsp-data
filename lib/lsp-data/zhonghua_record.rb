@@ -5,7 +5,12 @@ module LspData
   ### Given a set of spreadsheet rows for the 'Zhonghua jing dian gu ji ku' database,
   ###   retrieve a matching record from OCLC and apply a set of transformations.
   ### Required elements:
-  ###   1. A set of rows from the Zhonghua csv file (loaded into a 2D array with the 'CSV' library)
+  ###   1. From the Zhonghua CSV file:
+  ###     a. Main Title
+  ###     b. Series Title (may not have a series title)
+  ###     c. URL
+  ###     d. Alternate url
+  ###     e. ISBN
   ###   2. A Z3950connection object (already connected)
   class ZhonghuaRecord
     attr_reader :original_record, :main_title, :series_title, :url, :alternate_url, :isbn, :conn
@@ -29,6 +34,8 @@ module LspData
       replace_url(record: new_record, url: url)
       new_record
     end
+
+    private
 
     ### Retrieves a WorldCat record using the search data in the first row
     def retrieve_record
