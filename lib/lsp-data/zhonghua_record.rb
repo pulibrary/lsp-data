@@ -10,24 +10,41 @@ module LspData
   class ZhonghuaRecord
     attr_reader :original_record, :main_title, :series_title, :url, :alternate_url, :isbn, :conn
 
-    def initialize(main_title:, series_title:, url:, alternate_url:, isbn:, conn:)
+    def initialize(title_info:, conn:)
       @conn = conn
-      @main_title = main_title
-      @series_title = series_title
-      @url = url
-      @alternate_url = alternate_url
-      @isbn = isbn
+      @main_title = title_info[:main_title]
+      @series_title = title_info[:series_title]
+      @url = title_info[:url]
+      @alternate_url = title_info[:alternate_url]
+      @isbn = title_info[:isbn]
       @original_record ||= retrieve_record
     end
 
     ### Applies field additions/replacements/deletions using data in the row(s)
     def transformed_record
-      new_record = duplicate_record(original_record)
+      new_record = MarcCleanup.duplicate_record(original_record)
       delete_fields(record: new_record, tag_list: %w[001 003 035 019 029 505 856])
-      replace_field(record: new_record, tag: '245', ind1: '0', ind2: '0', subfield: 'a', content: title)
-      replace_field(record: new_record, tag: '490', ind1: '0', ind2: ' ', subfield: 'a', content: series_title)
-      replace_field(record: new_record, tag: '830', ind1: ' ', ind2: '0', subfield: 'a', content: series_title)
-      replace_field(record: new_record, tag: '956', ind1: '4', ind2: '1', subfield: 'u', content: url)
+      replace_title_field(record: new_record, main_title: main_title)
+      replace_series_fields(record: new_record, series_title: series_title)
+      replace_url(record: new_record, url: url)
+      new_record
+    end
+
+    def replace_title_field(record:, main_title:)
+      replace_field(record: record, field: MARC::DataField.new('245', '0', '0', MARC::Subfield.new('a', main_title)))
+    end
+
+    def replace_series_fields(record:, series_title:)
+      replace_field(record: record, field: MARC::DataField.new('490', '1', ' ', MARC::Subfield.new('a', series_title)))
+      replace_field(record: record, field: MARC::DataField.new('830', ' ', '0', MARC::Subfield.new('a', series_title)))
+    end
+
+    def replace_url(record:, url:)
+      replace_field(record: record, field: MARC::DataField.new('956', '4', '1', MARC::Subfield.new('u', "https://#{url}")))
+    end
+
+    def new_field(tag:, ind1:, ind2:, subfield:, content:)
+      MARC::DataField.new(tag, ind1, ind2, MARC::Subfield.new(subfield, content))
     end
 
     ### Retrieves a WorldCat record using the search data in the first row
@@ -36,12 +53,13 @@ module LspData
         record = filtered_match(identifier: key[:id], identifier_type: key[:type])
         return record unless record.nil?
       end
+      nil
     end
 
     ### Creates an array of search keys in the order to be attempted
     def search_keys
-      [{ id: url, type: 'url' }, { id: alternate_url, type: 'url' }]
-      + [{ id: isbn, type: 'isbn' }] if isbn
+      [{ id: url, type: 'url' }, { id: alternate_url, type: 'url' }] +
+        ([{ id: isbn, type: 'isbn' }] if isbn)
     end
 
     ### Deletes all fields with the tags in the list, along with their associated 880s
@@ -53,13 +71,13 @@ module LspData
     end
 
     ### Deletes all existing instances of a field, and then adds a new instance
-    def replace_field(record:, tag:, ind1:, ind2:, subfield:, content:)
-      delete_fields(record: record, tag_list: [tag])
-      record.append(MARC::DataField.new(tag, ind1, ind2, MARC::Subfield.new(subfield, content)))
+    def replace_field(record:, field:)
+      delete_fields(record: record, tag_list: [field.tag])
+      record.append(field)
     end
 
     ### Creates a field 917 containing the given identifier
-    def tracking_field(identifier:)
+    def tracking_field(identifier)
       MARC::DataField.new('917', ' ', ' ', MARC::Subfield.new('a', identifier))
     end
 
@@ -68,8 +86,7 @@ module LspData
     def filtered_match(identifier:, identifier_type:)
       match = OCLCRecordMatch.new(identifier: identifier, identifier_type: identifier_type, conn: conn)
                              .records.find do |record|
-        !invalid_record?(record) &&
-          matched_title?(record)
+        !invalid_record?(record) && matched_title?(record)
       end
       return unless match
 
@@ -95,9 +112,10 @@ module LspData
 end
 
 ### Indicates if the title in the row matches the title in the record
-def matched_title?(record:)
+def matched_title?(record)
   f880 = record.fields('880').find { |field| field['6'][0..2] == '245' }
   return false unless f880
 
-  /^#{main_title}/.match?(f880['a'])
+  f880a_trad = ChineseConversion.new(f880['a']).converted
+  /^#{main_title}/.match?(f880a_trad)
 end
