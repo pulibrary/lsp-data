@@ -26,7 +26,7 @@ RSpec.describe LspData::ZhonghuaRecord do
       expect(new_record['001']).to eq nil
       expect(new_record.fields('020').map(&:value)).to include isbn
       expect(new_record['245'].value).to eq main_title
-      expect(new_record.fields('880').map(&:field['6'][0..2]).not_to include(%w[245 490 505 830]))
+      expect(new_record.fields('880').map { |f| f['6'].to_s[0..2] }).not_to include(%w[245 490 505 830])
       expect(new_record['490'].value).to eq series_title
       expect(new_record['830'].value).to eq series_title
       expect(new_record['956'].value).to eq "https://#{url}"
