@@ -5,8 +5,7 @@
 
 ### To enable this comparison using 2 different sources (raw bib export for sandbox, full dump for prod),
 ###   fields potentially added from holdings and items need to be stripped
-require_relative './../lib/lsp-data'
-require 'csv'
+require_relative '../lib/lsp-data'
 
 ### Fields that can be changed from the WorldShare Record Update process:
 ###   Leader
@@ -23,37 +22,35 @@ def delete_unwanted_fields(record)
   record
 end
 
-input_dir = ENV['DATA_INPUT_DIR']
-output_dir = ENV['DATA_OUTPUT_DIR']
+def map_fields(record)
+  eligible_fields = record.fields.reject { |field| field.tag == '035' }
+  eligible_fields.map { |field| field.to_s.gsub(/\s/, ' ') } +
+    ["LDR #{record.leader[5..11]}#{record.leader[17..]}"]
+end
+
+input_dir = ENV.fetch('DATA_INPUT_DIR', nil)
+output_dir = ENV.fetch('DATA_OUTPUT_DIR', nil)
 
 sandbox_records = {}
-fname = 'BIBLIOGRAPHIC_46231319720006421_46231319700006421_1.xml'
-MARC::XMLReader.new("#{input_dir}/#{fname}", parser: 'magic', ignore_namespace: true).each do |record|
+reader = MARC::XMLReader.new("#{input_dir}/changed_worldshare_recs.xml", parser: 'magic', ignore_namespace: true)
+reader.each do |record|
   sandbox_records[record['001'].value] = delete_unwanted_fields(record)
-end; nil
+end
 
 ### Export the bibs from prod that match the MMS IDs of the above file
 prod_records = {}
-fname = 'BIBLIOGRAPHIC_46775567420006421_46775567400006421_1.xml'
-MARC::XMLReader.new("#{input_dir}/#{fname}", parser: 'magic', ignore_namespace: true).each do |record|
+MARC::XMLReader.new("#{input_dir}/prod_worldshare_recs.xml", parser: 'magic', ignore_namespace: true).each do |record|
   mms_id = record['001'].value
   prod_records[mms_id] = delete_unwanted_fields(record) if sandbox_records[mms_id]
-end; nil
-
-### Exclude records modified in prod since 2/7/26, since that's when the sandbox was refreshed
-records_to_skip = Set.new
-CSV.open("#{input_dir}/bibs_changed_since_refresh.csv", 'r', headers: true, encoding: 'bom|utf-8').each do |row|
-  records_to_skip << row['MMS Id']
 end
+
 rec_num = 0
 fnum = 1
 filestub = 'worldshare_comparison_04-2026'
 output = nil
 prod_records.each do |mms_id, original|
-  next if records_to_skip.include?(mms_id)
-
   if (rec_num % 75_000).zero?
-    output.close if output
+    output&.close
     output = File.open("#{output_dir}/#{filestub}_#{fnum}.tsv", 'w')
     output.puts("MMS ID\tAction\tField Tag\tField Value")
     fnum += 1
@@ -61,14 +58,10 @@ prod_records.each do |mms_id, original|
   changed = sandbox_records[mms_id]
   new_oclcs = oclcs(record: changed, output_prefix: true)
   old_oclcs = oclcs(record: original, output_prefix: true)
-  original_fields = original.fields.map { |field| field.to_s.gsub(/\s/, ' ') }
-  original_fields << "LDR #{original.leader[5..11]}#{original.leader[17..-1]}"
-  changed_fields = changed.fields.map { |field| field.to_s.gsub(/\s/, ' ') }
-  changed_fields << "LDR #{changed.leader[5..11]}#{changed.leader[17..-1]}"
-  original_fields.delete_if { |field| field =~ /^035/ }
-  changed_fields.delete_if { |field| field =~ /^035/ }
+  original_fields = map_fields(original)
+  changed_fields = map_fields(changed)
   original_fields += old_oclcs.map { |num| "035    $a#{num}" }
-  changed_fields += old_oclcs.map { |num| "035    $a#{num}" }
+  changed_fields += new_oclcs.map { |num| "035    $a#{num}" }
   new_fields = changed_fields - original_fields
   removed_fields = original_fields - changed_fields
   new_fields.each do |field_string|
