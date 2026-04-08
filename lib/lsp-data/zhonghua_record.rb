@@ -28,20 +28,7 @@ module LspData
       replace_series_fields(record: new_record, series_title: series_title)
       replace_url(record: new_record, url: url)
       new_record
-    end
-
-    def replace_title_field(record:, main_title:)
-      replace_field(record: record, field: MARC::DataField.new('245', '0', '0', MARC::Subfield.new('a', main_title)))
-    end
-
-    def replace_series_fields(record:, series_title:)
-      replace_field(record: record, field: MARC::DataField.new('490', '1', ' ', MARC::Subfield.new('a', series_title)))
-      replace_field(record: record, field: MARC::DataField.new('830', ' ', '0', MARC::Subfield.new('a', series_title)))
-    end
-
-    def replace_url(record:, url:)
-      replace_field(record: record, field: MARC::DataField.new('956', '4', '1', MARC::Subfield.new('u', "https://#{url}")))
-    end
+    end    
 
     ### Retrieves a WorldCat record using the search data in the first row
     def retrieve_record
@@ -70,6 +57,22 @@ module LspData
     def replace_field(record:, field:)
       delete_fields(record: record, tag_list: [field.tag])
       record.append(field)
+    end
+
+    ### Replaces the title (245a) field
+    def replace_title_field(record:, main_title:)
+      replace_field(record: record, field: MARC::DataField.new('245', '0', '0', MARC::Subfield.new('a', main_title)))
+    end
+
+    ### Replaces the series (490a and 830a) fields
+    def replace_series_fields(record:, series_title:)
+      replace_field(record: record, field: MARC::DataField.new('490', '1', ' ', MARC::Subfield.new('a', series_title)))
+      replace_field(record: record, field: MARC::DataField.new('830', ' ', '0', MARC::Subfield.new('a', series_title)))
+    end
+
+    ### Replaces the URL (956u) field
+    def replace_url(record:, url:)
+      replace_field(record: record, field: MARC::DataField.new('956', '4', '1', MARC::Subfield.new('u', "https://#{url}")))
     end
 
     ### Creates a field 917 containing the given identifier
