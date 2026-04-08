@@ -28,7 +28,7 @@ module LspData
       replace_series_fields(record: new_record, series_title: series_title)
       replace_url(record: new_record, url: url)
       new_record
-    end    
+    end
 
     ### Retrieves a WorldCat record using the search data in the first row
     def retrieve_record
