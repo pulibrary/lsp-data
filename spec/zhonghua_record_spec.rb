@@ -10,23 +10,21 @@ RSpec.describe LspData::ZhonghuaRecord do
                                       isbn: isbn }, conn: conn)
   end
 
-  subject(:empty_result) do
-    described_class.new(title_info: { main_title: invalid_param, series_title: invalid_param,
-                                      url: invalid_param, alternate_url: invalid_param,
-                                      isbn: invalid_param }, conn: conn)
-  end
-
   let(:conn) do
     Z3950Connection.new(host: OCLC_Z3950_ENDPOINT, database_name: OCLC_Z3950_DATABASE_NAME,
                         credentials: { user: OCLC_Z3950_USER, password: OCLC_Z3950_PASSWORD })
   end
 
   context 'no WorldCat record is found' do
-    let('invalid_param') { 'INVALID' }
+    let('main_title') { 'no title' }
+    let('series_title') { 'series' }
+    let('url') { 'thisisnotaurl' }
+    let('alternate_url') { nil }
+    let('isbn') { nil }
 
     it 'returns nil' do
-      expect(empty_result.original_record).to eq nil
-      expect(empty_result.transformed_record).to eq nil
+      expect(zhonghua_record.original_record).to be_nil
+      expect(zhonghua_record.transformed_record).to be_nil
     end
   end
 
@@ -39,7 +37,7 @@ RSpec.describe LspData::ZhonghuaRecord do
 
     it 'returns a record containing the ISBN, other fields transformed according to row data' do
       new_record = zhonghua_record.transformed_record
-      expect(new_record['001']).to eq nil
+      expect(new_record['001']).to be nil
       expect(new_record.fields('020').map(&:value)).to include isbn
       expect(new_record['245'].value).to eq main_title
       expect(new_record.fields('880').map { |f| f['6'].to_s[0..2] }).not_to include(%w[245 490 505 830])

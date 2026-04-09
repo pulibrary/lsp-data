@@ -27,7 +27,7 @@ module LspData
 
     ### Applies field additions/replacements/deletions using data in the row(s)
     def transformed_record
-      return nil if original_record.nil?
+      return if original_record.nil?
 
       new_record = MarcCleanup.duplicate_record(original_record)
       delete_fields(record: new_record, tag_list: %w[001 003 035 019 029 505 856])
@@ -41,7 +41,7 @@ module LspData
 
     ### Retrieves a WorldCat record using the search data in the first row
     def retrieve_record
-      search_keys.each do |key|
+      search_keys.reject { |key| key[:id].nil? }.each do |key|
         record = filtered_match(identifier: key[:id], identifier_type: key[:type])
         return record unless record.nil?
       end
@@ -50,8 +50,11 @@ module LspData
 
     ### Creates an array of search keys in the order to be attempted
     def search_keys
-      [{ id: url, type: 'url' }, { id: alternate_url, type: 'url' }] +
-        ([{ id: isbn, type: 'isbn' }] if isbn)
+      [
+        { id: url, type: 'url' },
+        { id: alternate_url, type: 'url' },
+        { id: isbn, type: 'isbn' }
+      ]
     end
 
     ### Deletes all fields with the tags in the list, along with their associated 880s
