@@ -27,6 +27,8 @@ module LspData
 
     ### Applies field additions/replacements/deletions using data in the row(s)
     def transformed_record
+      return nil if original_record.nil?
+
       new_record = MarcCleanup.duplicate_record(original_record)
       delete_fields(record: new_record, tag_list: %w[001 003 035 019 029 505 856])
       replace_title_field(record: new_record, main_title: main_title)
