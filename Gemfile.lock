@@ -170,6 +170,16 @@ GEM
       bigdecimal
       mize (~> 0.6)
       sync
+    tiny_tds (3.4.0)
+      bigdecimal (>= 2.0.0)
+    tiny_tds (3.4.0-aarch64-linux-gnu)
+      bigdecimal (>= 2.0.0)
+    tiny_tds (3.4.0-aarch64-linux-musl)
+      bigdecimal (>= 2.0.0)
+    tiny_tds (3.4.0-x86_64-linux-gnu)
+      bigdecimal (>= 2.0.0)
+    tiny_tds (3.4.0-x86_64-linux-musl)
+      bigdecimal (>= 2.0.0)
     tsort (0.2.0)
     unf (0.1.4)
       unf_ext
@@ -211,6 +221,7 @@ DEPENDENCIES
   rubocop
   simplecov
   simplecov-html
+  tiny_tds
   unf (= 0.1.4)
   webmock
   yaml

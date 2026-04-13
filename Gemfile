@@ -16,6 +16,7 @@ gem 'csv'
 gem 'alexandria-zoom'
 gem 'logger'
 gem 'yaml'
+gem 'tiny_tds'
 
 group :development, :test do
   gem 'pry-byebug'
