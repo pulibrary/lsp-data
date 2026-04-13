@@ -26,8 +26,8 @@ module LspData
       @transaction_status = transaction_info['TransactionStatus']
       @transaction_date = transaction_info['TransactionDate'] # Time
       @lending_library = transaction_info['LendingLibrary']
-      @isbn = isbn_normalize(transaction_info['ISSN'])
-      @issn = issn_normalize(transaction_info['ISSN'])
+      @isbn = isbn_normalize(transaction_info['ISSN'].to_s)
+      @issn = issn_normalize(transaction_info['ISSN'].to_s)
       @oclc_num = transaction_info['SystemID'] == 'OCLC' ? transaction_info['ESPNumber'] : nil
       @ill_number = transaction_info['ILLNumber']
     end

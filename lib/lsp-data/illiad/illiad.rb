@@ -10,5 +10,35 @@ module LspData
       @conn = TinyTds::Client.new({ username: ILLIAD_USER, password: ILLIAD_PASS, host: ILLIAD_HOST,
                                     database: ILLIAD_DB })
     end
+
+    def all_borrowing
+      conn.execute(borrowing_query).map { |row| ILLiadBorrowing.new(row) }
+    end
+
+    private
+
+    def borrowing_query
+      %(
+        SELECT
+          TransactionNumber,
+          RequestType,
+          Username,
+          CreationDate,
+          TransactionStatus,
+          TransactionDate,
+          ProcessType,
+          LendingLibrary,
+          ISSN,
+          ESPNumber,
+          ILLNumber,
+          SystemID
+      FROM Transactions
+      WHERE
+          TransactionStatus != 'Cancelled by ILL Staff'
+          AND RequestType = 'Loan'
+          AND ProcessType = 'Borrowing'
+      ORDER BY TransactionNumber
+      )
+    end
   end
 end

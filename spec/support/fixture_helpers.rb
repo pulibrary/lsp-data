@@ -137,6 +137,14 @@ def stub_unset(fixture:, url:, token:, oclc_num:, desired_status:)
     to_return(status: desired_status, body: data)
 end
 
+def stub_tinytds_call(query:, response:)
+  fake_client = instance_double(TinyTds::Client)
+  fake_result = instance_double(TinyTds::Result)
+  allow(TinyTds::Client).to receive(:new).and_return(fake_client)
+  expect(fake_client).to receive(:execute).with(query).and_return(fake_result)
+  allow(fake_result).to_receive(:each).and_return(response)
+end
+
 def stub_json_fixture(fixture:)
   file = File.open("#{FIXTURE_DIR}/#{fixture}")
   data = File.read(file)
