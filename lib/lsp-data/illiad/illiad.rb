@@ -6,9 +6,9 @@ module LspData
   class ILLiad
     attr_reader :conn
 
-    def initialize
-      @conn = TinyTds::Client.new({ username: ILLIAD_USER, password: ILLIAD_PASS, host: ILLIAD_HOST,
-                                    database: ILLIAD_DB })
+    def initialize(tds_client_class: TinyTds::Client, credentials: { username: ILLIAD_USER, password: ILLIAD_PASS,
+                                                                     host: ILLIAD_HOST, database: ILLIAD_DB })
+      @conn = tds_client_class.new(credentials)
     end
 
     def all_borrowing
@@ -17,6 +17,7 @@ module LspData
 
     private
 
+    # rubocop:disable Metrics/MethodLength
     def borrowing_query
       %(
         SELECT
@@ -37,8 +38,10 @@ module LspData
           TransactionStatus != 'Cancelled by ILL Staff'
           AND RequestType = 'Loan'
           AND ProcessType = 'Borrowing'
+          AND LendingLibrary = ?
       ORDER BY TransactionNumber
       )
     end
+    # rubocop:enable Metrics/MethodLength
   end
 end
