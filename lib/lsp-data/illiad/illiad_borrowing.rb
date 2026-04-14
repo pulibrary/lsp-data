@@ -34,6 +34,7 @@ module LspData
     ### This could eliminate some potential ISBNs, but it would be quite rare for
     ###   an ISBN to be stored as an 8-digit number, since it would have to be
     ###   a 10-digit ISBN with leading zeroes that were stripped
+    ### The `ISSN` field in the Transactions table contains either an ISBN or an ISSN
     def isbn
       @isbn ||= if transaction_info['ISSN'].to_s.gsub(/[^0-9]/, '').size < 9
                   nil
@@ -42,6 +43,7 @@ module LspData
                 end
     end
 
+    ### The `ISSN` field in the Transactions table contains either an ISBN or an ISSN
     def issn
       @issn ||= issn_normalize(transaction_info['ISSN'].to_s)
     end
