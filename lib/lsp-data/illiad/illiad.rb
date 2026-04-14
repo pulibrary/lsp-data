@@ -12,7 +12,7 @@ module LspData
     end
 
     def all_borrowing
-      conn.execute(borrowing_query).map { |row| ILLiadBorrowing.new(row) }
+      conn.execute(borrowing_query).map { |row| ILLiadBorrowing.new(transaction_info: row) }
     end
 
     private
@@ -38,7 +38,6 @@ module LspData
           TransactionStatus != 'Cancelled by ILL Staff'
           AND RequestType = 'Loan'
           AND ProcessType = 'Borrowing'
-          AND LendingLibrary = ?
       ORDER BY TransactionNumber
       )
     end
