@@ -17,7 +17,7 @@ module LspData
   ###   SystemID
   class ILLiadBorrowing
     attr_reader :transaction_number, :username, :creation_date, :transaction_status,
-                :transaction_date, :lending_library, :oclc_num, :ill_number, :transaction_info
+                :transaction_date, :lending_library, :ill_number, :transaction_info, :system_id
 
     def initialize(transaction_info:)
       @transaction_info = transaction_info
@@ -27,8 +27,14 @@ module LspData
       @transaction_status = transaction_info['TransactionStatus']
       @transaction_date = transaction_info['TransactionDate'] # Time
       @lending_library = transaction_info['LendingLibrary']
-      @oclc_num = transaction_info['SystemID'] == 'OCLC' ? transaction_info['ESPNumber'] : nil
+      @system_id = transaction_info['SystemID']
       @ill_number = transaction_info['ILLNumber']
+    end
+
+    def oclc_num
+      @oclc_num ||= if %w[Reshare:princeton OCLC].include?(@system_id) && transaction_info['ESPNumber']
+                      oclc_normalize(oclc: transaction_info['ESPNumber'], input_prefix: false, output_prefix: false)
+                    end
     end
 
     ### This could eliminate some potential ISBNs, but it would be quite rare for
