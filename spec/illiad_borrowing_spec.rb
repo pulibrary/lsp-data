@@ -49,7 +49,7 @@ RSpec.describe LspData::ILLiadBorrowing do
         'ISSN' => '01934511',
         'ESPNumber' => '1234',
         'ILLNumber' => 'NumberOne',
-        'SystemID' => 'OCLC',
+        'SystemID' => 'Reshare:princeton',
         'RequestType' => 'Loan',
         'ProcessType' => 'Borrowing'
       }
@@ -57,8 +57,30 @@ RSpec.describe LspData::ILLiadBorrowing do
     it 'returns an object with an ISSN and no ISBN' do
       expect(illiad_borrowing.isbn).to be_nil
       expect(illiad_borrowing.issn).to eq '0193-4511'
+      expect(illiad_borrowing.oclc_num).to eq '1234'
       expect(illiad_borrowing.creation_date).to eq Time.new(2025, 3, 1, 2, 10, 1, '-05:00')
     end
   end
-
+  context 'SystemID is a system that does not use OCLC numbers' do
+    let(:transaction_info) do
+      {
+        'TransactionNumber' => 3,
+        'Username' => 'user',
+        'CreationDate' => Time.new(2025, 3, 1, 2, 10, 1, '-05:00'),
+        'TransactionStatus' => 'Request Finished',
+        'TransactionDate' => Time.new(2025, 3, 1, 2, 11, 1, '-05:00'),
+        'LendingLibrary' => 'PASG',
+        'ISSN' => '01934511',
+        'ESPNumber' => '1234',
+        'ILLNumber' => 'NumberOne',
+        'SystemID' => 'RLIN',
+        'RequestType' => 'Loan',
+        'ProcessType' => 'Borrowing'
+      }
+    end
+    it 'returns an object with no OCLC number' do
+      expect(illiad_borrowing.oclc_num).to be_nil
+      expect(illiad_borrowing.transaction_number).to eq 3
+    end
+  end
 end

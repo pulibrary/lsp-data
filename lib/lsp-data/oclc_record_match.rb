@@ -16,7 +16,7 @@ module LspData
     end
 
     def search_index
-      { 'isbn' => 7, 'oclc' => 12, 'url' => 1209, 'lccn' => 9 }
+      { 'isbn' => 7, 'oclc' => 12, 'url' => 1209, 'lccn' => 9, 'issn' => 8 }
     end
 
     def records
