@@ -15,9 +15,10 @@ module LspData
   ###   ESPNumber (OCLC number, if SystemID = 'OCLC')
   ###   ILLNumber
   ###   SystemID
+  ###   ProcessType
   class ILLiadBorrowing
-    attr_reader :transaction_number, :username, :creation_date, :transaction_status,
-                :transaction_date, :lending_library, :ill_number, :transaction_info, :system_id
+    attr_reader :transaction_number, :username, :creation_date, :transaction_status, :transaction_date,
+                :lending_library, :ill_number, :transaction_info, :system_id, :process_type
 
     def initialize(transaction_info:)
       @transaction_info = transaction_info
@@ -29,6 +30,7 @@ module LspData
       @lending_library = transaction_info['LendingLibrary']
       @system_id = transaction_info['SystemID']
       @ill_number = transaction_info['ILLNumber']
+      @process_type = transaction_info['ProcessType']
     end
 
     def oclc_num

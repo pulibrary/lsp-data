@@ -35,6 +35,7 @@ RSpec.describe LspData::ILLiadBorrowing do
       expect(illiad_borrowing.issn).to be_nil
       expect(illiad_borrowing.ill_number).to eq 'NumberOne'
       expect(illiad_borrowing.oclc_num).to eq '1234'
+      expect(illiad_borrowing.process_type).to eq 'Borrowing'
     end
   end
   context 'transaction has ISSN in ISSN field' do

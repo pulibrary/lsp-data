@@ -243,10 +243,10 @@ end
 ###   g. SCSB Owning Institutions
 ###   h. SCSB Customer Codes
 ###   i. SCSB CGDs
-output = File.open("#{output_dir}/marquand_borrowing_report_by_alma_holding.tsv", 'w')
-output.write("MMS ID\tTitle\tHolding ID\tCall Number\tLocation\t")
-output.write("ILLiad Requests\tBorrowDirect Requests\t")
-output.puts("SCSB Requests\tSCSB Owning Institutions\tSCSB Customer Codes\tSCSB CGDs")
+main_output = File.open("#{output_dir}/marquand_borrowing_report_by_alma_holding.tsv", 'w')
+main_output.write("MMS ID\tTitle\tHolding ID\tCall Number\tLocation\t")
+main_output.write("ILLiad Requests\tBorrowDirect Requests\t")
+main_output.puts("SCSB Requests\tSCSB Owning Institutions\tSCSB Customer Codes\tSCSB CGDs")
 goldrush_to_mms_id.each do |key, mms_ids|
   scsb_partners = goldrush_to_partners[key]
   scsb_partners ||= {}
@@ -259,21 +259,21 @@ goldrush_to_mms_id.each do |key, mms_ids|
   mms_ids.each do |mms_id|
     mms_info = bib_info[mms_id]
     mms_info[:holdings].each do |holding|
-      output.write("#{mms_id}\t")
-      output.write("#{mms_info[:title]}\t")
-      output.write("#{holding[:id]}\t")
-      output.write("#{holding[:call_num].full_call_num.strip}\t")
-      output.write("#{holding[:location]}\t")
-      output.write("#{illiad_requests}\t")
-      output.write("#{bd_requests}\t")
-      output.write("#{scsb_requests}\t")
-      output.write("#{scsb_info[:owning_institutions].join(' | ')}\t")
-      output.write("#{scsb_info[:customer_codes].join(' | ')}\t")
-      output.puts(scsb_info[:cgds].join(' | '))
+      main_output.write("#{mms_id}\t")
+      main_output.write("#{mms_info[:title]}\t")
+      main_output.write("#{holding[:id]}\t")
+      main_output.write("#{holding[:call_num].full_call_num.strip}\t")
+      main_output.write("#{holding[:location]}\t")
+      main_output.write("#{illiad_requests}\t")
+      main_output.write("#{bd_requests}\t")
+      main_output.write("#{scsb_requests}\t")
+      main_output.write("#{scsb_info[:owning_institutions].join(' | ')}\t")
+      main_output.write("#{scsb_info[:customer_codes].join(' | ')}\t")
+      main_output.puts(scsb_info[:cgds].join(' | '))
     end
   end
 end
-output.close
+main_output.close
 
 ### A second report was requested to show number of requests per year
 ### Raw data should be the following:
@@ -281,41 +281,32 @@ output.close
 ###   2. Request date [creation date]
 ###   3. Year of request
 ###   4. Type of request
-File.open("#{output_dir}/marquand_borrowing_report_requests_by_date.tsv", 'w') do |output|
-  output.puts("MMS ID\tRequest Date\tYear of Request\tType of Request")
-  goldrush_to_mms_id.each do |key, mms_ids|
-    scsb_partners = goldrush_to_partners[key]
-    scsb_partners ||= {}
-    ill_matches = goldrush_to_transaction_id[key].to_a
-    ill_info = ill_matches.map { |trans_id| all_borrowing.find { |request| request.transaction_number == trans_id } }
-    illiad_requests = ill_info.reject { |request| request.transaction_info['SystemID'] == 'Reshare:princeton' }
-    bd_requests = ill_info.select { |request| request.transaction_info['SystemID'] == 'Reshare:princeton' }
-    scsb_info = info_from_scsb_partners(scsb_partners)
-    scsb_requests = request_count_from_partners(scsb_partners: scsb_partners, requests_per_barcode: requests_per_barcode)
-    mms_ids.each do |mms_id|
-      illiad_requests.each do |request|
-        output.write("#{mms_id}\t")
-        output.write("#{request.creation_date}\t")
-        output.write("#{request.creation_date.year}\t")
-        output.puts("ILLiad")
-      end
-      bd_requests.each do |request|
-        output.write("#{mms_id}\t")
-        output.write("#{request.creation_date}\t")
-        output.write("#{request.creation_date.year}\t")
-        output.puts("BorrowDirect")
-      end
-      scsb_partners.each_value do |bib_hash|
-        bib_hash.values.flatten.each do |item|
-          requests = requests_per_barcode[item[:barcode]].to_a
-          requests.each do |request|
-            output.write("#{mms_id}\t")
-            output.write("#{request[:request_date]}\t")
-            output.write("#{request[:request_date].year}\t")
-            output.puts("SCSB")
-          end
+request_output = File.open("#{output_dir}/marquand_borrowing_report_requests_by_date.tsv", 'w')
+request_output.puts("MMS ID\tRequest Date\tYear of Request\tType of Request")
+goldrush_to_mms_id.each do |key, mms_ids|
+  scsb_partners = goldrush_to_partners[key]
+  scsb_partners ||= {}
+  ill_matches = goldrush_to_transaction_id[key].to_a
+  ill_info = ill_matches.map { |trans_id| all_borrowing.find { |request| request.transaction_number == trans_id } }
+  illiad_requests = ill_info.reject { |request| request.transaction_info['SystemID'] == 'Reshare:princeton' }
+  bd_requests = ill_info.select { |request| request.transaction_info['SystemID'] == 'Reshare:princeton' }
+  mms_ids.each do |mms_id|
+    illiad_requests.each do |request|
+      request_output.write("#{mms_id}\t#{request.creation_date}\t")
+      request_output.puts("#{request.creation_date.year}\tILLiad")
+    end
+    bd_requests.each do |request|
+      request_output.write("#{mms_id}\t#{request.creation_date}\t")
+      request_output.puts("#{request.creation_date.year}\tBorrowDirect")
+    end
+    scsb_partners.each_value do |bib_hash|
+      bib_hash.values.flatten.each do |item|
+        requests_per_barcode[item[:barcode]].to_a.each do |request|
+          request_output.write("#{mms_id}\t#{request[:request_date]}\t")
+          request_output.puts("#{request[:request_date].year}\tSCSB")
         end
       end
     end
   end
 end
+request_output.close
