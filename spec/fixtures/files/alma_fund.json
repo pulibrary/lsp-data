@@ -1,0 +1,71 @@
+{
+      "id": "43106421",
+      "code": "fund1",
+      "name": "Acquisitions Fund 1",
+      "type": {
+        "value": "4",
+        "desc": "General"
+      },
+      "owner": {
+        "value": "01ABC_INST",
+        "desc": "Institution"
+      },
+      "status": {
+        "value": "ACTIVE",
+        "desc": "Active"
+      },
+      "description": "A0101",
+      "currency": {
+        "value": "USD",
+        "desc": "US Dollar"
+      },
+      "parent": {
+        "value": "43206421",
+        "link": "https://api-na.hosted.exlibrisgroup.com/almaws/v1/acq/funds/43206421"
+      },
+      "external_id": "12345|E1234",
+      "entity_type": {
+        "value": "ALLOCATED",
+        "desc": "Allocated fund"
+      },
+      "fiscal_period": {
+        "value": "26",
+        "desc": "FY-2026"
+      },
+      "allocated_balance": "4707060.95",
+      "expended_balance": "3217413.43",
+      "cash_balance": "1489647.52",
+      "encumbered_balance": "228875.27",
+      "available_balance": "1260772.25",
+      "available_for_library": [
+        {
+          "value": "01ABC_INST",
+          "desc": "Institution"
+        }
+      ],
+      "overencumbrance_allowed": {
+        "value": "NO_LIMITS",
+        "desc": "No limits"
+      },
+      "overexpenditure_allowed": {
+        "value": "NO_LIMITS",
+        "desc": "No limits"
+      },
+      "overencumbrance_warning_percent": 0,
+      "overexpenditure_warning_sum": 0,
+      "overencumbrance_limit_percent": 0,
+      "overexpenditure_limit_sum": 0,
+      "encumbrances_prior_to_fiscal_period": 6,
+      "expenditures_prior_to_fiscal_period": 6,
+      "transfers_prior_to_fiscal_period": 5,
+      "fiscal_period_end_encumbrance_grace_period": 0,
+      "fiscal_period_end_expenditure_grace_period": 0,
+      "note": [
+        {
+          "content": "Note 1",
+          "creation_date": "2025-10-03Z",
+          "created_by": "123456789"
+        }
+      ],
+      "link": "https://api-na.hosted.exlibrisgroup.com/almaws/v1/acq/funds/43106421"
+    }

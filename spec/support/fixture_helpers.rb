@@ -1,25 +1,38 @@
 # frozen_string_literal: true
 
 FIXTURE_DIR = File.join(File.dirname(__FILE__), '../fixtures/files')
+
+def stub_fund_query(fixture:, type:, offset: 0)
+  file = File.open("#{FIXTURE_DIR}/#{fixture}")
+  data = File.read(file)
+  params = "apikey=apikey&entity_type=#{type}&limit=100&offset=#{offset}&status=ACTIVE"
+  stub_request(:get, "https://api-na.exlibrisgroup.com/almaws/v1/acq/funds/?#{params}")
+    .with(
+      headers: {
+        'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+        'Accept' => 'application/json', 'Content-Type' => 'application/json', 'User-Agent' => 'Ruby'
+      }
+    ).to_return(status: 200, body: data)
+end
+
 def stub_invoice_query(query:, fixture:, offset: 0)
   file = File.open("#{FIXTURE_DIR}/#{fixture}")
   data = File.read(file)
-  stub_request(:get, "https://api-na.exlibrisgroup.com/almaws/v1/acq/invoices/?limit=100&q=#{query}&offset=#{offset}&apikey=apikey")
+  params = "limit=100&q=#{query}&offset=#{offset}&apikey=apikey"
+  stub_request(:get, "https://api-na.exlibrisgroup.com/almaws/v1/acq/invoices/?#{params}")
     .to_return(status: 200, body: data)
 end
 
 def stub_receive_response(pol:, item_id:, fixture:, status:)
   file = File.open("#{FIXTURE_DIR}/#{fixture}")
   data = File.read(file)
-  params = "apikey=apikey&op=receive&department=dept&department_library=lib"
+  params = 'apikey=apikey&op=receive&department=dept&department_library=lib'
   url = "https://api-na.exlibrisgroup.com/almaws/v1/acq/po-lines/#{pol}/items/#{item_id}?#{params}"
-  stub_request(:post, url).
-    with(body: { }.to_json, headers: {
-      'Accept' => 'application/json',
-      'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-      'Content-Type' => 'application/json',
-      'User-Agent' => 'Faraday v1.10.4' }).
-    to_return(status: status, body:data)
+  headers = { 'Accept' => 'application/json', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+              'Content-Type' => 'application/json', 'User-Agent' => 'Faraday v1.10.4' }
+  stub_request(:post, url)
+    .with(body: {}.to_json, headers: headers)
+    .to_return(status: status, body: data)
 end
 
 def stub_get_po_line_response(pol_id:, fixture:)
@@ -32,15 +45,13 @@ end
 def stub_put_po_line_response(pol_id:, redistribute_funds:, update_inventory:, fixture:, status:)
   body = stub_json_fixture(fixture: fixture)
   file = File.open("#{FIXTURE_DIR}/#{fixture}")
-  data = File.read(file)
+  File.read(file)
+  headers = { 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'Accept' => 'application/json',
+              'Content-Type' => 'application/json', 'User-Agent' => 'Ruby' }
   params = "apikey=apikey&redistribute_funds=#{redistribute_funds}&update_inventory=#{update_inventory}"
   url = "https://api-na.exlibrisgroup.com/almaws/v1/acq/po-lines/#{pol_id}?#{params}"
   stub_request(:put, url)
-    .with(body: body.to_json, headers: {
-      'Accept' => 'application/json',
-      'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-      'Content-Type' => 'application/json',
-      'User-Agent' => 'Ruby' })
+    .with(body: body.to_json, headers: headers)
     .to_return(status: status, body: body.to_json)
 end
 
@@ -56,10 +67,11 @@ def stub_put_portfolio_response(mms_id:, portfolio_id:, fixture:, status:)
   url = "https://api-na.exlibrisgroup.com/almaws/v1/bibs/#{mms_id}/portfolios/#{portfolio_id}?apikey=apikey"
   stub_request(:put, url)
     .with(body: body.to_json, headers: {
-      'Accept' => 'application/json',
-      'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-      'Content-Type' => 'application/json',
-      'User-Agent' => 'Faraday v1.10.4' })
+            'Accept' => 'application/json',
+            'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+            'Content-Type' => 'application/json',
+            'User-Agent' => 'Faraday v1.10.4'
+          })
     .to_return(status: status, body: body.to_json)
 end
 
@@ -68,73 +80,62 @@ def stub_oauth(fixture:, url:, scope: nil)
   data = File.read(file)
   params = 'grant_type=client_credentials'.dup
   params << "&scope=#{scope}" if scope
+  headers = { 'Accept' => 'application/json', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+              'Authorization' => 'Basic aWQ6c2VjcmV0', 'Content-Length' => '0',
+              'User-Agent' => 'Faraday v1.10.4' }
   stub_request(:post, "#{url}?#{params}")
-    .with(headers: {
-      'Accept' => 'application/json',
-      'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-      'Authorization' => 'Basic aWQ6c2VjcmV0',
-      'Content-Length' => '0',
-      'User-Agent' => 'Faraday v1.10.4' })
+    .with(headers: headers)
     .to_return(status: 200, body: data)
 end
 
-def stub_figgy(fixture: nil, auth_token:, desired_status:)
+def stub_figgy(auth_token:, desired_status:, fixture: nil)
   file = File.open("#{FIXTURE_DIR}/#{fixture}")
   data = fixture.nil? ? '' : File.read(file)
   stub_request(:get, "https://figgy.princeton.edu/reports/mms_records.json?auth_token=#{auth_token}")
     .with(headers: {
-      'Accept' => 'application/json',
-      'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-      'Content-Type' => 'application/json',
-      'User-Agent' => 'Faraday v1.10.4'
-    })
+            'Accept' => 'application/json',
+            'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+            'Content-Type' => 'application/json',
+            'User-Agent' => 'Faraday v1.10.4'
+          })
     .to_return(status: desired_status, body: data, headers: {})
 end
 
 def stub_oclc(fixture:, url:, token:, oclc_num:, desired_status:)
   file = File.open("#{FIXTURE_DIR}/#{fixture}")
   data = File.read(file)
-  stub_request(:get, "#{url}/manage/bibs/#{oclc_num}").
-    with(headers: {
-      'Accept' => 'application/marcxml+xml',
-      'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-      'Authorization' => "Bearer #{token}",
-      'Content-Type' => 'application/json',
-      'User-Agent' => 'Faraday v1.10.4'
-      }).
-    to_return(status: desired_status, body: data)
+  headers = { 'Accept' => 'application/marcxml+xml', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+              'Authorization' => "Bearer #{token}", 'Content-Type' => 'application/json',
+              'User-Agent' => 'Faraday v1.10.4' }
+  stub_request(:get, "#{url}/manage/bibs/#{oclc_num}")
+    .with(headers: headers)
+    .to_return(status: desired_status, body: data)
 end
 
+# rubocop:disable Metrics/ParameterLists
 def stub_oclc_holdings(fixture:, url:, token:, identifier:, desired_status:, target_symbols: nil, offset: nil)
   file = File.open("#{FIXTURE_DIR}/#{fixture}")
   data = File.read(file)
-  params = 'limit=50'.dup
-  params << "&#{identifier[:type]}=#{identifier[:value]}"
+  params = "limit=50&#{identifier[:type]}=#{identifier[:value]}"
   params << "&heldBySymbol=#{target_symbols.join(',')}" if target_symbols
   params << "&offset=#{offset}" if offset
-  stub_request(:get, "#{url}/bibs-holdings?#{params}").
-    with(headers: {
-      'Accept' => 'application/json',
-      'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-      'Authorization' => "Bearer #{token}",
-      'Content-Type' => 'application/json',
-      'User-Agent' => 'Faraday v1.10.4'
-      }).
-    to_return(status: desired_status, body: data)
+  headers = { 'Accept' => 'application/json', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+              'Authorization' => "Bearer #{token}", 'Content-Type' => 'application/json',
+              'User-Agent' => 'Faraday v1.10.4' }
+  stub_request(:get, "#{url}/bibs-holdings?#{params}")
+    .with(headers: headers).to_return(status: desired_status, body: data)
 end
+# rubocop:enable Metrics/ParameterLists
 
 def stub_unset(fixture:, url:, token:, oclc_num:, desired_status:)
   file = File.open("#{FIXTURE_DIR}/#{fixture}")
   data = File.read(file)
-  stub_request(:post, "#{url}/manage/institution/holdings/#{oclc_num}/unset").
-    with(headers: {
-      'Accept' => 'application/json',
-      'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-      'Authorization' => "Bearer #{token}",
-      'Content-Type' => 'application/json',
-      'User-Agent' => 'Faraday v1.10.4'
-      }).
-    to_return(status: desired_status, body: data)
+  headers = { 'Accept' => 'application/json', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+              'Authorization' => "Bearer #{token}", 'Content-Type' => 'application/json',
+              'User-Agent' => 'Faraday v1.10.4' }
+  stub_request(:post, "#{url}/manage/institution/holdings/#{oclc_num}/unset")
+    .with(headers: headers)
+    .to_return(status: desired_status, body: data)
 end
 
 def stub_json_fixture(fixture:)
