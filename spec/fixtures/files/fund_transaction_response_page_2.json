@@ -1,0 +1,30 @@
+{
+  "fund_transaction": [
+    {
+      "id": "47206421",
+      "type": {
+        "value": "ALLOCATION",
+        "desc": "Allocation"
+      },
+      "amount": 47849.7,
+      "currency": {
+        "value": "USD"
+      },
+      "transaction_time": "2026-05-18Z",
+      "transaction_reference_number": "ABC1234568",
+      "transaction_note": "Entry 2 | Description | 05/14/2026",
+      "po_line": {
+        "value": ""
+      },
+      "invoice_line": {
+        "value": ""
+      },
+      "reporting_code": "",
+      "secondary_reporting_code": "",
+      "tertiary_reporting_code": "",
+      "fourth_reporting_code": "",
+      "fifth_reporting_code": ""
+    }
+  ],
+  "total_record_count": 101
+}

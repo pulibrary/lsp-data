@@ -8,6 +8,14 @@ def stub_invoice_query(query:, fixture:, offset: 0)
     .to_return(status: 200, body: data)
 end
 
+def stub_fund_transaction_query(fixture:, fund_id:, offset: 0, type:)
+  file = File.open("#{FIXTURE_DIR}/#{fixture}")
+  data = File.read(file)
+  stub_request(:get, "https://api-na.exlibrisgroup.com/almaws/v1/acq/funds/#{fund_id}/transactions?apikey=apikey&filter=#{type}&limit=100&offset=#{offset}")
+    .to_return(status: 200, body: data)
+end
+
+
 def stub_receive_response(pol:, item_id:, fixture:, status:)
   file = File.open("#{FIXTURE_DIR}/#{fixture}")
   data = File.read(file)

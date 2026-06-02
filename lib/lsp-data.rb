@@ -6,6 +6,7 @@ require 'marc_cleanup'
 require 'marc_match_key'
 require 'zoom'
 require 'tiny_tds'
+require 'time'
 Dir.glob("#{File.dirname(__FILE__)}/lsp-data/*.rb").each do |file|
   require file
 end
