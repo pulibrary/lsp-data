@@ -14,7 +14,7 @@ module LspData
     end
 
     def allocations
-      @allocations ||= retrieve_transactions(type: 'ALLOCATED')
+      @allocations ||= retrieve_transactions(type: 'ALLOCATION')
     end
 
     private
@@ -22,7 +22,7 @@ module LspData
     def retrieve_transactions(type:)
       initial_response = api_call(offset: 0, type: type)
       total_transaction_count = initial_response[:body]['total_record_count']
-      return [] unless total_transaction_count.size.positive?
+      return [] unless total_transaction_count.positive?
 
       results = initial_response[:body]['fund_transaction'].map { |transaction| AlmaFundTransaction.new(transaction) }
       total_calls = (total_transaction_count / 100).floor
