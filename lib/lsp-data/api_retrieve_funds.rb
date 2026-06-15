@@ -19,7 +19,7 @@ module LspData
     def retrieve_funds(type:)
       initial_response = api_call(offset: 0, type: type)
       total_fund_count = initial_response[:body]['total_record_count']
-      return [] unless total_fund_count.size.positive?
+      return [] unless total_fund_count.positive?
 
       results = initial_response[:body]['fund'].map { |fund| AlmaFund.new(fund) }
       total_calls = (total_fund_count / 100).floor
@@ -44,6 +44,7 @@ module LspData
         'limit' => 100,
         'offset' => offset,
         'entity_type' => type,
+        'mode' => 'ALL',
         'status' => 'ACTIVE'
       }
     end
