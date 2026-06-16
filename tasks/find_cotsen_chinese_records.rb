@@ -70,7 +70,7 @@ reader.each do |alma_record|
   mmsid = alma_record['001'].value
   oclcnos = []
   alma_date = alma_record['008'].value[7, 4]
-  alma_title = alma_record['245']['a'].sub(/[\s\p{P}=]+$/, '').sub(/\s*[(=].*$/, '').gsub('"', '\"')
+  alma_title = alma_record['245']['a'].sub(/[\s\p{P}=]+$/, '').sub(/(?<=..\S)\s*[(=].*$/, '').gsub('"', '\"')
   alma_title_norm = normalize_field(alma_title, 'title')
   alma_pubcity = normalize_field(publication_city(alma_record), 'city')
   alma_names = names(alma_record)
