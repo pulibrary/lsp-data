@@ -18,42 +18,71 @@ require_relative '../lib/lsp-data'
 ### - Name: Truncated to first 2 words, spaces/punctuation removed after
 ### All types are normalized to lowercase as a last step
 
-def normalize_field(orig_field, type)
-  return nil if orig_field.nil?
+def normalize_field(field, type)
+  return nil if field.nil?
 
   case type
   when 'title'
-    orig_field.split[0, 5].join(' ').gsub(/[\s\p{P}]/, '').downcase
+    field = field.split[0, 5].join(' ').gsub(/[\s\p{P}]/, '')
   when 'city'
-    orig_field.gsub(/[\s\p{P}]/, '')[0, 5].downcase
+    field = field.gsub(/[\s\p{P}]/, '')[0, 5]
   when 'name'
-    orig_field.split[0, 2].join(' ').gsub(/[\s\p{P}]/, '').downcase
+    field = field.split[0, 2].join(' ').gsub(/[\s\p{P}]/, '')
   end
+  field.downcase.unicode_normalize(:nfd).gsub(/\p{InCombiningDiacriticalMarks}/, '')
 end
 
-### Returns the first publication city found in a 260a/264a field
+### Returns a publication city found in a 260a/264a field.
+### Preference is given to 264 fields with certain indicators, as shown
+### in the 'publication_city_from_f264' method
 
 def publication_city(record)
-  all_cities = record.fields(%w[260 264])
-  all_cities.any? ? all_cities[0]['a'] : nil
+  city = publication_city_from_f264(record) || record.fields('260').find { |f| f['a'] }
+  city ? city['a'] : nil
 end
 
-### Returns an array with the full list of names found in all 100a/700a fields
+def publication_city_from_f264(record)
+  f264 = record.fields('264').select { |f| f['a'] }
+  preferred_order = %w[1 4 2 3 0]
+  preferred_order.each do |indicator|
+    field = f264.find { |f| f.indicator2 == indicator }
+    return field if field
+  end
+  nil
+end
+
+### Returns an array with the full list of names found in a list of 1xx/7xx fields
+### Entire field is returned so that the field tag can be analyzed by the name_overlap method
 
 def names(record)
-  all_names = record.fields(%w[100 700])
-  all_names.map { |f| f['a'] }
+  record.fields(%w[100 110 111 130 700 710 711 730])
 end
 
-### Given two arrays of names, detects if there is at least one name in common
+### Given two arrays of name fields, detects if there is at least one name in common
+### Fuzzy prefix matching is used.  This method automatically returns true if 
+### at least one of the input arrays is empty, or if the arrays have non-overlapping
+### sets of tag suffixes (the suffix being the last two digits of the tag).  So, e.g. 
+### if one array contains fields 100 and 700, and the other 110 and 710, then the test
+### is not done and true is returned.  The idea is to bypass the name matching when the 
+### two records do not contain the same types of names.
 
 def name_overlap?(names_a, names_b)
   return true if names_a.empty? || names_b.empty?
+  return true unless tag_suffix_list(names_a).intersect?(tag_suffix_list(names_b))
 
-  overlap = names_a.select do |name_a|
-    names_b.any? { |name_b| name_a.start_with?(name_b) || name_b.start_with?(name_a) }
+  names_a_norm = names_a.map { |name| normalize_field(name['a'], 'name') }
+  names_b_norm = names_b.map { |name| normalize_field(name['a'], 'name') }
+  prefix_overlap(names_a_norm, names_b_norm).any?
+end
+
+def prefix_overlap?(_names_a, _names_b)
+  names_a_norm.select do |name_a|
+    names_b_norm.any? { |name_b| name_a.start_with?(name_b) || name_b.start_with?(name_a) }
   end
-  overlap.any?
+end
+
+def tag_suffix_list(fields)
+  fields.map { |f| f.tag[1, 2] }
 end
 
 def new_connection
@@ -88,8 +117,7 @@ reader.each do |alma_record|
             (oclc_record['008'].value[7, 4] != alma_date) || (alma_pubcity != oclc_pubcity)
     next unless oclc_title_norm.start_with?(alma_title_norm) ||
                 alma_title_norm.start_with?(oclc_title_norm)
-    next unless name_overlap?(alma_names.map { |name| normalize_field(name, 'name') },
-                              oclc_names.map { |name| normalize_field(name, 'name') })
+    next unless name_overlap?(alma_names, oclc_names)
 
     oclcnos << oclc_record['001'].value.gsub(/[^0-9]/, '')
   end
