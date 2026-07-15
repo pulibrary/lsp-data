@@ -59,11 +59,11 @@ def names(record)
 end
 
 ### Given two arrays of name fields, detects if there is at least one name in common
-### Fuzzy prefix matching is used.  This method automatically returns true if 
+### Fuzzy prefix matching is used.  This method automatically returns true if
 ### at least one of the input arrays is empty, or if the arrays have non-overlapping
-### sets of tag suffixes (the suffix being the last two digits of the tag).  So, e.g. 
+### sets of tag suffixes (the suffix being the last two digits of the tag).  So, e.g.
 ### if one array contains fields 100 and 700, and the other 110 and 710, then the test
-### is not done and true is returned.  The idea is to bypass the name matching when the 
+### is not done and true is returned.  The idea is to bypass the name matching when the
 ### two records do not contain the same types of names.
 
 def name_overlap?(names_a, names_b)
@@ -72,12 +72,12 @@ def name_overlap?(names_a, names_b)
 
   names_a_norm = names_a.map { |name| normalize_field(name['a'], 'name') }
   names_b_norm = names_b.map { |name| normalize_field(name['a'], 'name') }
-  prefix_overlap(names_a_norm, names_b_norm).any?
+  prefix_overlap?(names_a_norm, names_b_norm)
 end
 
-def prefix_overlap?(_names_a, _names_b)
-  names_a_norm.select do |name_a|
-    names_b_norm.any? { |name_b| name_a.start_with?(name_b) || name_b.start_with?(name_a) }
+def prefix_overlap?(names_a, names_b)
+  names_a.select do |name_a|
+    names_b.any? { |name_b| name_a.start_with?(name_b) || name_b.start_with?(name_a) }
   end
 end
 
