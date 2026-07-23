@@ -145,6 +145,18 @@ def stub_unset(fixture:, url:, token:, oclc_num:, desired_status:)
     .to_return(status: desired_status, body: data)
 end
 
+def stub_scsb_availability_response(fixture:, url:, api_key:, response_body:)
+  body = stub_json_fixture(fixture: fixture)
+  file = File.open("#{FIXTURE_DIR}/#{response_body}")
+  data = File.read(file)
+  headers = { 'Accept' => 'application/json', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+              'api_key' => api_key, 'Content-Type' => 'application/json',
+              'User-Agent' => 'Faraday v1.10.4' }
+  stub_request(:post, "#{url}/sharedCollection/itemAvailabilityStatus")
+    .with(body: body.to_json, headers: headers)
+    .to_return(status: 200, body: data)
+end
+
 def stub_json_fixture(fixture:)
   file = File.open("#{FIXTURE_DIR}/#{fixture}")
   data = File.read(file)

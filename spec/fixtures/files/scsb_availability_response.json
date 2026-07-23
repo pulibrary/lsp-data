@@ -1,0 +1,12 @@
+[
+  {
+    "errorMessage": null,
+    "itemAvailabilityStatus": "Not Available",
+    "itemBarcode": "12345"
+  },
+  {
+    "errorMessage": null,
+    "itemAvailabilityStatus": "Available",
+    "itemBarcode": "67890"
+  }
+]
