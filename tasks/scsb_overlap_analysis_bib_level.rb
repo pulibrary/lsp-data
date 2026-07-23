@@ -15,6 +15,9 @@
 ### Harvard ReCAP Shared [including HD]
 ### Harvard ReCAP Private [including HD]
 ### Harvard Onsite
+### NYPL ReCAP Shared
+### NYPL ReCAP Private
+### NYPL Onsite
 
 ### Exclude records from OCLC that are coded as electronic
 ### Ignore the format marker in the GoldRush match key
@@ -51,7 +54,7 @@ end
 
 def electronic_resource_3xx?(record)
   record.fields('300').any? { |f| f['a'] =~ /[Oo]nline resource/ } ||
-    record.fields('337').any? { |f| f['a'] =~ /^c/ }
+    record.fields('337').any? { |f| f['a'] =~ /^c/ || f['b'] == 'c' }
 end
 
 def electronic_resource?(record)
@@ -151,7 +154,7 @@ File.open("#{output_dir}/cul_oclc_match_keys.tsv", 'w') do |output|
     puts File.basename(file)
     partners_output_match_keys(input: file, output: output, type: 'marc')
   end
-end
+end; nil
 
 File.open("#{output_dir}/hl_scsb_shared_match_keys.tsv", 'w') do |output|
   Dir.glob("#{input_dir}/partners/hl/scsb_shared/*.xml").each do |file|
@@ -296,7 +299,7 @@ File.open("#{output_dir}/recap_partner_sites_per_key_unique_titles.tsv", 'w') do
 end
 
 ### Only unique titles per institution
-File.open("#{output_dir}/recap_partner_sites_per_key_unique_titles.tsv", 'w') do |output|
+File.open("#{output_dir}/recap_partner_institutions_per_key_unique_titles.tsv", 'w') do |output|
   output_match_report_headers(output)
   matches.each do |key, sites|
     institutions = sites.keys.map(&:to_s).uniq
@@ -327,7 +330,7 @@ File.open("#{output_dir}/recap_partner_sites_per_key_all_recap_shared.tsv", 'w')
 
     output_match_report_line(output: output, key: key, sites: sites)
   end
-end
+end; nil
 
 ### Produce summary report of how many unique titles per site compared to total number of titles per site
 pul_shared_unique = matches.select { |_key, sites| sites[:pulshared] && sites.size == 1 }.size
