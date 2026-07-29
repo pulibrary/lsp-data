@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative './../lib/lsp-data'
+require_relative '../lib/lsp-data'
 require 'spec_helper'
 
 RSpec.describe LspData::Z3950Connection do
@@ -26,6 +26,7 @@ RSpec.describe LspData::Z3950Connection do
     it 'returns a valid record' do
       record = connection.search_by_id(index: index, identifier: identifier).first
       f020 = record.fields('020').map { |field| field['a'] }
+      f020 += record.fields('020').map { |field| field['z'] }
       expect(record.class).to eq MARC::Record
       expect(f020).to include identifier
     end

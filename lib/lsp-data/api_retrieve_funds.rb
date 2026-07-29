@@ -3,11 +3,13 @@
 module LspData
   ### Retrieves active funds from Alma and generates AlmaFund objects for them
   class ApiRetrieveFunds
-    attr_reader :api_key, :conn
+    attr_reader :api_key, :conn, :fiscal_period, :status
 
-    def initialize(api_key:, conn:)
+    def initialize(api_key:, conn:, status: 'ACTIVE', fiscal_period: nil)
       @api_key = api_key
       @conn = conn
+      @status = status
+      @fiscal_period = fiscal_period
     end
 
     def allocated_funds
@@ -39,14 +41,16 @@ module LspData
     end
 
     def api_params(offset:, type:)
-      {
+      hash = {
         'apikey' => api_key,
         'limit' => 100,
         'offset' => offset,
         'entity_type' => type,
         'mode' => 'ALL',
-        'status' => 'ACTIVE'
+        'status' => status
       }
+      hash.merge!({ 'fiscal_period' => fiscal_period }) if fiscal_period
+      hash
     end
 
     def api_call(offset:, type:)
