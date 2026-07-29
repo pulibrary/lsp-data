@@ -154,7 +154,7 @@ File.open("#{output_dir}/cul_oclc_match_keys.tsv", 'w') do |output|
     puts File.basename(file)
     partners_output_match_keys(input: file, output: output, type: 'marc')
   end
-end; nil
+end
 
 File.open("#{output_dir}/hl_scsb_shared_match_keys.tsv", 'w') do |output|
   Dir.glob("#{input_dir}/partners/hl/scsb_shared/*.xml").each do |file|
@@ -330,7 +330,7 @@ File.open("#{output_dir}/recap_partner_sites_per_key_all_recap_shared.tsv", 'w')
 
     output_match_report_line(output: output, key: key, sites: sites)
   end
-end; nil
+end
 
 ### Produce summary report of how many unique titles per site compared to total number of titles per site
 pul_shared_unique = matches.select { |_key, sites| sites[:pulshared] && sites.size == 1 }.size
