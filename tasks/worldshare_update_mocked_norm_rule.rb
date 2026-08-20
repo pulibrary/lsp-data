@@ -80,18 +80,6 @@ def fields_from_alma(record)
   }
 end
 
-def alma_xrefs(record:, input_prefix: true, output_prefix: false)
-  oclc = []
-  f035 = record.fields('035').select { |f| f['z'] }
-  f035.each do |field|
-    value = oclc_normalize(oclc: field['z'],
-                           input_prefix: input_prefix,
-                           output_prefix: output_prefix)
-    oclc << value if value
-  end
-  oclc.uniq
-end
-
 def update_f041_fields(record, new_fields)
   if new_fields.size.positive?
     record.fields.delete_if { |field| field.tag == '041' }
@@ -216,12 +204,11 @@ def output_changed_leader(output:, pre:, post:, mms_id:)
   output.puts("#{mms_id}\tAdd\tLeader\t#{post}")
 end
 
-def tag_for_field_report(field_value, tag)
-  case field_value[0..5]
-  when /6[0-9][^3]..0/
-    "#{tag}_lc"
-  when /6[0-9][^3]..[^0]/
+def tag_for_field_report(field_value:, tag:)
+  if (%w[653 654 656 657 658 662 688] + ('690'..'699').to_a).include?(tag)
     "#{tag}_non_lc"
+  elsif %w[600 610 611 630 647 648 650 651 655].include?(tag)
+    field_value[5] == '0' ? "#{tag}_lc" : "#{tag}_non_lc"
   else
     tag
   end
@@ -355,7 +342,8 @@ Dir.glob("#{input_dir}/worldshare_differences_*.tsv").each do |file|
     while (line = input.gets)
       line.chomp!
       parts = line.split("\t")
-      next unless parts[3] =~ /^6[0-9]{2}..0/
+      tag = tag_for_field_report(field_value: parts[3], tag: parts[2])
+      next unless tag =~ /[0-9]_lc$/
 
       changes_by_mms_id[parts[0]] ||= []
       changes_by_mms_id[parts[0]] << parts
@@ -387,7 +375,8 @@ Dir.glob("#{input_dir}/worldshare_differences_*.tsv").each do |file|
     while (line = input.gets)
       line.chomp!
       parts = line.split("\t")
-      next unless parts[3] =~ /^6[0-9]{2}..[^0]/
+      tag = tag_for_field_report(field_value: parts[3], tag: parts[2])
+      next unless tag =~ /non_lc$/
 
       changes_by_mms_id[parts[0]] ||= []
       changes_by_mms_id[parts[0]] << parts
@@ -449,8 +438,7 @@ File.open("#{output_dir}/worldshare_update_field_summary.tsv", 'w') do |output|
       while (line = input.gets)
         line.chomp!
         parts = line.split("\t")
-        field_value = parts[3]
-        tag = tag_for_field_report(field_value, parts[2])
+        tag = tag_for_field_report(field_value: parts[3], tag: parts[2])
         changes_per_tag[tag] ||= { add: 0, remove: 0 }
         case parts[1] # action
         when 'Add'
