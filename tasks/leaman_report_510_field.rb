@@ -36,6 +36,12 @@ def write_pub_info_to_report(output, publisher)
   output.write("#{publisher[:pub_date]&.gsub(/\s+/, ' ')}\t")
 end
 
+def write_info_to_report(output:, info:, mms_id:, holding_id:)
+  output.write("#{mms_id}\t#{holding_id}\t#{info[:format]}\t")
+  output.write("#{info[:title]}\t#{info[:description]}\t#{info[:estc]}\t#{info[:notes]}\t")
+  write_pub_info_to_report(output, info[:publisher])
+end
+
 input_dir = ENV.fetch('DATA_INPUT_DIR', nil)
 output_dir = ENV.fetch('DATA_OUTPUT_DIR', nil)
 Time.new.strftime('%Y-%m-%d')
@@ -83,8 +89,8 @@ end
 ###   do not output the host record info if it was already output from the ESTC run
 
 output = File.open("#{output_dir}/leaman_estc_report.tsv", 'w')
-output.write("Host MMS ID\tItem MMS ID\tHolding ID\tFormat\tHost Title\tItem Title\tPub Place\t")
-output.write("Publisher\tPub Date\tDescription\tESTC Fields\tNotes\t")
+output.write("Host MMS ID\tHost Title\tItem MMS ID\tHolding ID\tFormat\tItem Title\t")
+output.write("Description\tESTC Fields\tNotes\tPub Place\tPublisher\tPub Date\t")
 output.puts("Library Code\tLocation Code\tCall Number\tItem ID\tBarcode")
 records_processed = Set.new # put the MMS ID processed as an ESTC record to avoid duplicate output
 
@@ -95,17 +101,14 @@ estc_records.each do |mms_id, info|
       holding_items = host_info[:items][holding_id]
       call_num = host_info[:callnums][holding_id]&.full_call_num
       holding_items&.each do |item|
-        output.write("#{host_id}\t#{mms_id}\t#{holding_id}\t#{info[:format]}\t#{host_info[:title]}\t")
-        output.write("#{info[:title]}\t")
-        write_pub_info_to_report(output, info[:publisher])
-        output.write("#{info[:description]}\t#{info[:estc]}\t#{info[:notes]}\t")
+        output.write("#{host_id}\t#{host_info[:title]}\t")
+        write_info_to_report(output: output, info: info, mms_id: mms_id, holding_id: holding_id)
         output.puts("#{location[:library]}\t#{location[:location]}\t#{call_num}\t#{item[:id]}\t#{item[:barcode]}")
       end
       next if holding_items
 
-      output.write("#{host_id}\t#{mms_id}\t#{holding_id}\t#{info[:format]}\t#{host_info[:title]}\t#{info[:title]}\t")
-      write_pub_info_to_report(output, info[:publisher])
-      output.write("#{info[:description]}\t#{info[:estc]}\t#{info[:notes]}\t")
+      output.write("#{host_id}\t#{host_info[:title]}\t")
+      write_info_to_report(output: output, info: info, mms_id: mms_id, holding_id: holding_id)
       output.puts("#{location[:library]}\t#{location[:location]}\t#{call_num}\t\t")
     end
   end
@@ -113,40 +116,36 @@ estc_records.each do |mms_id, info|
     holding_items = info[:items][holding_id]
     call_num = info[:callnums][holding_id]&.full_call_num
     holding_items&.each do |item|
-      output.write("\t#{mms_id}\t#{holding_id}\t#{info[:format]}\t\t#{info[:title]}\t")
-      write_pub_info_to_report(output, info[:publisher])
-      output.write("#{info[:description]}\t#{info[:estc]}\t#{info[:notes]}\t")
+      output.write("\t\t")
+      write_info_to_report(output: output, info: info, mms_id: mms_id, holding_id: holding_id)
       output.puts("#{location[:library]}\t#{location[:location]}\t#{call_num}\t#{item[:id]}\t#{item[:barcode]}")
     end
     if holding_items.nil?
-      output.write("\t#{mms_id}\t#{holding_id}\t#{info[:format]}\t\t#{info[:title]}\t")
-      write_pub_info_to_report(output, info[:publisher])
-      output.write("#{info[:description]}\t#{info[:estc]}\t#{info[:notes]}\t")
+      output.write("\t\t")
+      write_info_to_report(output: output, info: info, mms_id: mms_id, holding_id: holding_id)
       output.puts("#{location[:library]}\t#{location[:location]}\t#{call_num}\t\t")
     end
     records_processed << mms_id
   end
 end
 # rubocop:enable Metrics/BlockLength
+
 host_records.each do |host_id, host_info|
   next if records_processed.include?(host_id)
 
-  info[:location_info].each do |holding_id, location|
+  host_info[:location_info].each do |holding_id, location|
     holding_items = host_info[:items][holding_id]
     call_num = host_info[:callnums][holding_id]&.full_call_num
-    estc_records.slice(*info[:f774]).each do |mms_id, info|
+    estc_records.slice(*host_info[:f774]).each do |mms_id, info|
       holding_items&.each do |item|
-        output.write("#{host_id}\t#{mms_id}\t#{holding_id}\t#{info[:format]}\t#{host_info[:title]}\t")
-        output.write("#{info[:title]}\t")
-        write_pub_info_to_report(output, info[:publisher])
-        output.write("#{info[:description]}\t#{info[:estc]}\t#{info[:notes]}\t")
+        output.write("#{host_id}\t#{host_info[:title]}\t")
+        write_info_to_report(output: output, info: info, mms_id: mms_id, holding_id: holding_id)
         output.puts("#{location[:library]}\t#{location[:location]}\t#{call_num}\t#{item[:id]}\t#{item[:barcode]}")
       end
       next if holding_items
 
-      output.write("#{host_id}\t#{mms_id}\t#{holding_id}\t#{info[:format]}\t#{host_info[:title]}\t#{info[:title]}\t")
-      write_pub_info_to_report(output, info[:publisher])
-      output.write("#{info[:description]}\t#{info[:estc]}\t#{info[:notes]}\t")
+      output.write("#{host_id}\t#{host_info[:title]}\t")
+      write_info_to_report(output: output, info: info, mms_id: mms_id, holding_id: holding_id)
       output.puts("#{location[:library]}\t#{location[:location]}\t#{call_num}\t\t")
     end
   end
