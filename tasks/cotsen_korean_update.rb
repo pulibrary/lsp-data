@@ -37,10 +37,10 @@ end
 
 # Generate an array of subfields, starting with the $6 linkage.
 def generate_subfields(parallel_tag, seqno, field_content)
-  linkage = "$6#{parallel_tag}-#{seqno}" + (parallel_tag == '880' ? '' : '/{dollar}1')
+  linkage = "$6#{parallel_tag}-#{format('%02d', seqno)}" + (parallel_tag == '880' ? '' : '/{dollar}1')
   field_content = "#{linkage}#{field_content}"
   subfields = field_content.split('$').filter { |sf| sf.length.positive? }
-  subfields.map { |sf| [sf[0], sf[1..].sub('{dollar}', '$')] }
+  subfields.map { |sf| [sf[0], sf[1..].sub('{dollar}', '$').strip] }
 end
 
 # Generate 500 field with translation note.
@@ -53,11 +53,26 @@ end
 # Generate 588 field with ChatGPT note.
 def generate_chatgpt_field
   chatgpt_note = MARC::DataField.new('588', '0', ' ')
-  chatgpt_note.append(MARC::Subfield.new('a', "Non-Roman scripts were generated with OpenAI GPT-5.4 \
-                                              and added following staff review, \
-                                              #{Time.now.strftime('%B')} #{Time.now.year}."))
+  chatgpt_note.append(MARC::Subfield.new('a', 'Non-Roman scripts were generated with OpenAI GPT-5.4 ' \
+                                              'and added following staff review, ' \
+                                              "#{Time.now.strftime('%B')} #{Time.now.year}."))
   chatgpt_note.append(MARC::Subfield.new('5', 'NjP'))
   chatgpt_note
+end
+
+# Find the maximum sequence number used in a subfield 6 in the record
+# (Return 0 if there are no instances of subfield 6.)
+def get_max_seqno(record)
+  max_seqno = 0
+  record.each do |f|
+    next unless f.is_a?(MARC::DataField)
+
+    if f['6']&.match(/^[0-9]{3}-[0-9]{2}/)
+      seqno = f['6'].to_s[4, 2].to_i
+      max_seqno = [seqno, max_seqno].max
+    end
+  end
+  max_seqno
 end
 
 # Detect potential conflicts that could prevent applying the change.
@@ -84,7 +99,7 @@ records_file = "#{input_dir}/cotsen_korean.marcxml"
 marc_reader = MARC::XMLReader.new(records_file, parser: 'magic', ignore_namespace: true)
 marc_writer = MARC::XMLWriter.new("#{output_dir}/cotsen_korean_updated.marcxml")
 marc_reader.each do |record|
-  seqno = 99
+  seqno = get_max_seqno(record) + 1
   translation_note = get_translation_note(record['245']['a'])
   record_updates = all_updates.filter { |row| row[0] == record['001'].value }
   record_updates.each do |row|
@@ -104,13 +119,12 @@ marc_reader.each do |record|
       record: record
     )
     record << new_korean_field
-    seqno -= 1
+    seqno += 1
   end
 
   record << generate_translation_field(translation_note) if translation_note
   record << generate_chatgpt_field
 
-  record = MarcCleanup.fix_f880(record)
   record = MarcCleanup.field_sort(record)
   marc_writer.write(record)
 end
