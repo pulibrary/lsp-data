@@ -10,9 +10,15 @@
 require_relative '../lib/lsp-data'
 require 'CSV'
 
-# Extract parenthetical translation note fro 245a
+TRANSLATION_START = ' [(\\[]'
+TRANSLATION_MIDDLE = '([A-Z][^)\\]]*)'
+TRANSLATION_END = '[\\])]([\\s\\p{P}]*)$'
+
+# Extract parenthetical translation note from 245a
+# (Any phrase at the end of the field that is enclosed in parentheses or brackets
+# and that starts with a capital letter)
 def get_translation_note(title_field)
-  m = title_field.match(/ [(\[]([^)]*)[\])]\p{P}*$/)
+  m = title_field.match(/#{TRANSLATION_START}#{TRANSLATION_MIDDLE}#{TRANSLATION_END}/)
   m ? m[1] : nil
 end
 
@@ -25,7 +31,7 @@ def generate_field(tagset, seqno, indicators, field_content, translation_note)
   new_field = MARC::DataField.new(tagset[0], indicators[0], indicators[1], *subfields)
   return new_field unless tagset.include?('245') && translation_note
 
-  new_field['a'].sub!(/ [(\[]#{Regexp.escape(translation_note)}[\])]([\s\p{P}]*)$/, '\1')
+  new_field['a'].sub!(/#{TRANSLATION_START}#{Regexp.escape(translation_note)}#{TRANSLATION_END}/, '\1')
   new_field
 end
 
