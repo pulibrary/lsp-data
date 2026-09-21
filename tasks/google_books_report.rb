@@ -6,7 +6,7 @@
 ###   what locations these items are from, the approximate size, language,
 ###   country of origin, etc. I can do that analysis,
 ###   but I can’t get the full records with hammering the API.
-require_relative './../lib/lsp-data'
+require_relative '../lib/lsp-data'
 
 def call_number(f852)
   [f852['k'], f852['h'], f852['i']].join(' ').strip
@@ -14,13 +14,11 @@ end
 
 def holding_retention(record, holding_id)
   fields = record.fields('583').select { |f| f['8'] == holding_id }
-  statements = []
-  fields.each do |field|
-    statements << field.subfields.reject { |s| s.code == '8' }
-                       .map(&:value)
-                       .join(' ')
+  fields.map do |field|
+    field.subfields.reject { |s| s.code == '8' }
+         .map(&:value)
+         .join(' ')
   end
-  statements
 end
 
 def holding866(record, holding_id)
@@ -62,7 +60,7 @@ def report_info_bib(record)
   hash = {
     mms_id: record['001'].value,
     title: title(record),
-    author: author(record),
+    author: author(record)&.gsub(/\s/, ' '),
     pub_info: publisher(record),
     description: description(record)
   }
@@ -82,7 +80,7 @@ end
 
 def write_bib_info_to_report(output, info)
   output.write("#{info[:mms_id]}\t#{info[:title]}\t#{info[:author]}\t")
-  output.write("#{info[:pub_info][:pub_place]}\t#{info[:pub_info][:pub_name]}\t#{info[:pub_info][:pub_date]}")
+  output.write("#{info[:pub_info][:pub_place]}\t#{info[:pub_info][:pub_name]}\t#{info[:pub_info][:pub_date]}\t")
   output.write("#{info[:pub_place_f008]}\t#{info[:pub_date_f008]}\t")
   output.write("#{info[:description]}\t#{info[:language]}\t")
 end
@@ -99,62 +97,89 @@ def write_line_to_report(output, info)
   write_holding_info_to_report(output, info)
 end
 
-input_dir = ENV['DATA_INPUT_DIR']
-output_dir = ENV['DATA_OUTPUT_DIR']
+input_dir = ENV.fetch('DATA_INPUT_DIR', nil)
+output_dir = ENV.fetch('DATA_OUTPUT_DIR', nil)
 
 google_candidates = {}
-File.open("#{input_dir}/Candidate Lists/prnc-2025-07-23_combined_2022_cutoff_11.tsv", 'r') do |input|
-  while (line = input.gets)
-    line.chomp!
-    parts = line.split("\t")
-    bib_id = parts[0]
-    mms_id = bib_id =~ /^99[0-9]+6421$/ ? bib_id : "99#{bib_id}3506421"
-    barcode = parts[8]
-    enum = parts[7]
-    google_candidates[mms_id] ||= []
-    google_candidates[mms_id] << { barcode: barcode, enum: enum }
+Dir.glob("#{input_dir}/candidates/*.txt").each do |file|
+  File.open(file, 'r') do |input|
+    while (line = input.gets)
+      line.chomp!
+      parts = line.split("\t")
+      bib_id = parts[0]
+      mms_id = bib_id =~ /^99[0-9]+6421$/ ? bib_id : "99#{bib_id}3506421"
+      barcode = parts[8].gsub(/\s/, '')
+      enum = parts[7]
+      google_candidates[mms_id] ||= []
+      google_candidates[mms_id] << { barcode: barcode, enum: enum }
+    end
   end
 end
 
 ### First, find the bib records that match the MMS IDs;
 ###   item filtering will happen afterwards
-google_mms_ids = Set.new(google_candidates.keys)
-found_ids = Set.new
-report = File.open("#{output_dir}/google_books_candidates_report.tsv", 'w')
-writer = MARC::XMLWriter.new("#{output_dir}/google_books_candidates_marc_file.marcxml")
-report.write("MMS ID\tTitle\tAuthor\tPublisher Place\tPublisher Name\t")
-report.write("Publisher Date\t008 Publisher Place\t008 Date1\t")
-report.write("Physical Description\t008 Language\tHolding ID\tLibrary Code\t")
-report.puts("Location Code\tCall Number\t866 Fields\tItem ID\tBarcode\tItem Enum\tRetention Commitments")
-Dir.glob("#{input_dir}/new_fulldump/fulldump*.xml*").each do |file|
+barcodes_found = Set.new
+date = Time.new.strftime('%Y-%m-%d')
+report = File.open("#{output_dir}/google_books_candidates_report_nonrecap_#{date}.tsv", 'w')
+recap = File.open("#{output_dir}/google_books_candidates_report_recap_#{date}.tsv", 'w')
+extra_items = File.open("#{output_dir}/google_books_candidates_report_other_items_#{date}.tsv", 'w')
+fake_items = File.open("#{output_dir}/google_books_candidates_report_fake_items_#{date}.tsv", 'w')
+writer = MARC::XMLWriter.new("#{output_dir}/google_books_candidates_marc_file_#{date}.marcxml")
+header_row = [
+  'MMS ID', 'Title', 'Author',
+  'Publisher Place', 'Publisher Name', 'Publisher Date',
+  '008 Publisher Place', '008 Date1', 'Physical Description', '008 Language',
+  'Holding ID', 'Library Code', 'Location Code', 'Call Number', '866 Fields',
+  'Item ID', 'Barcode', 'Item Enum', 'Retention Commitments'
+].join("\t")
+report.puts(header_row)
+recap.puts(header_row)
+extra_items.puts(header_row)
+fake_items.puts(header_row)
+Dir.glob("#{input_dir}/google_books_candidates_marc_file_2026-09-21_old.marcxml").each do |file|
   reader = MARC::XMLReader.new(file, parser: 'magic', ignore_namespace: true)
   reader.each do |record|
     mms_id = record['001'].value
     candidates = google_candidates[mms_id]
     next unless candidates
 
-    found_ids << mms_id
     writer.write(record)
     matched_items = matched_items(record, candidates)
     all_items = record.fields('876').select { |field| field['a'] =~ /^23[0-9]+6421$/ }
     unmatched_items = all_items - matched_items
     matched_items.each do |item|
       info = report_info(item, record)
-      write_line_to_report(report, info)
+      item['y'] == 'recap' ? write_line_to_report(recap, info) : write_line_to_report(report, info)
+      barcodes_found << item['p']
     end
-    next unless candidates.size == all_items.size
-
     unmatched_items.each do |item|
       info = report_info(item, record)
-      write_line_to_report(report, info)
+      item['p'] =~ /^32101/ ? write_line_to_report(extra_items, info) : write_line_to_report(fake_items, info)
     end
   end
 end
 report.close
+recap.close
+extra_items.close
+fake_items.close
 writer.close
 
-File.open("#{output_dir}/missing_ids_google_candidates.txt", 'w') do |output|
-  output.puts('MMS ID')
-  missing_ids = google_mms_ids - found_ids
-  missing_ids.each { |id| output.puts(id) }
+File.open("#{output_dir}/missing_barcodes_google_candidates_#{date}.tsv", 'w') do |output|
+  output.write("Bib ID\tYear of Publication\tAuthor\tTitle\tRemainder of Title\t")
+  output.puts("LC Class\tCutter\tEnumeration\tBarcode")
+  Dir.glob("#{input_dir}/candidates/*.txt").each do |file|
+    File.open(file, 'r') do |input|
+      while (line = input.gets)
+        line.chomp!
+        parts = line.split("\t")
+        bib_id = parts[0]
+        mms_id = bib_id =~ /^99[0-9]+6421$/ ? bib_id : "99#{bib_id}3506421"
+        barcode = parts[8].gsub(/\s/, '')
+        next if barcodes_found.include?(barcode)
+
+        output.write("#{mms_id}\t#{parts[1]}\t#{parts[2]}\t#{parts[3]}\t#{parts[4]}\t")
+        output.puts("#{parts[5]}\t#{parts[6]}\t#{parts[7]}\t#{barcode}")
+      end
+    end
+  end
 end
