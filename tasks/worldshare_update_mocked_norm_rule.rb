@@ -8,7 +8,8 @@ require 'csv'
 
 ### Fields that can be changed from the WorldShare Record Update process:
 ###   Leader (replace positions 6-23)
-###   010-029 (replace)
+###   008 (replace)
+###   010-028 (replace)
 ###   041 (replace if exists in OCLC)
 ###   050 (add if no 050 in Alma)
 ###   400, 410, 411, 440, 490 (replace)
@@ -59,7 +60,7 @@ def delete_conditional_fields(record)
 end
 
 def delete_unwanted_alma_fields(record)
-  record.fields.delete_if { |field| (('010'..'029').to_a + %w[400 410 411 440 490]).include?(field.tag) }
+  record.fields.delete_if { |field| (('010'..'028').to_a + %w[008 400 410 411 440 490]).include?(field.tag) }
   delete_management_tags(record)
   delete_inventory_fields(record)
   delete_oclc_fields(record)
@@ -73,7 +74,7 @@ def fields_from_alma(record)
     leader: "00000c#{record.leader[6..11]}00000#{record.leader[17..23]}",
     oclcs: oclcs(record: record),
     fields: [
-      record.fields('010'..'029'),
+      record.fields(('010'..'028').to_a + %w[008]),
       record.fields(%w[041 050 400 410 411 440 490 800 810 811 830 880]),
       wanted_f6xx_with_subf5(record)
     ].flatten.map(&:to_s)
@@ -145,7 +146,7 @@ end
 def fields_from_oclc(record)
   {
     leader: record.leader,
-    f0xx: record.fields('010'..'029'),
+    f0xx: record.fields(('010'..'028').to_a + %w[008]),
     f041: record.fields('041'), f050: record.fields('050').select { |field| field['b'] },
     f4xx: record.fields(%w[400 410 411 440 490]),
     f6xx: wanted_f6xx(record),
@@ -176,7 +177,25 @@ def new_oclc_field(oclc_num)
   MARC::DataField.new('035', ' ', ' ', MARC::Subfield.new('a', "(OCoLC)#{oclc_num}"))
 end
 
+def process_oclc_records(num:, xref_to_oclc_num:, oclc_fields:, input_dir:)
+  Dir.glob("#{input_dir}/pul_oclc/metacoll*#{num}.mrc").each do |file|
+    MARC::Reader.new(file).each do |record|
+      next unless valid_oclc_record?(record)
+
+      oclc_num = oclcs(record: record).first
+      all_xref(record).each { |xref| xref_to_oclc_num[xref] = oclc_num }
+      oclc_fields[oclc_num] = fields_from_oclc(record)
+    end
+  end
+end
+
 ### Methods related to report output
+def output_all_changes(output:, pre:, post:, mms_id:)
+  output_changed_leader(output: output, pre: pre[:leader], post: post[:leader], mms_id: mms_id)
+  output_changed_oclc(output: output, pre: pre[:oclcs], post: post[:oclcs], mms_id: mms_id)
+  output_changed_fields(output: output, pre: pre[:fields], post: post[:fields], mms_id: mms_id)
+end
+
 def output_changed_fields(output:, pre:, post:, mms_id:)
   (post - pre).each do |field|
     tag = field[0..2]
@@ -221,56 +240,43 @@ output_dir = ENV.fetch('DATA_OUTPUT_DIR', nil)
 ### Iterate through a full prod dump of Alma and perform the required field operations;
 ### Write out the records for ingesting later to evaluate the changes
 
-# rubocop:disable Metrics/BlockLength
 ('0'..'9').each do |num|
   xref_to_oclc_num = {}
   oclc_fields = {} # OCLC number is the key, the target fields will be in the value
-  Dir.glob("#{input_dir}/pul_oclc/metacoll*#{num}.mrc").each do |file|
-    MARC::Reader.new(file).each do |record|
-      next unless valid_oclc_record?(record)
-
-      oclc_num = oclcs(record: record).first
-      all_xref(record).each { |xref| xref_to_oclc_num[xref] = oclc_num }
-      oclc_fields[oclc_num] = fields_from_oclc(record)
-    end
-  end
-
+  process_oclc_records(num: num, xref_to_oclc_num: xref_to_oclc_num, oclc_fields: oclc_fields, input_dir: input_dir)
   all_xref_nums = Set.new(xref_to_oclc_num.keys)
   all_oclc_nums = Set.new(oclc_fields.keys)
-  writer = MARC::XMLWriter.new("#{output_dir}/new_changed_prod_records_batch#{num}.marcxml")
-  output = File.open("#{output_dir}/new_worldshare_differences_#{num}.tsv", 'w')
-  output.puts("MMS ID\tAction\tField\tValue")
-  Dir.glob("#{input_dir}/new_fulldump/fulldump*.xml*").each do |file|
-    MARC::XMLReader.new(file, parser: 'magic', ignore_namespace: true).each do |record|
-      next if record.fields('035').any? { |field| field['a'] =~ /^\(CKB\)/ } # CZ records
+  MARC::XMLWriter.new("#{output_dir}/new_changed_prod_records_batch#{num}.marcxml") do |writer|
+    File.open("#{output_dir}/new_worldshare_differences_#{num}.tsv", 'w') do |output|
+      output.puts("MMS ID\tAction\tField\tValue")
+      Dir.glob("#{input_dir}/new_fulldump/fulldump*.xml*").each do |file|
+        MARC::XMLReader.new(file, parser: 'magic', ignore_namespace: true).each do |record|
+          all_oclcs = Set.new(oclcs(record: record) + all_xref(record))
+          oclc_match = all_oclcs.intersection(all_oclc_nums).first
+          xref_match = all_oclcs.intersection(all_xref_nums).first
+          next unless (oclc_match || xref_match) && record.fields('035').none? { |field| field['a'] =~ /^\(CKB\)/ }
 
-      all_oclcs = Set.new(oclcs(record: record) + all_xref(record))
-      oclc_match = all_oclcs.intersection(all_oclc_nums).first
-      xref_match = all_oclcs.intersection(all_xref_nums).first
-      next unless oclc_match || xref_match
-
-      mms_id = record['001'].value
-      oclc_num = oclc_match || xref_to_oclc_num[xref_match]
-      original_record = duplicate_record(record)
-      pre = fields_from_alma(original_record)
-      record = update_alma_record(record: record, new_fields: oclc_fields[oclc_num], oclc_num: oclc_num)
-      writer.write(record)
-      post = fields_from_alma(record)
-      output_changed_leader(output: output, pre: pre[:leader], post: post[:leader], mms_id: mms_id)
-      output_changed_oclc(output: output, pre: pre[:oclcs], post: post[:oclcs], mms_id: mms_id)
-      output_changed_fields(output: output, pre: pre[:fields], post: post[:fields], mms_id: mms_id)
+          mms_id = record['001'].value
+          oclc_num = oclc_match || xref_to_oclc_num[xref_match]
+          pre = fields_from_alma(duplicate_record(record))
+          record = update_alma_record(record: record, new_fields: oclc_fields[oclc_num], oclc_num: oclc_num)
+          writer.write(record)
+          post = fields_from_alma(record)
+          output_all_changes(output: output, pre: pre, post: post, mms_id: mms_id)
+        end
+      end
     end
   end
-  writer.close
-  output.close
 end
-# rubocop:enable Metrics/BlockLength
 
-### Show all changes other than series and subjects
+### Produce targeted reports
+report_headers = ['MMS ID', 'Action', 'Field', 'Value']
+
+### Show all changes other than series, subjects, leader, or 008
 field_count = 0
-csv = CSV.open("#{output_dir}/other_worldshare_differences_1.csv", 'w', force_quotes: true)
-csv << ['MMS ID', 'Action', 'Field', 'Value']
 fnum = 1
+csv = CSV.open("#{output_dir}/other_worldshare_differences_#{fnum}.csv", 'w', force_quotes: true)
+csv << report_headers
 Dir.glob("#{input_dir}/worldshare_differences_*.tsv").each do |file|
   File.open(file, 'r') do |input|
     input.gets
@@ -278,7 +284,7 @@ Dir.glob("#{input_dir}/worldshare_differences_*.tsv").each do |file|
     while (line = input.gets)
       line.chomp!
       parts = line.split("\t")
-      next if parts[3][0] == '6' || %w[400 410 411 440 490 800 810 811 830].include?(parts[3][0..2])
+      next if %w[L 6].include?(parts[3][0]) || %w[008 400 410 411 440 490 800 810 811 830].include?(parts[3][0..2])
 
       changes_by_mms_id[parts[0]] ||= []
       changes_by_mms_id[parts[0]] << parts
@@ -288,7 +294,71 @@ Dir.glob("#{input_dir}/worldshare_differences_*.tsv").each do |file|
         csv.close
         fnum += 1
         csv = CSV.open("#{output_dir}/other_worldshare_differences_#{fnum}.csv", 'w', force_quotes: true)
-        csv << ['MMS ID', 'Action', 'Field', 'Value']
+        csv << report_headers
+        field_count = 0
+      end
+      field_count += fields.size
+      fields.each { |field| csv << field }
+    end
+  end
+end
+csv.close
+
+### Show all leader changes
+field_count = 0
+fnum = 1
+csv = CSV.open("#{output_dir}/leader_worldshare_differences_#{fnum}.csv", 'w', force_quotes: true)
+csv << report_headers
+Dir.glob("#{input_dir}/worldshare_differences_*.tsv").each do |file|
+  File.open(file, 'r') do |input|
+    input.gets
+    changes_by_mms_id = {}
+    while (line = input.gets)
+      line.chomp!
+      parts = line.split("\t")
+      next unless parts[3] == 'Leader'
+
+      changes_by_mms_id[parts[0]] ||= []
+      changes_by_mms_id[parts[0]] << parts
+    end
+    changes_by_mms_id.each_value do |fields|
+      if field_count > 800_000
+        csv.close
+        fnum += 1
+        csv = CSV.open("#{output_dir}/leader_worldshare_differences_#{fnum}.csv", 'w', force_quotes: true)
+        csv << report_headers
+        field_count = 0
+      end
+      field_count += fields.size
+      fields.each { |field| csv << field }
+    end
+  end
+end
+csv.close
+
+### Show all 008 changes
+field_count = 0
+fnum = 1
+csv = CSV.open("#{output_dir}/008_worldshare_differences_#{fnum}.csv", 'w', force_quotes: true)
+csv << report_headers
+Dir.glob("#{input_dir}/worldshare_differences_*.tsv").each do |file|
+  File.open(file, 'r') do |input|
+    input.gets
+    changes_by_mms_id = {}
+    while (line = input.gets)
+      line.chomp!
+      parts = line.split("\t")
+      next unless parts[3] == '008'
+
+      changes_by_mms_id[parts[0]] ||= []
+      changes_by_mms_id[parts[0]] << parts
+    end
+    changes_by_mms_id.each_value do |fields|
+      if field_count > 800_000
+        csv.close
+        fnum += 1
+        csv = CSV.open("#{output_dir}/008_worldshare_differences_#{fnum}.csv", 'w', force_quotes: true)
+        csv << report_headers
         field_count = 0
       end
       field_count += fields.size
@@ -300,9 +370,9 @@ csv.close
 
 ### Show all series changes
 field_count = 0
-csv = CSV.open("#{output_dir}/series_worldshare_differences_1.csv", 'w', force_quotes: true)
-csv << ['MMS ID', 'Action', 'Field', 'Value']
 fnum = 1
+csv = CSV.open("#{output_dir}/series_worldshare_differences_#{fnum}.csv", 'w', force_quotes: true)
+csv << report_headers
 Dir.glob("#{input_dir}/worldshare_differences_*.tsv").each do |file|
   File.open(file, 'r') do |input|
     input.gets
@@ -320,7 +390,7 @@ Dir.glob("#{input_dir}/worldshare_differences_*.tsv").each do |file|
         csv.close
         fnum += 1
         csv = CSV.open("#{output_dir}/series_worldshare_differences_#{fnum}.csv", 'w', force_quotes: true)
-        csv << ['MMS ID', 'Action', 'Field', 'Value']
+        csv << report_headers
         field_count = 0
       end
       field_count += fields.size
@@ -332,9 +402,9 @@ csv.close
 
 ### Subject-heading focused report; only show LCSH changes
 field_count = 0
-csv = CSV.open("#{output_dir}/lcsh_worldshare_differences_1.csv", 'w', force_quotes: true)
-csv << ['MMS ID', 'Action', 'Field', 'Value']
 fnum = 1
+csv = CSV.open("#{output_dir}/lcsh_worldshare_differences_#{fnum}.csv", 'w', force_quotes: true)
+csv << report_headers
 Dir.glob("#{input_dir}/worldshare_differences_*.tsv").each do |file|
   File.open(file, 'r') do |input|
     input.gets
@@ -353,7 +423,7 @@ Dir.glob("#{input_dir}/worldshare_differences_*.tsv").each do |file|
         csv.close
         fnum += 1
         csv = CSV.open("#{output_dir}/lcsh_worldshare_differences_#{fnum}.csv", 'w', force_quotes: true)
-        csv << ['MMS ID', 'Action', 'Field', 'Value']
+        csv << report_headers
         field_count = 0
       end
       field_count += fields.size
@@ -365,9 +435,9 @@ csv.close
 
 ### Subject-heading focused report; only show non-LCSH changes
 field_count = 0
-csv = CSV.open("#{output_dir}/no_lcsh_worldshare_differences_1.csv", 'w', force_quotes: true)
-csv << ['MMS ID', 'Action', 'Field', 'Value']
 fnum = 1
+csv = CSV.open("#{output_dir}/no_lcsh_worldshare_differences_#{fnum}.csv", 'w', force_quotes: true)
+csv << report_headers
 Dir.glob("#{input_dir}/worldshare_differences_*.tsv").each do |file|
   File.open(file, 'r') do |input|
     input.gets
@@ -386,7 +456,7 @@ Dir.glob("#{input_dir}/worldshare_differences_*.tsv").each do |file|
         csv.close
         fnum += 1
         csv = CSV.open("#{output_dir}/no_lcsh_worldshare_differences_#{fnum}.csv", 'w', force_quotes: true)
-        csv << ['MMS ID', 'Action', 'Field', 'Value']
+        csv << report_headers
         field_count = 0
       end
       field_count += fields.size
@@ -398,9 +468,9 @@ csv.close
 
 ### Changes to 880 fields or non-880 fields with $6
 field_count = 0
-csv = CSV.open("#{output_dir}/880_worldshare_differences_1.csv", 'w', force_quotes: true)
-csv << ['MMS ID', 'Action', 'Field', 'Value']
 fnum = 1
+csv = CSV.open("#{output_dir}/880_worldshare_differences_#{fnum}.csv", 'w', force_quotes: true)
+csv << report_headers
 Dir.glob("#{input_dir}/worldshare_differences_*.tsv").each do |file|
   File.open(file, 'r') do |input|
     input.gets
@@ -418,7 +488,7 @@ Dir.glob("#{input_dir}/worldshare_differences_*.tsv").each do |file|
         csv.close
         fnum += 1
         csv = CSV.open("#{output_dir}/880_worldshare_differences_#{fnum}.csv", 'w', force_quotes: true)
-        csv << ['MMS ID', 'Action', 'Field', 'Value']
+        csv << report_headers
         field_count = 0
       end
       field_count += fields.size
