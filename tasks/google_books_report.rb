@@ -136,7 +136,7 @@ report.puts(header_row)
 recap.puts(header_row)
 extra_items.puts(header_row)
 fake_items.puts(header_row)
-Dir.glob("#{input_dir}/google_books_candidates_marc_file_2026-09-21_old.marcxml").each do |file|
+Dir.glob("#{input_dir}/new_fulldump/fulldump*.xml*").each do |file|
   reader = MARC::XMLReader.new(file, parser: 'magic', ignore_namespace: true)
   reader.each do |record|
     mms_id = record['001'].value
