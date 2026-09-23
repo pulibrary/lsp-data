@@ -38,7 +38,7 @@ def holding852_hash(record, holding_id)
 end
 
 def item_hash(item)
-  { item_id: item['a'], barcode: item['p'], enum: item['3'] }
+  { item_id: item['a'], barcode: item['p']&.gsub(/\s/, ''), enum: item['3'] }
 end
 
 def report_info_holdings(item, record)
@@ -75,7 +75,7 @@ end
 def matched_items(record, candidates)
   all_items = record.fields('876').select { |field| field['a'] =~ /^23[0-9]+6421$/ }
   candidate_barcodes = candidates.map { |candidate| candidate[:barcode] }
-  all_items.select { |field| candidate_barcodes.include?(field['p']) }
+  all_items.select { |field| candidate_barcodes.include?(field['p']&.gsub(/\s/, '')) }
 end
 
 def write_bib_info_to_report(output, info)
@@ -136,7 +136,7 @@ report.puts(header_row)
 recap.puts(header_row)
 extra_items.puts(header_row)
 fake_items.puts(header_row)
-Dir.glob("#{input_dir}/new_fulldump/fulldump*.xml*").each do |file|
+Dir.glob("#{input_dir}/google_books_candidates_marc_file_2026-09-21.marcxml").each do |file|
   reader = MARC::XMLReader.new(file, parser: 'magic', ignore_namespace: true)
   reader.each do |record|
     mms_id = record['001'].value
@@ -150,11 +150,15 @@ Dir.glob("#{input_dir}/new_fulldump/fulldump*.xml*").each do |file|
     matched_items.each do |item|
       info = report_info(item, record)
       item['y'] == 'recap' ? write_line_to_report(recap, info) : write_line_to_report(report, info)
-      barcodes_found << item['p']
+      barcodes_found << info[:barcode]
     end
     unmatched_items.each do |item|
       info = report_info(item, record)
-      item['p'] =~ /^32101/ ? write_line_to_report(extra_items, info) : write_line_to_report(fake_items, info)
+      if info[:barcode] =~ /^32101/
+        write_line_to_report(extra_items, info)
+      else
+        write_line_to_report(fake_items, info)
+      end
     end
   end
 end
