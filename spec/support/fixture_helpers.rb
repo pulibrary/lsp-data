@@ -88,8 +88,7 @@ def stub_oauth(fixture:, url:, scope: nil)
   params = 'grant_type=client_credentials'.dup
   params << "&scope=#{scope}" if scope
   headers = { 'Accept' => 'application/json', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-              'Authorization' => 'Basic aWQ6c2VjcmV0', 'Content-Length' => '0',
-              'User-Agent' => 'Faraday v1.10.4' }
+              'Content-Length' => '0', 'User-Agent' => 'Ruby', 'Authorization' => 'Basic aWQ6c2VjcmV0' }
   stub_request(:post, "#{url}?#{params}")
     .with(headers: headers)
     .to_return(status: 200, body: data)
