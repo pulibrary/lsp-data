@@ -62,6 +62,18 @@ def stub_put_po_line_response(pol_id:, redistribute_funds:, update_inventory:, f
     .to_return(status: status, body: body.to_json)
 end
 
+def stub_oit_response(fixture:, path: nil)
+  file = File.open("#{FIXTURE_DIR}/#{fixture}")
+  data = File.read(file)
+  url = 'https://api.edu'.dup
+  url << path if path
+  headers = { 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'Accept' => 'application/json',
+              'Content-Type' => 'application/json', 'User-Agent' => 'Ruby', 'Authorization' => 'Bearer token' }
+  stub_request(:get, url)
+    .with(headers: headers)
+    .to_return(status: 200, body: data)
+end
+
 def stub_get_portfolio_response(mms_id:, portfolio_id:, fixture:)
   file = File.open("#{FIXTURE_DIR}/#{fixture}")
   data = File.read(file)
