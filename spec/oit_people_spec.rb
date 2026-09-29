@@ -7,15 +7,25 @@ RSpec.describe LspData::OitPeople do
   subject(:oit_people) do
     described_class.new(token: 'token', base_url: 'https://api.edu')
   end
+  context 'Status other than 200 returned from API call' do
+    it 'returns nil for people' do
+      stub_oit_response(fixture: 'oit_report_202_status.json', status: 202)
+      report = oit_people.report
+      expect(report[:status]).to eq 202
+      expect(report[:people]).to be_nil
+    end
+  end
+
   context 'No parameters are provided for report' do
     it 'returns eligible and ineligible users' do
       stub_oit_response(fixture: 'oit_report_no_params.json')
-      expect(oit_people.report[:status]).to eq 200
-      expect(oit_people.report[:people].size).to eq 2
-      expect(oit_people.report[:people].first['EMPLID']).to eq '123456789'
-      expect(oit_people.report[:people].first['ELIGIBLE_INELIGIBLE']).to eq 'I'
-      expect(oit_people.report[:people][1]['EMPLID']).to eq '123456780'
-      expect(oit_people.report[:people][1]['ELIGIBLE_INELIGIBLE']).to eq 'E'
+      report = oit_people.report
+      expect(report[:status]).to eq 200
+      expect(report[:people].size).to eq 2
+      expect(report[:people].first['EMPLID']).to eq '123456789'
+      expect(report[:people].first['ELIGIBLE_INELIGIBLE']).to eq 'I'
+      expect(report[:people][1]['EMPLID']).to eq '123456780'
+      expect(report[:people][1]['ELIGIBLE_INELIGIBLE']).to eq 'E'
     end
   end
 
