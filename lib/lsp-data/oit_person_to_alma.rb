@@ -2,6 +2,7 @@
 
 module LspData
   # convert a OIT person hash into alma xml
+  # rubocop:disable Metrics/ClassLength
   class OitPersonToAlma
     attr_reader :person, :xml
 
@@ -38,7 +39,7 @@ module LspData
 
     def create_user_info
       user_info.each do |key, value|
-        xml << "<#{key}>#{value}<\/#{key}>" if value
+        xml << "<#{key}>#{value}</#{key}>" if value
       end
     end
 
@@ -56,7 +57,7 @@ module LspData
     def statistical_categories
       categories = [person['PVSTATCATEGORY'].to_s]
       categories << 'PPPL' if person['VCURGROUP'] == 'PL'
-      categories.delete_if { |category| category.empty? }
+      categories.delete_if(&:empty?)
     end
 
     def create_user_statistics
@@ -175,7 +176,7 @@ module LspData
 
       xml.address(preferred:, segment_type: 'External') do
         address_info(address_prefix).each do |key, value|
-          xml << "<#{key}>#{value}<\/#{key}>" if value
+          xml << "<#{key}>#{value}</#{key}>" if value
         end
         xml.address_types do
           xml.address_type(desc: type) { xml.text type }
@@ -188,3 +189,4 @@ module LspData
     end
   end
 end
+# rubocop:enable Metrics/ClassLength
