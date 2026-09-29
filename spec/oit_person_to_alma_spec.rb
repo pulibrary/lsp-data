@@ -53,4 +53,35 @@ RSpec.describe LspData::OitPersonToAlma do
       expect(builder.to_xml).to eq alma_xml.to_xml
     end
   end
+
+  context 'Person is a staff member associated with PPPL' do
+    let(:oit_fixture) { 'oit_person_pppl.json' }
+    let(:alma_fixture) { 'alma_person_pppl.xml' }
+    let(:person) { stub_json_fixture(fixture: oit_fixture) }
+    let(:alma_xml) { stub_xml_fixture(fixture: alma_fixture) }
+    it 'creates a user with multiple statistical categories' do
+      builder = Nokogiri::XML::Builder.new do |xml|
+        xml.users do
+          OitPersonToAlma.new(person: person, xml: xml).alma_person
+        end
+      end
+      expect(builder.to_xml).to eq alma_xml.to_xml
+    end
+  end
+
+  context 'Person has no statistical category' do
+    let(:oit_fixture) { 'oit_person_no_category.json' }
+    let(:alma_fixture) { 'alma_person_no_category.xml' }
+    let(:person) { stub_json_fixture(fixture: oit_fixture) }
+    let(:alma_xml) { stub_xml_fixture(fixture: alma_fixture) }
+    it 'creates a user with no statistical categories' do
+      builder = Nokogiri::XML::Builder.new do |xml|
+        xml.users do
+          OitPersonToAlma.new(person: person, xml: xml).alma_person
+        end
+      end
+      expect(builder.to_xml).to eq alma_xml.to_xml
+    end
+  end
+
 end

@@ -53,13 +53,21 @@ module LspData
       end
     end
 
+    def statistical_categories
+      categories = [person['PVSTATCATEGORY'].to_s]
+      categories << 'PPPL' if person['VCURGROUP'] == 'PL'
+      categories.delete_if { |category| category.empty? }
+    end
+
     def create_user_statistics
-      statistic_category = person['PVSTATCATEGORY'].to_s
-      return if statistic_category.empty?
+      categories = statistical_categories
+      return if categories.empty?
 
       xml.user_statistics do
-        xml.user_statistic(segment_type: 'External') do
-          xml.statistic_category(desc: statistic_category) { xml.text statistic_category }
+        categories.each do |category|
+          xml.user_statistic(segment_type: 'External') do
+            xml.statistic_category(desc: category) { xml.text category }
+          end
         end
       end
     end
