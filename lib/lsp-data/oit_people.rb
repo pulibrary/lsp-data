@@ -9,6 +9,8 @@ module LspData
   class OitPeople
     attr_reader :token, :base_url, :conn
 
+    ELIGIBLE = 'E'
+    INELIGIBLE = 'I'
     # @param token [String] Access token
     # @param base_url [string] path for API
     def initialize(token:, base_url:)
@@ -17,7 +19,7 @@ module LspData
       @conn = api_conn(base_url)
     end
 
-    # @param eligible_flag [String] optional user status (E for Eligible, I for Ineligible)
+    # @param eligible_flag [String] optional user status (ELIGIBLE or INELIGIBLE)
     # @param dates [Hash] optional begin date;
     #   hash keys are :begin_date and :end_date, values are strings in format yyyy-mm-dd
     #   both dates must be supplied
