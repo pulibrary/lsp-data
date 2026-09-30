@@ -23,20 +23,20 @@ RSpec.describe LspData::OitPeople do
       expect(report[:status]).to eq 200
       expect(report[:people].size).to eq 2
       expect(report[:people].first['EMPLID']).to eq '123456789'
-      expect(report[:people].first['ELIGIBLE_INELIGIBLE']).to eq 'I'
+      expect(report[:people].first['ELIGIBLE_INELIGIBLE']).to eq described_class::INELIGIBLE
       expect(report[:people][1]['EMPLID']).to eq '123456780'
-      expect(report[:people][1]['ELIGIBLE_INELIGIBLE']).to eq 'E'
+      expect(report[:people][1]['ELIGIBLE_INELIGIBLE']).to eq described_class::ELIGIBLE
     end
   end
 
   context 'Eligible flag is provided' do
     it 'returns eligible users only' do
       stub_oit_response(fixture: 'oit_report_eligible_flag.json', path: '/E')
-      report = oit_people.report(eligible_flag: OitPeople::ELIGIBLE)
+      report = oit_people.report(eligible_flag: described_class::ELIGIBLE)
       expect(report[:status]).to eq 200
       expect(report[:people].size).to eq 2
-      expect(report[:people].first['ELIGIBLE_INELIGIBLE']).to eq 'E'
-      expect(report[:people][1]['ELIGIBLE_INELIGIBLE']).to eq 'E'
+      expect(report[:people].first['ELIGIBLE_INELIGIBLE']).to eq described_class::ELIGIBLE
+      expect(report[:people][1]['ELIGIBLE_INELIGIBLE']).to eq described_class::ELIGIBLE
     end
   end
 
@@ -45,9 +45,9 @@ RSpec.describe LspData::OitPeople do
       stub_oit_response(fixture: 'oit_report_dates.json', path: '/2026-09-01/2026-09-02')
       report = oit_people.report(dates: { begin_date: '2026-09-01', end_date: '2026-09-02' })
       expect(report[:people].size).to eq 2
-      expect(report[:people].first['ELIGIBLE_INELIGIBLE']).to eq 'I'
+      expect(report[:people].first['ELIGIBLE_INELIGIBLE']).to eq described_class::INELIGIBLE
       expect(report[:people].first['INSERT_UPDATE_DATETIME']).to eq '2026-09-01T14:30:47.000-05:00'
-      expect(report[:people][1]['ELIGIBLE_INELIGIBLE']).to eq 'E'
+      expect(report[:people][1]['ELIGIBLE_INELIGIBLE']).to eq described_class::ELIGIBLE
       expect(report[:people][1]['INSERT_UPDATE_DATETIME']).to eq '2026-09-01T14:32:47.000-05:00'
     end
   end
@@ -55,9 +55,9 @@ RSpec.describe LspData::OitPeople do
   context 'Dates and eligible flag are provided' do
     it 'returns eligible user with update time in the date range' do
       stub_oit_response(fixture: 'oit_report_dates_eligible_flag.json', path: '/E/2026-09-01/2026-09-02')
-      report = oit_people.report(dates: { begin_date: '2026-09-01', end_date: '2026-09-02' }, eligible_flag: OitPeople::ELIGIBLE)
+      report = oit_people.report(dates: { begin_date: '2026-09-01', end_date: '2026-09-02' }, eligible_flag: described_class::ELIGIBLE)
       expect(report[:people].size).to eq 1
-      expect(report[:people].first['ELIGIBLE_INELIGIBLE']).to eq 'E'
+      expect(report[:people].first['ELIGIBLE_INELIGIBLE']).to eq described_class::ELIGIBLE
       expect(report[:people].first['INSERT_UPDATE_DATETIME']).to eq '2026-09-01T14:32:47.000-05:00'
     end
   end
