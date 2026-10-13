@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative './../lib/lsp-data'
+require_relative '../lib/lsp-data'
 
 exclude_locations = %w[
   recap$pe
@@ -21,8 +21,8 @@ exclude_locations = %w[
 ]
 exclude_libraries = %w[online obsolete resshare techserv RES_SHARE]
 
-input_dir = ENV['DATA_INPUT_DIR']
-output_dir = ENV['DATA_OUTPUT_DIR']
+input_dir = ENV.fetch('DATA_INPUT_DIR', nil)
+output_dir = ENV.fetch('DATA_OUTPUT_DIR', nil)
 
 Dir.glob("#{input_dir}/new_fulldump/fulldump*.xml*").each do |file|
   puts File.basename(file)
@@ -30,6 +30,30 @@ Dir.glob("#{input_dir}/new_fulldump/fulldump*.xml*").each do |file|
                    exclude_locations: exclude_locations,
                    input_file: file,
                    output_dir: output_dir)
+end
+
+### Generate a sample file with 100 monograph bibs and 100 serial bibs
+mono_count = 0
+serial_count = 0
+writer = MARC::XMLWriter.new("#{output_dir}/google_record_sample.marcxml")
+Dir.glob("#{output_dir}/filtered_fulldump*.xml*").each do |file|
+  reader = MARC::XMLReader.new(file, parser: 'magic')
+  reader.each do |record|
+    break if mono_count == 100 && serial_count == 100
+
+    rec_type = record.leader[7]
+    next if rec_type == 'm' && mono_count == 100
+    next if rec_type == 's' && serial_count == 100
+
+    if rec_type == 'm'
+      mono_count += 1
+      writer.write(record)
+    elsif rec_type == 's'
+      serial_count += 1
+      writer.write(record)
+    end
+  end
+  break if mono_count == 100 && serial_count == 100
 end
 
 ### Next, find which of these records have a conflict between the 001 and the

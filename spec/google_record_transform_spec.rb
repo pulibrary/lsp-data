@@ -48,7 +48,17 @@ RSpec.describe LspData::GoogleRecordTransform do
     end
   end
 
-  context 'Record has eligible items but is not textual material' do
+  context 'Record has eligible items and is notated music' do
+    let(:fixture) { 'google_eligible_item_music.marcxml' }
+    let(:record) { stub_bib_record(fixture) }
+    it 'returns changed record with one 955 record per eligible item' do
+      new_record = transformed.changed_record
+      expect(new_record.fields('955').size).to eq 1
+      expect(new_record['955']['b']).to eq 'bc1'
+    end
+  end
+
+  context 'Record has eligible items but is not textual material or notated music' do
     let(:fixture) { 'google_eligible_item_wrong_format.marcxml' }
     let(:record) { stub_bib_record(fixture) }
     it 'returns nil' do

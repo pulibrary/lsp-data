@@ -36,7 +36,7 @@ module LspData
     end
 
     def eligible_bib?
-      original_record.leader[6] == 'a' && original_record.leader[5] != 'd'
+      %w[a c].include?(original_record.leader[6]) && original_record.leader[5] != 'd'
     end
 
     def clean_original_record
