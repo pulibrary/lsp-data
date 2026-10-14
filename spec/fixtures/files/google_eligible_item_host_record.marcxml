@@ -1,0 +1,61 @@
+<?xml version='1.0'?>
+<collection xmlns='http://www.loc.gov/MARC21/slim'
+      xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+      xsi:schemaLocation="http://www.loc.gov/MARC21/slim http://www.loc.gov/standards/marcxml/schema/MARC21slim.xsd">
+<record>
+  <leader>01059nam a2200301 i 4500</leader>
+  <controlfield tag='005'>20240723120000.0</controlfield>
+  <controlfield tag='008'>240723t20232023ru            000 p rus d</controlfield>
+  <controlfield tag='001'>99106421</controlfield>
+  <datafield ind1=' ' ind2=' ' tag='020'>
+    <subfield code='a'>9785521240708</subfield>
+  </datafield>
+  <datafield ind1='1' ind2='0' tag='245'>
+    <subfield code='6'>880-02</subfield>
+    <subfield code='a'>Ryba-son /</subfield>
+    <subfield code='c'>Igorʹ Kunit︠s︡yn.</subfield>
+  </datafield>
+  <datafield ind1='1' ind2='0' tag='880'>
+    <subfield code='6'>245-02</subfield>
+    <subfield code='a'>Рыба-сон /</subfield>
+    <subfield code='c'>Игорь Куницын.</subfield>
+  </datafield>
+  <datafield ind1=' ' ind2=' ' tag='774'>
+    <subfield code='w'>99206421</subfield>
+  </datafield>
+  <datafield ind1='0' ind2=' ' tag='852'>
+    <subfield code='b'>firestone</subfield>
+    <subfield code='c'>stacks</subfield>
+    <subfield code='h'>PG3492.58.U55</subfield>
+    <subfield code='i'>R93 2023</subfield>
+    <subfield code='8'>22106421</subfield>
+  </datafield>
+  <datafield ind1=' ' ind2=' ' tag='876'>
+    <subfield code='0'>22106421</subfield>
+    <subfield code='a'>23106421</subfield>
+    <subfield code='j'>0</subfield>
+    <subfield code='k'>ACQ</subfield>
+    <subfield code='z'>stacks</subfield>
+    <subfield code='d'>2025-03-27 11:23:17 US/Eastern</subfield>
+    <subfield code='p'>bc1</subfield>
+    <subfield code='y'>firestone</subfield>
+  </datafield>
+  <datafield ind1='0' ind2=' ' tag='852'>
+    <subfield code='b'>lewis</subfield>
+    <subfield code='c'>mic</subfield>
+    <subfield code='h'>PG3492.58.U55</subfield>
+    <subfield code='i'>R93 2023</subfield>
+    <subfield code='8'>22206421</subfield>
+  </datafield>
+  <datafield ind1=' ' ind2=' ' tag='876'>
+    <subfield code='0'>22206421</subfield>
+    <subfield code='a'>23206421</subfield>
+    <subfield code='j'>0</subfield>
+    <subfield code='k'>ACQ</subfield>
+    <subfield code='z'>mic</subfield>
+    <subfield code='d'>2025-03-27 11:23:17 US/Eastern</subfield>
+    <subfield code='p'>bc2</subfield>
+    <subfield code='y'>lewis</subfield>
+  </datafield>
+</record>
+</collection>
