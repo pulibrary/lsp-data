@@ -36,7 +36,11 @@ module LspData
     end
 
     def eligible_bib?
-      %w[a c].include?(original_record.leader[6]) && original_record.leader[5] != 'd'
+      %w[a c].include?(original_record.leader[6]) && original_record.leader[5] != 'd' && host_record? == false
+    end
+
+    def host_record?
+      original_record.fields('774').any? { |field| field['w'] =~ /^99[0-9]+6421$/ }
     end
 
     def clean_original_record
@@ -48,10 +52,9 @@ module LspData
     def attach_eligible_items(record)
       eligible_f852.each do |holding_field|
         holding_id = holding_field['8']
-        location = "#{holding_field['b']}$#{holding_field['c']}"
         associated_items(holding_id).each do |item_field|
           record.append(new_item_field(item_field: item_field,
-                                       location: location))
+                                       holding_field: holding_field))
         end
       end
       record
@@ -71,14 +74,24 @@ module LspData
       end
     end
 
-    def new_item_field(item_field:, location:)
-      item_pid = item_field['a']
-      barcode = item_field['p']
+    def holding_call_number(holding_field)
+      return unless holding_field['h'] || holding_field['i']
+
+      [holding_field['h'], holding_field['i']].join(' ').strip
+    end
+
+    def location(holding_field)
+      [holding_field['b'], holding_field['c']].join('$')
+    end
+
+    def new_item_field(item_field:, holding_field:)
       description = item_field['3']
+      call_number = holding_call_number(holding_field)
       new_field = MARC::DataField.new('955', ' ', ' ')
-      new_field.append(MARC::Subfield.new('a', item_pid))
-      new_field.append(MARC::Subfield.new('b', barcode))
-      new_field.append(MARC::Subfield.new('c', location))
+      new_field.append(MARC::Subfield.new('a', item_field['a'])) # item PID
+      new_field.append(MARC::Subfield.new('b', item_field['p'])) # barcode
+      new_field.append(MARC::Subfield.new('c', location(holding_field)))
+      new_field.append(MARC::Subfield.new('e', call_number)) if call_number
       new_field.append(MARC::Subfield.new('v', description)) if description
       new_field
     end
