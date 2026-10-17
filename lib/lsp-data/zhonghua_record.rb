@@ -8,19 +8,21 @@ module LspData
   ###   1. From the Zhonghua CSV file:
   ###     a. Main Title
   ###     b. Series Title (may not have a series title)
-  ###     c. URL
+  ###     c. List of componenents, each of which is an object containing the following:
+  ###       i. (optional) Title
+  ###       ii. (required) URL
+  ###       iii. (required) Alternate URL
   ###     d. Alternate url
   ###     e. ISBN
   ###   2. A Z3950connection object (already connected)
   class ZhonghuaRecord
-    attr_reader :original_record, :main_title, :series_title, :url, :alternate_url, :isbn, :conn
+    attr_reader :original_record, :main_title, :series_title, :components, :isbn, :conn
 
     def initialize(title_info:, conn:)
       @conn = conn
       @main_title = title_info[:main_title]
       @series_title = title_info[:series_title]
-      @url = title_info[:url]
-      @alternate_url = title_info[:alternate_url]
+      @components = title_info[:components]
       @isbn = title_info[:isbn]
       @original_record ||= retrieve_record
     end
@@ -33,7 +35,7 @@ module LspData
       delete_fields(record: new_record, tag_list: %w[001 003 035 019 029 505 856])
       replace_title_field(record: new_record, main_title: main_title)
       replace_series_fields(record: new_record, series_title: series_title)
-      replace_url(record: new_record, url: url)
+      replace_urls(record: new_record, components: components)
       new_record
     end
 
@@ -49,12 +51,13 @@ module LspData
     end
 
     ### Creates an array of search keys in the order to be attempted
+    ### For single-title records, URLs are attempted first, then the ISBN
+    ### For multi-record titles, the ISBN is attampted first, then the URLs
     def search_keys
-      [
-        { id: url, type: 'url' },
-        { id: alternate_url, type: 'url' },
-        { id: isbn, type: 'isbn' }
-      ]
+      url_entries = components.map { |c| { id: c[:url], type: 'url' } } +
+                    components.map { |c| { id: c[:alternate_url], type: 'url' } }
+      isbn_entry = [{ id: isbn, type: 'isbn' }]
+      components.one? ? (url_entries + isbn_entry) : (isbn_entry + url_entries)
     end
 
     ### Deletes all fields with the tags in the list, along with their associated 880s
@@ -76,15 +79,30 @@ module LspData
       replace_field(record: record, field: MARC::DataField.new('245', '0', '0', MARC::Subfield.new('a', main_title)))
     end
 
-    ### Replaces the series (490a and 830a) fields
+    ### Replaces the series (490 and 830) fields, or deletes the existing fields if series_title is nil
     def replace_series_fields(record:, series_title:)
-      replace_field(record: record, field: MARC::DataField.new('490', '1', ' ', MARC::Subfield.new('a', series_title)))
-      replace_field(record: record, field: MARC::DataField.new('830', ' ', '0', MARC::Subfield.new('a', series_title)))
+      if series_title.nil?
+        delete_fields(record: record, tag_list: %w[490,830])
+      else
+        replace_field(record: record,
+                      field: MARC::DataField.new('490', '1', ' ',
+                                                 MARC::Subfield.new('a', series_title)))
+        replace_field(record: record,
+                      field: MARC::DataField.new('830', ' ', '0',
+                                                 MARC::Subfield.new('a', series_title)))
+      end
     end
 
-    ### Replaces the URL (956u) field
-    def replace_url(record:, url:)
-      replace_field(record: record, field: MARC::DataField.new('956', '4', '1', MARC::Subfield.new('u', "https://#{url}")))
+    ### Removes any existing 856 and 956 fields, and adds the titles/urls from the component list
+    ### URL is in 956$u, with optional title in 956$3
+    def replace_urls(record:, components:)
+      delete_fields(record: record, tag_list: %w[956])
+      components.each do |c|
+        url_field = MARC::DataField.new('956', '4', '1')
+        url_field.append(MARC::Subfield.new('3', c[:title])) if c.key?(:title)
+        url_field.append(MARC::Subfield.new('u', "https://#{c[:url]}"))
+        record.append(url_field)
+      end
     end
 
     ### Creates a field 917 containing the given identifier
@@ -127,6 +145,9 @@ def matched_title?(record)
   f880 = record.fields('880').find { |field| field['6'][0..2] == '245' }
   return false unless f880
 
-  f880a_trad = ChineseConversion.new(f880['a']).converted
-  /^#{main_title}/.match?(f880a_trad)
+  f880a_trad = ChineseConversion.new(f880['a']).converted.sub(/[\s\p{P}]+$/, '')
+  # Title from spreadsheet should already be traditional, but this conversion will
+  # still normalize any variant characters used.
+  main_title_trad = ChineseConversion.new(main_title).converted
+  /^#{main_title_trad}/.match?(f880a_trad)
 end
