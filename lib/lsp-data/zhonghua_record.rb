@@ -8,12 +8,13 @@ module LspData
   ###   1. From the Zhonghua CSV file:
   ###     a. Main Title
   ###     b. Series Title (may not have a series title)
-  ###     c. List of componenents, each of which is an object containing the following:
-  ###       i. (optional) Title
-  ###       ii. (required) URL
-  ###       iii. (required) Alternate URL
-  ###     d. Alternate url
-  ###     e. ISBN
+  ###     c. Array of components, each of which is an object with the following elements:
+  ###       - title [string]: The title of the component (optional)
+  ###       - url [string]: The current URL of the component
+  ###       - alternate_url_key [string]: The unique identifer found in a previous version of the URL.  
+  ###         While these are no longer used on the platform itself, they may exist in WorldCat records  
+  ###         and so are still useful as search keys.
+  ###     d. ISBN
   ###   2. A Z3950connection object (already connected)
   class ZhonghuaRecord
     attr_reader :original_record, :main_title, :series_title, :components, :isbn, :conn
@@ -55,7 +56,7 @@ module LspData
     ### For multi-record titles, the ISBN is attampted first, then the URLs
     def search_keys
       url_entries = components.map { |c| { id: c[:url], type: 'url' } } +
-                    components.map { |c| { id: c[:alternate_url], type: 'url' } }
+                    components.map { |c| { id: c[:alternate_url_key], type: 'url' } }
       isbn_entry = [{ id: isbn, type: 'isbn' }]
       components.one? ? (url_entries + isbn_entry) : (isbn_entry + url_entries)
     end
