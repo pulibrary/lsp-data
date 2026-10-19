@@ -199,11 +199,11 @@ end
 def output_changed_fields(output:, pre:, post:, mms_id:)
   (post - pre).each do |field|
     tag = field[0..2]
-    output.puts("#{mms_id}\tAdd\t#{tag}\t#{field}")
+    output.puts("#{mms_id}\tAdd\t#{tag}\t#{field.gsub(/\s/, ' ')}")
   end
   (pre - post).each do |field|
     tag = field[0..2]
-    output.puts("#{mms_id}\tRemove\t#{tag}\t#{field}")
+    output.puts("#{mms_id}\tRemove\t#{tag}\t#{field.gsub(/\s/, ' ')}")
   end
 end
 
@@ -246,8 +246,8 @@ output_dir = ENV.fetch('DATA_OUTPUT_DIR', nil)
   process_oclc_records(num: num, xref_to_oclc_num: xref_to_oclc_num, oclc_fields: oclc_fields, input_dir: input_dir)
   all_xref_nums = Set.new(xref_to_oclc_num.keys)
   all_oclc_nums = Set.new(oclc_fields.keys)
-  MARC::XMLWriter.new("#{output_dir}/new_changed_prod_records_batch#{num}.marcxml") do |writer|
-    File.open("#{output_dir}/new_worldshare_differences_#{num}.tsv", 'w') do |output|
+  MARC::XMLWriter.new("#{output_dir}/changed_prod_records_batch#{num}.marcxml") do |writer|
+    File.open("#{output_dir}/worldshare_differences_#{num}.tsv", 'w') do |output|
       output.puts("MMS ID\tAction\tField\tValue")
       Dir.glob("#{input_dir}/new_fulldump/fulldump*.xml*").each do |file|
         MARC::XMLReader.new(file, parser: 'magic', ignore_namespace: true).each do |record|
@@ -284,7 +284,7 @@ Dir.glob("#{input_dir}/worldshare_differences_*.tsv").each do |file|
     while (line = input.gets)
       line.chomp!
       parts = line.split("\t")
-      next if %w[L 6].include?(parts[3][0]) || %w[008 400 410 411 440 490 800 810 811 830].include?(parts[3][0..2])
+      next if %w[L 6].include?(parts[2][0]) || %w[008 400 410 411 440 490 800 810 811 830 880].include?(parts[2])
 
       changes_by_mms_id[parts[0]] ||= []
       changes_by_mms_id[parts[0]] << parts
@@ -316,7 +316,7 @@ Dir.glob("#{input_dir}/worldshare_differences_*.tsv").each do |file|
     while (line = input.gets)
       line.chomp!
       parts = line.split("\t")
-      next unless parts[3] == 'Leader'
+      next unless parts[2] == 'Leader'
 
       changes_by_mms_id[parts[0]] ||= []
       changes_by_mms_id[parts[0]] << parts
@@ -348,7 +348,7 @@ Dir.glob("#{input_dir}/worldshare_differences_*.tsv").each do |file|
     while (line = input.gets)
       line.chomp!
       parts = line.split("\t")
-      next unless parts[3] == '008'
+      next unless parts[2] == '008'
 
       changes_by_mms_id[parts[0]] ||= []
       changes_by_mms_id[parts[0]] << parts
@@ -380,7 +380,7 @@ Dir.glob("#{input_dir}/worldshare_differences_*.tsv").each do |file|
     while (line = input.gets)
       line.chomp!
       parts = line.split("\t")
-      next unless %w[400 410 411 440 490 800 810 811 830].include?(parts[3][0..2])
+      next unless %w[400 410 411 440 490 800 810 811 830].include?(parts[2])
 
       changes_by_mms_id[parts[0]] ||= []
       changes_by_mms_id[parts[0]] << parts
