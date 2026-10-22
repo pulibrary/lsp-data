@@ -49,6 +49,7 @@ RSpec.describe LspData::ZhonghuaRecord do
       expect(new_record['245'].value).to eq main_title
       expect(new_record.fields('880').map { |f| f['6'].to_s[0..2] }).not_to include(%w[245 490 505 830])
       expect(new_record['490'].value).to eq series_title
+      expect(new_record['505']).to be nil
       expect(new_record['830'].value).to eq series_title
       expect(new_record['856']).to be nil
       expect(new_record['956'].value).to eq "https://#{components[0][:url]}"
@@ -81,12 +82,38 @@ RSpec.describe LspData::ZhonghuaRecord do
       expect(new_record['245'].value).to eq main_title
       expect(new_record.fields('880').map { |f| f['6'].to_s[0..2] }).not_to include(%w[245 490 505 830])
       expect(new_record['490']).to be nil
+      expect(new_record.fields('505').first.subfields.map(&:value)).to match_array(components.map { |c| c[:title] })
       expect(new_record['830']).to be nil
       expect(new_record['856']).to be nil
       expect(new_record.fields('956').map { |f| f['3'].to_s }).to match_array(components.map { |c| c[:title] })
       expect(new_record.fields('956').map { |f| f['u'].to_s }).to match_array(components.map { |c|
         "https://#{c[:url]}"
       })
+    end
+  end
+
+  context 'long TOC spread over multiple 505s' do
+    let('main_title') { '文天祥詩集校箋' }
+    let('series_title') { nil }
+    let('volCount') { 1000 }
+    let('components') do
+      Array.new(volCount) do |i|
+        {
+          title: "第#{i + 1}卷",
+          url: "jingdian.ancientbooks.cn/6/book/1234#{i + 1}",
+          alternate_url: "ZHB01234#{i + 1}"
+        }
+      end
+    end
+    let('isbn') { '9787101125207' }
+
+    it 'returns a record containing multple 505s' do
+      new_record = zhonghua_record.transformed_record
+      expect(new_record['001']).to be nil
+      expect(new_record['245'].value).to eq main_title
+      expect(new_record.fields('505').length).to be > 1
+      expect(new_record.fields('505').map(&:subfields).flatten.length).to eq volCount
+      expect(new_record.fields('505').filter { |f| f.to_s.bytesize > 5000 }.count).to eq 0
     end
   end
 end

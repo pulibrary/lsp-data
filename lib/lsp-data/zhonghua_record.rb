@@ -11,8 +11,8 @@ module LspData
   ###     c. Array of components, each of which is an object with the following elements:
   ###       - title [string]: The title of the component (optional)
   ###       - url [string]: The current URL of the component
-  ###       - alternate_url_key [string]: The unique identifer found in a previous version of the URL.  
-  ###         While these are no longer used on the platform itself, they may exist in WorldCat records  
+  ###       - alternate_url_key [string]: The unique identifer found in a previous version of the URL.
+  ###         While these are no longer used on the platform itself, they may exist in WorldCat records
   ###         and so are still useful as search keys.
   ###     d. ISBN
   ###   2. A Z3950connection object (already connected)
@@ -33,11 +33,17 @@ module LspData
       return if original_record.nil?
 
       new_record = MarcCleanup.duplicate_record(original_record)
-      delete_fields(record: new_record, tag_list: %w[001 003 035 019 029 505 856])
+      delete_fields(record: new_record, tag_list: %w[001 003 035 019 029 505 856 956])
       replace_title_field(record: new_record, main_title: main_title)
-      replace_series_fields(record: new_record, series_title: series_title)
-      replace_urls(record: new_record, components: components)
+      add_components(record: new_record, components: components)
       new_record
+    end
+
+    def add_components(record:, components:)
+      add_urls(record: record, components: components)
+      replace_series_fields(record: record, series_title: series_title) if components.one?
+      add_toc(record: record, components: components) if components.length > 1
+      record
     end
 
     private
@@ -82,28 +88,42 @@ module LspData
 
     ### Replaces the series (490 and 830) fields, or deletes the existing fields if series_title is nil
     def replace_series_fields(record:, series_title:)
-      if series_title.nil?
-        delete_fields(record: record, tag_list: %w[490,830])
-      else
-        replace_field(record: record,
-                      field: MARC::DataField.new('490', '1', ' ',
-                                                 MARC::Subfield.new('a', series_title)))
-        replace_field(record: record,
-                      field: MARC::DataField.new('830', ' ', '0',
-                                                 MARC::Subfield.new('a', series_title)))
-      end
+      delete_fields(record: record, tag_list: %w[490,830])
+      return if series_title.nil?
+
+      record.append(MARC::DataField.new('490', '1', ' ',
+                                        MARC::Subfield.new('a', series_title)))
+      record.append(MARC::DataField.new('830', ' ', '0',
+                                        MARC::Subfield.new('a', series_title)))
     end
 
-    ### Removes any existing 856 and 956 fields, and adds the titles/urls from the component list
+    ### Adds the titles/urls from the component list.
     ### URL is in 956$u, with optional title in 956$3
-    def replace_urls(record:, components:)
-      delete_fields(record: record, tag_list: %w[956])
+    def add_urls(record:, components:)
       components.each do |c|
         url_field = MARC::DataField.new('956', '4', '1')
         url_field.append(MARC::Subfield.new('3', c[:title])) if c.key?(:title)
         url_field.append(MARC::Subfield.new('u', "https://#{c[:url]}"))
         record.append(url_field)
       end
+    end
+
+    ### Generates 505 fields with a TOC based on the titles in the component list
+    ### This function keeps track of the cumulative byte length of the 505, and starts
+    ### a new field if the current field exceeds 4,000 bytes.  This is because the maximum
+    ### length of a MARC field is 9,999 bytes, and the Chinese fields generated here will
+    ### eventually be the basis for a romanized field that may be about twice as long.
+    def add_toc(record:, components:)
+      current505 = MARC::DataField.new('505', '0', '0')
+      components.each do |c|
+        current505.append(MARC::Subfield.new('t', c[:title])) if c.key?(:title)
+        if current505.to_s.bytesize > 4000
+          record.append(current505)
+          current505 = MARC::DataField.new('505', '0', '0')
+        end
+      end
+      record.append(current505) if current505.subfields.length.positive?
+      record
     end
 
     ### Creates a field 917 containing the given identifier
