@@ -113,6 +113,7 @@ RSpec.describe LspData::ZhonghuaRecord do
       expect(new_record['245'].value).to eq main_title
       expect(new_record.fields('505').length).to be > 1
       expect(new_record.fields('505').map(&:subfields).flatten.length).to eq volCount
+      expect(new_record.fields('505').filter { |f| f.to_s.bytesize > 5000 }.count).to eq 0
     end
   end
 end
