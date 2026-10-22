@@ -88,16 +88,13 @@ module LspData
 
     ### Replaces the series (490 and 830) fields, or deletes the existing fields if series_title is nil
     def replace_series_fields(record:, series_title:)
-      if series_title.nil?
-        delete_fields(record: record, tag_list: %w[490,830])
-      else
-        replace_field(record: record,
-                      field: MARC::DataField.new('490', '1', ' ',
-                                                 MARC::Subfield.new('a', series_title)))
-        replace_field(record: record,
-                      field: MARC::DataField.new('830', ' ', '0',
-                                                 MARC::Subfield.new('a', series_title)))
-      end
+      delete_fields(record: record, tag_list: %w[490,830])
+      return if series_title.nil?
+
+      record.append(MARC::DataField.new('490', '1', ' ',
+                                        MARC::Subfield.new('a', series_title)))
+      record.append(MARC::DataField.new('830', ' ', '0',
+                                        MARC::Subfield.new('a', series_title)))
     end
 
     ### Adds the titles/urls from the component list.
