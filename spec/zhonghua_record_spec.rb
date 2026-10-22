@@ -93,7 +93,7 @@ RSpec.describe LspData::ZhonghuaRecord do
   end
 
   context 'long TOC spread over multiple 505s' do
-    let('main_title') { '春秋長曆二種' }
+    let('main_title') { '文天祥詩集校箋' }
     let('series_title') { nil }
     let('volCount') { 1000 }
     let('components') do
@@ -105,7 +105,7 @@ RSpec.describe LspData::ZhonghuaRecord do
         }
       end
     end
-    let('isbn') { '9787101151954' }
+    let('isbn') { '9787101125207' }
 
     it 'returns a record containing multple 505s' do
       new_record = zhonghua_record.transformed_record
