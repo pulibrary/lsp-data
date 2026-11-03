@@ -39,14 +39,16 @@ module LspData
       new_record
     end
 
+    private
+
+    ### Generates URL and TOC fields for the components.  If there is only a single component,
+    ### replaces the series field rather than creting TOC fields. 
     def add_components(record:, components:)
       add_urls(record: record, components: components)
       replace_series_fields(record: record, series_title: series_title) if components.one?
       add_toc(record: record, components: components) if components.length > 1
       record
     end
-
-    private
 
     ### Retrieves a WorldCat record using the search data in the first row
     def retrieve_record
