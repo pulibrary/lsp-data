@@ -42,7 +42,7 @@ module LspData
     private
 
     ### Generates URL and TOC fields for the components.  If there is only one component,
-    ### replaces the series field rather than creting TOC fields. 
+    ### replaces the series field rather than creating TOC fields. 
     def add_components(record:, components:)
       add_urls(record: record, components: components)
       replace_series_fields(record: record, series_title: series_title) if components.one?
