@@ -107,7 +107,7 @@ RSpec.describe LspData::ZhonghuaRecord do
     end
     let('isbn') { '9787101125207' }
 
-    it 'returns a record containing multple 505s' do
+    it 'returns a record containing multiple 505s' do
       new_record = zhonghua_record.transformed_record
       expect(new_record['001']).to be nil
       expect(new_record['245'].value).to eq main_title
