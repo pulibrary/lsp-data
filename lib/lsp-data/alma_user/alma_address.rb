@@ -35,7 +35,7 @@ module LspData
     private
 
     def process_lines(lines)
-      lines[0..4].each_with_index.to_h |line, index|
+      lines[0..4].each_with_index.to_h do |line, index|
         ["line#{index + 1}", line]
       end
     end
