@@ -13,4 +13,7 @@ end
 Dir.glob("#{File.dirname(__FILE__)}/lsp-data/illiad/*.rb").each do |file|
   require file
 end
+Dir.glob("#{File.dirname(__FILE__)}/lsp-data/alma_user/*.rb").each do |file|
+  require file
+end
 include LspData
