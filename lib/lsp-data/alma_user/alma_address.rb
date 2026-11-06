@@ -7,7 +7,7 @@ module LspData
   ###   lines [1-5 lines for a street address] [String]
   ###   postcode_city_state_country [hash of elements named `postcode`, `city`, `state`, and 'country']
   ###   start_date [String; yyyy-mm-ddZ]
-  ###   address_type [element with a `value` attribute; stored in a code table in Alma; will onnly allow one type]
+  ###   address_type [element with a `value` attribute; stored in a code table in Alma; will only allow one type]
   ###   preferred [true or false]
   ###   segment_type [will always be set to 'Internal']
   class AlmaAddress
