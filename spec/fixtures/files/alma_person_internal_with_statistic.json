@@ -5,9 +5,9 @@
   "record_type": {
     "value": "PUBLIC"
   },
-  "primary_id": "Wolama25",
+  "primary_id": "WolAma25",
   "first_name": "Amanda",
-  "middle_name": "F.",
+  "middle_name": "",
   "last_name": "Wolynn",
   "user_group": {
     "value": "GST"
@@ -23,22 +23,14 @@
         "line1": "Street",
         "city": "Hiawatha",
         "country": {
-          "value": "USA",
-          "desc": "United States"
+          "value": "USA"
         },
         "state_province": "NJ",
         "postal_code": "08111",
-        "address_note": "",
         "start_date": "2026-07-23Z",
-        "end_date": "2027-07-23Z",
         "address_type": [
           {
-            "value": "school",
-            "desc": "School"
-          },
-          {
-            "value": "work",
-            "desc": "Work"
+            "value": "school"
           }
         ],
         "preferred": true,
@@ -50,8 +42,7 @@
         "email_address": "email@place.edu",
         "email_type": [
           {
-            "value": "personal",
-            "desc": "Personal"
+            "value": "personal"
           }
         ],
         "preferred": true,
@@ -63,12 +54,10 @@
         "phone_number": "800-588-2300",
         "phone_type": [
           {
-            "value": "home",
-            "desc": "Home"
+            "value": "home"
           }
         ],
         "preferred": true,
-        "preferred_sms": false,
         "segment_type": "Internal"
       }
     ]
@@ -78,46 +67,23 @@
       "value": "barcode",
       "status": "ACTIVE",
       "id_type": {
-        "value": "BARCODE",
-        "desc": "Barcode"
+        "value": "BARCODE"
       },
       "segment_type": "Internal"
     }
   ],
-  "user_role": [
-    {
-      "status": {
-        "value": "ACTIVE",
-        "desc": "Active"
-      },
-      "scope": {
-        "value": "INST",
-        "desc": "Institution"
-      },
-      "role_type": {
-        "value": "200",
-        "desc": "Patron"
-      },
-      "parameter": []
-    }
-  ],
-  "user_block": [],
-  "user_note": [],
   "user_statistic": [
     {
       "statistic_category": {
-        "value": "PPPL",
-        "desc": "PPPL"
+        "value": "PPPL"
       },
-      "category_type": {
-        "value": "Academic Department",
-        "desc": "Academic Department"
+      "segment_type": "Internal"
+    },
+    {
+      "statistic_category": {
+        "value": "EM"
       },
       "segment_type": "Internal"
     }
-  ],
-  "pref_first_name": "",
-  "pref_middle_name": "",
-  "pref_last_name": "",
-  "pref_name_suffix": ""
+  ]
 }
