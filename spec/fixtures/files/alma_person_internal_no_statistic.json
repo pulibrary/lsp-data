@@ -1,0 +1,94 @@
+{
+  "status": {
+    "value": "ACTIVE"
+  },
+  "record_type": {
+    "value": "PUBLIC"
+  },
+  "primary_id": "HerHoa2",
+  "first_name": "Hoagy",
+  "middle_name": "F.",
+  "last_name": "Hero",
+  "user_group": {
+    "value": "GST"
+  },
+  "expiry_date": "2027-06-30Z",
+  "purge_date": "2034-06-30Z",
+  "account_type": {
+    "value": "INTERNAL"
+  },
+  "contact_info": {
+    "address": [
+      {
+        "line1": "street1",
+        "city": "Hiawatha",
+        "country": {
+          "value": "USA"
+        },
+        "state_province": "NJ",
+        "postal_code": "08111",
+        "start_date": "2026-07-23Z",
+        "address_type": [
+          {
+            "value": "work"
+          }
+        ],
+        "preferred": true,
+        "segment_type": "Internal"
+      },
+      {
+        "line1": "street2",
+        "city": "Edison",
+        "country": {
+          "value": "USA"
+        },
+        "state_province": "NJ",
+        "postal_code": "08112",
+        "start_date": "2026-07-23Z",
+        "address_type": [
+          {
+            "value": "school"
+          }
+        ],
+        "preferred": false,
+        "segment_type": "Internal"
+      }
+
+    ],
+    "email": [
+      {
+        "email_address": "email@place.edu",
+        "email_type": [
+          {
+            "value": "personal"
+          }
+        ],
+        "preferred": true,
+        "segment_type": "Internal"
+      }
+    ],
+    "phone": [
+      {
+        "phone_number": "800-588-2300",
+        "phone_type": [
+          {
+            "value": "home"
+          }
+        ],
+        "preferred": true,
+        "segment_type": "Internal"
+      }
+    ]
+  },
+  "user_identifier": [
+    {
+      "value": "barcode",
+      "status": "ACTIVE",
+      "id_type": {
+        "value": "BARCODE"
+      },
+      "segment_type": "Internal"
+    }
+  ],
+  "user_statistic": []
+}
