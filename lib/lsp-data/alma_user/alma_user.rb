@@ -16,28 +16,30 @@ module LspData
   ###   contact_info [`address`, `phone`, and `email` are all arrays of hases]
   ###   user_identifier [an array of elements; will only use type of "BARCODE" for now]
   ###   user_statistic [an array of elements]
+  ###   user_note [an array of elements]
 
   ### Inputs:
-  ###   contact_info [a hash with keys of `address`, `phone`, and `email`]
+  ###   contact_info: a hash with the following keys:
   ###     `address` will contain an array of AlmaAddress objects
   ###     `phone` will contain an array of AlmaPhone objects
   ###     `email` will contain an array of AlmaEmail objects
-  ###    name [hash with keys of `first`, `middle`, and `last`]
+  ###     `first`, `middle`, and `last` for name elements
   ###    user_dates [hash with keys of `expiry` and `purge`]
   ###    group_status_barcode [hash with keys of `user_group`, `status`, and `barcode`]
   ###    statistics [an array of AlmaUserStatistic objects]
+  ###    notes [an array of AlmaUserNote objects]
   class AlmaUser
-    attr_reader :contact_info, :name, :group_status_barcode, :user_dates, :status, :barcode,
-                :statistics, :user_group
+    attr_reader :contact_info, :group_status_barcode, :user_dates, :status, :barcode,
+                :statistics, :user_group, :notes
 
-    def initialize(contact_info:, name:, group_status_barcode:, user_dates:, statistics: [])
+    def initialize(contact_info:, group_status_barcode:, user_dates:, statistics: [], notes: [])
       @contact_info = contact_info
-      @name = name
       @user_group = group_status_barcode[:user_group]
       @user_dates = user_dates
       @barcode = group_status_barcode[:barcode]
       @statistics = statistics
       @status = group_status_barcode[:status]
+      @notes = notes
     end
 
     def to_json(*_args)
@@ -47,9 +49,9 @@ module LspData
         'account_type' => { 'value' => 'INTERNAL' },
         'user_identifier' => [user_identifier_segment],
         'user_statistic' => statistics.map(&:to_h)
-      }.merge(name_hash)
-        .merge(status_type_group_hash)
+      }.merge(status_type_group_hash)
         .merge(contact_info_hash)
+        .merge(note_hash)
         .to_json
     end
 
@@ -62,15 +64,15 @@ module LspData
           'email' => contact_info[:email].map(&:to_h),
           'phone' => contact_info[:phone].map(&:to_h)
         }
-      }
+      }.merge(name_hash)
     end
 
     def name_hash
       {
         'primary_id' => derive_primary_id,
-        'first_name' => name[:first],
-        'middle_name' => name[:middle],
-        'last_name' => name[:last]
+        'first_name' => contact_info[:first],
+        'middle_name' => contact_info[:middle],
+        'last_name' => contact_info[:last]
       }
     end
 
@@ -82,9 +84,15 @@ module LspData
       }
     end
 
+    def note_hash
+      {
+        'user_note' => notes.map(&:to_h)
+      }
+    end
+
     def derive_primary_id
-      checksum = (name[:last].codepoints + name[:first].codepoints).sum % 100
-      "#{name[:last][0..2]}#{name[:first][0..2]}#{checksum}"
+      checksum = (contact_info[:last].codepoints + contact_info[:first].codepoints).sum % 100
+      "#{contact_info[:last][0..2]}#{contact_info[:first][0..2]}#{checksum}"
     end
 
     def user_identifier_segment
