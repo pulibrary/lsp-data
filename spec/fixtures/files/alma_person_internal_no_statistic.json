@@ -90,5 +90,13 @@
       "segment_type": "Internal"
     }
   ],
-  "user_statistic": []
+  "user_statistic": [],
+  "user_note": [
+    {
+      "note_type": {
+        "value": "POPUP"
+      },
+      "note_text": "General note"
+    }
+  ]
 }

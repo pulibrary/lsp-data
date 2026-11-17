@@ -6,8 +6,8 @@ require 'spec_helper'
 # rubocop:disable Metrics/BlockLength
 RSpec.describe LspData::AlmaUser do
   subject(:alma_user) do
-    described_class.new(contact_info: contact_info, name: name, group_status_barcode: group_status_barcode,
-                        user_dates: user_dates, statistics: statistics)
+    described_class.new(contact_info: contact_info, group_status_barcode: group_status_barcode,
+                        user_dates: user_dates, statistics: statistics, notes: notes)
   end
 
   context 'user with no statistical categories and multiple addresses' do
@@ -43,13 +43,23 @@ RSpec.describe LspData::AlmaUser do
             phone_type: 'home',
             preferred: true
           )
-        ]
+        ],
+        first: 'Hoagy',
+        middle: 'F.',
+        last: 'Hero'
       }
     end
-    let(:name) { { first: 'Hoagy', middle: 'F.', last: 'Hero' } }
     let(:group_status_barcode) { { user_group: 'GST', status: 'ACTIVE', barcode: 'barcode' } }
     let(:user_dates) { { expiry: '2027-06-30Z', purge: '2034-06-30Z' } }
     let(:statistics) { [] }
+    let(:notes) do
+      [
+        AlmaUserNote.new(
+          note_type: 'POPUP',
+          note_text: 'General note'
+        )
+      ]
+    end
     it 'matches reference user' do
       reference_user = stub_json_fixture(fixture: fixture)
       expect(JSON.parse(alma_user.to_json)).to eq reference_user
@@ -82,10 +92,12 @@ RSpec.describe LspData::AlmaUser do
             phone_type: 'home',
             preferred: true
           )
-        ]
+        ],
+        first: 'Amanda',
+        middle: '',
+        last: 'Wolynn'
       }
     end
-    let(:name) { { first: 'Amanda', middle: '', last: 'Wolynn' } }
     let(:group_status_barcode) { { user_group: 'GST', status: 'ACTIVE', barcode: 'barcode' } }
     let(:user_dates) { { expiry: '2027-06-30Z', purge: '2034-06-30Z' } }
     let(:statistics) do
@@ -94,6 +106,7 @@ RSpec.describe LspData::AlmaUser do
         AlmaUserStatistic.new('EM')
       ]
     end
+    let(:notes) { [] }
     it 'matches reference user' do
       reference_user = stub_json_fixture(fixture: fixture)
       expect(JSON.parse(alma_user.to_json)).to eq reference_user
