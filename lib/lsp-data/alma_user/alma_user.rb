@@ -91,7 +91,7 @@ module LspData
     end
 
     def derive_primary_id
-      checksum = (contact_info[:last].codepoints + contact_info[:first].codepoints).sum % 100
+      checksum = contact_info[:address].map(&:to_h).to_s.codepoints.sum % 100
       "#{contact_info[:last][0..2]}#{contact_info[:first][0..2]}#{checksum}"
     end
 

@@ -1,0 +1,12 @@
+{
+  "errorsExist": true,
+  "errorList": {
+    "error": [
+      {
+        "errorCode": "401862",
+        "errorMessage": "Identifier type UNIV_ID does not exist.",
+        "trackingId": "A11-1111111111-AA11A-AAAA1111111111"
+      }
+    ]
+  }
+}

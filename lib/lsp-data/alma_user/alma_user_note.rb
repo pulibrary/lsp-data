@@ -6,6 +6,7 @@ module LspData
   ### Fields to process:
   ###   note_type [element with a `value` attribute; stored in a code table in Alma; will only allow one type]
   ###   note_text
+  ###   segment_type [will always be 'Internal']
   class AlmaUserNote
     attr_reader :note_type, :note_text
 
@@ -15,7 +16,7 @@ module LspData
     end
 
     def to_h
-      { 'note_type' => { 'value' => note_type }, 'note_text' => note_text }
+      { 'note_type' => { 'value' => note_type }, 'note_text' => note_text, 'segment_type' => 'Internal' }
     end
   end
 end

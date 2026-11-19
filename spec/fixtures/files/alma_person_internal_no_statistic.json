@@ -5,7 +5,7 @@
   "record_type": {
     "value": "PUBLIC"
   },
-  "primary_id": "HerHoa2",
+  "primary_id": "HerHoa89",
   "first_name": "Hoagy",
   "middle_name": "F.",
   "last_name": "Hero",
@@ -96,7 +96,8 @@
       "note_type": {
         "value": "POPUP"
       },
-      "note_text": "General note"
+      "note_text": "General note",
+      "segment_type": "Internal"
     }
   ]
 }
