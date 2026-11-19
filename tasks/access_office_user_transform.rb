@@ -80,6 +80,17 @@ def remove_addres_nodes(user)
   user
 end
 
+def barcode_checksum(contact_info)
+  contact_info[:address].map(&:to_h)
+                        .dup
+                        .each { |hash| hash.delete('country') }
+                        .each { |hash| hash.delete('address_type') }
+                        .map(&:values)
+                        .join
+                        .codepoints
+                        .sum % 100
+end
+
 def remove_contact_info_nodes(user)
   remove_addres_nodes(user)
   user['contact_info']['email'].each do |email|
@@ -253,7 +264,7 @@ results.each do |result|
     phone: phone ? [AlmaPhone.new(phone_number: phone, phone_type: 'mobile', preferred: true)] : [],
     first: name[:first], middle: name[:middle], last: name[:last]
   }
-  barcode_checksum = contact_info[:address].map(&:to_h).to_s.codepoints.sum % 100
+  barcode_checksum = barcode_checksum(contact_info)
   barcode = "#{name[:last][0..4]}#{name[:first][0..4]}#{barcode_checksum}".downcase # not going to be used in Alma
   users << info_to_user(contact_info: contact_info, barcode: barcode, statistic: statistic, note: note)
 end
@@ -326,7 +337,7 @@ end
 header_row = "Primary Identifier\tBarcode\tLast Name\tFirst Name\tMiddle Initial\t".dup
 header_row << "Statistical Category\tAddress Line1\tCity\tState\tCountry\tPostal Code\tInstitution\t"
 header_row << "Email\tPhone\tNote\tUser Group"
-failed_user_output = File.open("#{output_dir}, access_office_users_failed_loading.tsv", 'w')
+failed_user_output = File.open("#{output_dir}/access_office_users_failed_loading.tsv", 'w')
 failed_user_output.puts("Primary ID\tStatus Code\tError Message")
 output = File.open("#{output_dir}/access_office_users_loaded_into_alma.tsv", 'w')
 output.puts(header_row)
@@ -357,3 +368,4 @@ user_results.each do |primary_id, info|
   end
 end
 output.close
+failed_user_output.close
