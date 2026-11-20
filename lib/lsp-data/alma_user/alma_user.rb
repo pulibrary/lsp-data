@@ -90,9 +90,17 @@ module LspData
       }
     end
 
+    def primary_id_checksum
+      address_hash = contact_info[:address].map(&:to_h).dup
+      address_hash.each do |hash|
+        hash.delete('country')
+        hash.delete('address_type')
+      end
+      address_hash.map(&:values).join.codepoints.sum % 100
+    end
+
     def derive_primary_id
-      checksum = (contact_info[:last].codepoints + contact_info[:first].codepoints).sum % 100
-      "#{contact_info[:last][0..2]}#{contact_info[:first][0..2]}#{checksum}"
+      "#{contact_info[:last][0..2]}#{contact_info[:first][0..2]}#{primary_id_checksum}"
     end
 
     def user_identifier_segment

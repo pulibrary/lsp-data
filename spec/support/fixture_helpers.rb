@@ -30,6 +30,18 @@ def stub_fund_transaction_query(fixture:, fund_id:, type:, offset: 0)
     .to_return(status: 200, body: data)
 end
 
+def stub_create_user_response(user:, fixture:, status:)
+  file = File.open("#{FIXTURE_DIR}/#{fixture}")
+  data = File.read(file)
+  params = 'apikey=apikey'
+  url = "https://api-na.exlibrisgroup.com/almaws/v1/users?#{params}"
+  headers = { 'Accept' => 'application/json', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+              'Content-Type' => 'application/json', 'User-Agent' => 'Faraday v1.10.4' }
+  stub_request(:post, url)
+    .with(body: user.to_json, headers: headers)
+    .to_return(status: status, body: data)
+end
+
 def stub_receive_response(pol:, item_id:, fixture:, status:)
   file = File.open("#{FIXTURE_DIR}/#{fixture}")
   data = File.read(file)
