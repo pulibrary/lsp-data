@@ -41,16 +41,25 @@ module LspData
       { status: status, info: parse_response_body(info) }
     end
 
+    def headers
+      { 'accept' => 'application/json', 'content-type' => 'application/json' }
+    end
+
+    def params
+      {
+        'apikey' => api_key,
+        'op' => 'receive',
+        'department' => dept,
+        'department_library' => dept_library
+      }
+    end
+
     def receive_item
       conn.post do |req|
         req.url "almaws/v1/acq/po-lines/#{pol}/items/#{item_id}"
-        req.headers['accept'] = 'application/json'
-        req.headers['content-type'] = 'application/json'
-        req.params['apikey'] = api_key
-        req.params['op'] = 'receive'
-        req.params['department'] = dept
-        req.params['department_library'] = dept_library
-        req.body = { }.to_json
+        req.headers = headers
+        req.params = params
+        req.body = {}.to_json
       end
     end
 
