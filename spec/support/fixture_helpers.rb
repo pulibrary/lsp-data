@@ -36,7 +36,7 @@ def stub_create_user_response(user:, fixture:, status:)
   params = 'apikey=apikey'
   url = "https://api-na.exlibrisgroup.com/almaws/v1/users?#{params}"
   headers = { 'Accept' => 'application/json', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-              'Content-Type' => 'application/json', 'User-Agent' => 'Faraday v1.10.4' }
+              'Content-Type' => 'application/json' }
   stub_request(:post, url)
     .with(body: user.to_json, headers: headers)
     .to_return(status: status, body: data)
@@ -48,7 +48,7 @@ def stub_receive_response(pol:, item_id:, fixture:, status:)
   params = 'apikey=apikey&op=receive&department=dept&department_library=lib'
   url = "https://api-na.exlibrisgroup.com/almaws/v1/acq/po-lines/#{pol}/items/#{item_id}?#{params}"
   headers = { 'Accept' => 'application/json', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-              'Content-Type' => 'application/json', 'User-Agent' => 'Faraday v1.10.4' }
+              'Content-Type' => 'application/json', 'User-Agent' => 'Ruby' }
   stub_request(:post, url)
     .with(body: {}.to_json, headers: headers)
     .to_return(status: status, body: data)
@@ -101,7 +101,7 @@ def stub_put_portfolio_response(mms_id:, portfolio_id:, fixture:, status:)
             'Accept' => 'application/json',
             'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
             'Content-Type' => 'application/json',
-            'User-Agent' => 'Faraday v1.10.4'
+            'User-Agent' => 'Faraday v1.10.6'
           })
     .to_return(status: status, body: body.to_json)
 end
@@ -125,8 +125,7 @@ def stub_figgy(auth_token:, desired_status:, fixture: nil)
     .with(headers: {
             'Accept' => 'application/json',
             'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-            'Content-Type' => 'application/json',
-            'User-Agent' => 'Faraday v1.10.4'
+            'Content-Type' => 'application/json'
           })
     .to_return(status: desired_status, body: data, headers: {})
 end
@@ -135,8 +134,7 @@ def stub_oclc(fixture:, url:, token:, oclc_num:, desired_status:)
   file = File.open("#{FIXTURE_DIR}/#{fixture}")
   data = File.read(file)
   headers = { 'Accept' => 'application/marcxml+xml', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-              'Authorization' => "Bearer #{token}", 'Content-Type' => 'application/json',
-              'User-Agent' => 'Faraday v1.10.4' }
+              'Authorization' => "Bearer #{token}", 'Content-Type' => 'application/json' }
   stub_request(:get, "#{url}/manage/bibs/#{oclc_num}")
     .with(headers: headers)
     .to_return(status: desired_status, body: data)
@@ -150,8 +148,7 @@ def stub_oclc_holdings(fixture:, url:, token:, identifier:, desired_status:, tar
   params << "&heldBySymbol=#{target_symbols.join(',')}" if target_symbols
   params << "&offset=#{offset}" if offset
   headers = { 'Accept' => 'application/json', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-              'Authorization' => "Bearer #{token}", 'Content-Type' => 'application/json',
-              'User-Agent' => 'Faraday v1.10.4' }
+              'Authorization' => "Bearer #{token}", 'Content-Type' => 'application/json' }
   stub_request(:get, "#{url}/bibs-holdings?#{params}")
     .with(headers: headers).to_return(status: desired_status, body: data)
 end
@@ -161,8 +158,7 @@ def stub_unset(fixture:, url:, token:, oclc_num:, desired_status:)
   file = File.open("#{FIXTURE_DIR}/#{fixture}")
   data = File.read(file)
   headers = { 'Accept' => 'application/json', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-              'Authorization' => "Bearer #{token}", 'Content-Type' => 'application/json',
-              'User-Agent' => 'Faraday v1.10.4' }
+              'Authorization' => "Bearer #{token}", 'Content-Type' => 'application/json' }
   stub_request(:post, "#{url}/manage/institution/holdings/#{oclc_num}/unset")
     .with(headers: headers)
     .to_return(status: desired_status, body: data)
@@ -173,8 +169,7 @@ def stub_scsb_availability_response(fixture:, url:, api_key:, response_body:)
   file = File.open("#{FIXTURE_DIR}/#{response_body}")
   data = File.read(file)
   headers = { 'Accept' => 'application/json', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-              'api_key' => api_key, 'Content-Type' => 'application/json',
-              'User-Agent' => 'Faraday v1.10.4' }
+              'api_key' => api_key, 'Content-Type' => 'application/json' }
   stub_request(:post, "#{url}/sharedCollection/itemAvailabilityStatus")
     .with(body: body.to_json, headers: headers)
     .to_return(status: 200, body: data)

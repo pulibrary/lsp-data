@@ -31,7 +31,7 @@ module LspData
     targets = f245.subfields.reject { |subfield| subfield.code == '6' }
     c_index = targets.index { |subfield| subfield.code == 'c' }
     c_index ||= -1
-    subf_values = targets[0..c_index - 1].map(&:value)
+    subf_values = targets[0..(c_index - 1)].map(&:value)
     subf_values.join(' ')
   end
 

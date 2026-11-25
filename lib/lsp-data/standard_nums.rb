@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 require 'library_stdnums'
+
+### Get all library standard numbers from a MARC record;
+###   default to requiring the OCLC prefix
 module LspData
-  ### Get all library standard numbers from a MARC record;
-  ###   default to requiring the OCLC prefix
   def standard_nums(record:, input_prefix: true, output_prefix: false)
     lccn = lccns(record)
     isbn = isbns(record)
@@ -16,9 +17,9 @@ module LspData
 
   def lccns(record)
     record.fields('010')
-      .select { |f| f['a'] }
-      .filter_map { |f| StdNum::LCCN.normalize(f['a']) }
-      .uniq
+          .select { |f| f['a'] }
+          .filter_map { |f| StdNum::LCCN.normalize(f['a']) }
+          .uniq
   end
 
   def isbns(record)
@@ -34,10 +35,10 @@ module LspData
   ### Convert ISBN-10 to ISBN-13
   def isbn10to13(isbn)
     stem = isbn[0..8]
-    return nil if stem =~ /\D/
+    return if stem =~ /\D/
 
     existing_check = isbn[9]
-    return nil if existing_check && existing_check != checkdigit_isbn10(stem)
+    return if existing_check && existing_check != checkdigit_isbn10(stem)
 
     main = ISBN13PREFIX + stem
     checkdigit = checkdigit_isbn13(main)
@@ -47,8 +48,8 @@ module LspData
   ### Calculate check digit for ISBN-10
   def checkdigit_isbn10(stem)
     int_sum = stem.chars
-      .each_with_index
-      .reduce(0) {|int_sum, (digit, int_index)| int_sum += digit.to_i * (10 - int_index) }
+                  .each_with_index
+                  .reduce(0) { |int_sum, (digit, int_index)| int_sum + (digit.to_i * (10 - int_index)) }
     mod = (11 - (int_sum % 11)) % 11
     mod == 10 ? 'X' : mod.to_s
   end
@@ -66,34 +67,36 @@ module LspData
 
   ### Normalize ISBN-13
   def isbn13_normalize(raw_isbn)
-    int_sum = 0
     stem = raw_isbn[0..11]
-    return nil if stem =~ /\D/
+    return if stem =~ /\D/
 
-    int_index = 0
-    stem.each_char do |digit|
-      int_sum += int_index.even? ? digit.to_i : digit.to_i * 3
-      int_index += 1
-    end
     checkdigit = checkdigit_isbn13(stem)
-    return nil if raw_isbn[12] && raw_isbn[12] != checkdigit
+    return if raw_isbn[12] && raw_isbn[12] != checkdigit
 
     stem + checkdigit
   end
 
-  def clean_isbn_string(isbn)
+  def universal_isbn_cleanup(isbn)
     isbn.delete!('-')
     isbn.delete!('\\')
     isbn.gsub!(/\([^)]*\)/, '')
     isbn.gsub!(/^(.*)\$c.*$/, '\1')
     isbn.gsub!(/^(.*)\$q.*$/, '\1')
     isbn.gsub!(/^\D+(\d.*)$/, '\1')
+  end
+
+  def space_dash_isbn_cleanup(isbn)
     if isbn =~ /^978/
       isbn.gsub!(/^(978[0-9 ]+).*$/, '\1')
       isbn.delete!(' ')
     else
       isbn.gsub!(/(\d)\s*(\d{4})\s*(\d{4})\s*([0-9xX]).*$/, '\1\2\3\4')
     end
+  end
+
+  def clean_isbn_string(isbn)
+    universal_isbn_cleanup(isbn)
+    space_dash_isbn_cleanup(isbn)
     isbn.gsub!(/^(\d{9,13}[xX]?)[^0-9xX].*$/, '\1')
     isbn.gsub!(/^(\d+?)\D.*$/, '\1')
     isbn = isbn.ljust(9, '0') if isbn.length.between?(7, 8) && isbn =~ /^\d+$/
@@ -102,11 +105,11 @@ module LspData
 
   ### Normalize any given string that is supposed to include an ISBN
   def isbn_normalize(isbn)
-    return nil unless isbn
+    return unless isbn
 
     raw_isbn = isbn.dup
     raw_isbn = clean_isbn_string(raw_isbn)
-    return nil unless [9, 10, 12, 13].include?(raw_isbn.length)
+    return unless [9, 10, 12, 13].include?(raw_isbn.length)
 
     if raw_isbn.length < 12
       isbn10to13(raw_isbn)
@@ -132,20 +135,12 @@ module LspData
 
   def clean_issn_string(issn)
     issn.delete('-')
-      .gsub(/^\D+([0-9].*)$/, '\1')
-      .gsub(/^([0-9]{4})\s+([0-9xX]{4}).*$/, '\1\2')
-      .gsub(/^([0-9]{7,}[^\s]+)\s.*$/, '\1')
+        .gsub(/^\D+([0-9].*)$/, '\1')
+        .gsub(/^([0-9]{4})\s+([0-9xX]{4}).*$/, '\1\2')
+        .gsub(/^([0-9]{7,}[^\s]+)\s.*$/, '\1')
   end
 
-  ### Normalize any given string that is supposed to include an ISSN
-  def issn_normalize(issn)
-    raw_issn = issn.dup
-    raw_issn = clean_issn_string(raw_issn)
-    return nil unless raw_issn.length.between?(7, 8)
-
-    stem = raw_issn[0..6]
-    return nil if stem =~ /\D/
-
+  def checkdigit_issn_stem(stem)
     int_sum = 0
     int_index = 0
     stem.each_char do |digit|
@@ -153,14 +148,25 @@ module LspData
       int_index += 1
     end
     mod = (11 - (int_sum % 11)) % 11
-    check_digit = mod == 10 ? 'X' : mod.to_s
-    return nil if raw_issn[7] && raw_issn[7] != check_digit
-
-    "#{stem[0..3]}-#{stem[4..6]}#{check_digit}"
+    mod == 10 ? 'X' : mod.to_s
   end
 
-### Default to requiring an OCLC prefix of some kind in the field;
-### default to stripping the correct OCLC prefix from the output
+  ### Normalize any given string that is supposed to include an ISSN
+  def issn_normalize(issn)
+    raw_issn = clean_issn_string(issn.dup)
+    return unless raw_issn.length.between?(7, 8)
+
+    stem = raw_issn[0..6]
+    return if stem =~ /\D/
+
+    checkdigit = checkdigit_issn_stem(stem)
+    return if raw_issn[7] && raw_issn[7] != checkdigit
+
+    "#{stem[0..3]}-#{stem[4..6]}#{checkdigit}"
+  end
+
+  ### Default to requiring an OCLC prefix of some kind in the field;
+  ### default to stripping the correct OCLC prefix from the output
   def oclcs(record:, input_prefix: true, output_prefix: false)
     oclc = []
     f035 = record.fields('035').select { |f| f['a'] }
@@ -187,12 +193,12 @@ module LspData
   ### Normalize OCLC numbers
   def oclc_normalize(oclc:, input_prefix:, output_prefix:)
     ### Do not process if there is a different prefix regardless of settings
-    return nil if oclc.downcase =~ /\((?!ocolc)/
-    return nil if input_prefix && !(oclc.downcase =~ /^\(ocolc\)/ ||
+    return if oclc.downcase =~ /\((?!ocolc)/
+    return if input_prefix && !(oclc.downcase =~ /^\(ocolc\)/ ||
                                     oclc =~ /^ocn[0-9]|^ocm[0-9]|^on[0-9]/)
 
     oclc_num = oclc.gsub(/\D/, '').to_i.to_s
-    return nil if oclc_num == '0'
+    return if oclc_num == '0'
 
     if output_prefix
       add_prefix_to_oclc_num(oclc_num)
