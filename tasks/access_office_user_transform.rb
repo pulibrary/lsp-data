@@ -37,12 +37,99 @@ def institution_to_alternative_address(institution)
 end
 
 def info_to_user(contact_info:, barcode:, statistic:, note:)
-  group_status_barcode = { user_group: 'GST', status: 'ACTIVE', barcode: barcode }
+  group_status_barcode = { user_group: 'ACCESS', status: 'ACTIVE', barcode: barcode }
   user = AlmaUser.new(contact_info: contact_info, group_status_barcode: group_status_barcode,
-                      user_dates: { expiry: '09-01-2027Z', purge: '09-01-2033Z' },
+                      user_dates: { expiry: '2027-09-01Z', purge: '2033-09-01Z' },
                       statistics: statistic.nil? ? [] : [AlmaUserStatistic.new(statistic)],
                       notes: note.nil? ? [] : [AlmaUserNote.new(note_type: 'POPUP', note_text: "Access ID: #{note}")])
   JSON.parse(user.to_json)
+end
+
+UNWANTED_TOTAL_ELEMENTS = %w[
+  gender
+  password
+  full_name
+  created_by
+  created_date
+  last_modified_by
+  last_modified_date
+  user_title
+  job_category
+  job_description
+  campus_code
+  web_site_url
+  cataloger_level
+  preferred_language
+  external_id
+  force_password_change
+  status_date
+  user_role
+  user_block
+  pref_first_name
+  pref_middle_name
+  pref_last_name
+  pref_name_suffix
+].freeze
+
+def remove_addres_nodes(user)
+  user['contact_info']['address'].each do |address|
+    address['country'].delete('desc')
+    address.delete('address_note')
+    address['address_type'].each { |element| element.delete('desc') }
+  end
+  user
+end
+
+def barcode_checksum(contact_info)
+  contact_info[:address].map(&:to_h)
+                        .dup
+                        .each { |hash| hash.delete('country') }
+                        .each { |hash| hash.delete('address_type') }
+                        .map(&:values)
+                        .join
+                        .codepoints
+                        .sum % 100
+end
+
+def remove_contact_info_nodes(user)
+  remove_addres_nodes(user)
+  user['contact_info']['email'].each do |email|
+    email['email_type'].each { |element| element.delete('desc') }
+  end
+  user['contact_info']['phone'].each do |phone|
+    phone.delete('preferred_sms')
+    phone['phone_type'].each { |element| element.delete('desc') }
+  end
+  user
+end
+
+def remove_user_note_nodes(user)
+  user['user_note'].delete_if { |note| note['note_text'] =~ /^Profile name/ }
+  user['user_note'].each do |user_note|
+    user_note['note_type'].delete('desc')
+    %w[user_viewable popup_note created_by created_date].each { |element| user_note.delete(element) }
+  end
+  user
+end
+
+def remove_user_statistic_nodes(user)
+  user['user_statistic'].each do |user_statistic|
+    user_statistic['statistic_category'].delete('desc')
+    user_statistic.delete('category_type')
+  end
+  user
+end
+
+def filter_user_elements(user)
+  UNWANTED_TOTAL_ELEMENTS.each { |element| user.delete(element) }
+  %w[status record_type user_group account_type].each { |element| user[element].delete('desc') }
+  user['user_identifier'].each do |user_identifier|
+    user_identifier['id_type'].delete('desc')
+  end
+  remove_contact_info_nodes(user)
+  remove_user_note_nodes(user)
+  remove_user_statistic_nodes(user)
+  user
 end
 
 # rubocop:disable Metrics/MethodLength
@@ -171,17 +258,18 @@ results.each do |result|
   email = AlmaEmail.new(email_address: email_address, email_type: 'personal', preferred: true)
   phone = result['Phone']&.strip
   note = result['ID_1']&.strip
-  barcode = "#{name[:last][0..4]}#{name[:first][0..4]}" # not going to be used in Alma
   contact_info = {
     address: [home_address, alternate_address],
     email: [email],
     phone: phone ? [AlmaPhone.new(phone_number: phone, phone_type: 'mobile', preferred: true)] : [],
     first: name[:first], middle: name[:middle], last: name[:last]
   }
+  barcode_checksum = barcode_checksum(contact_info)
+  barcode = "#{name[:last][0..4]}#{name[:first][0..4]}#{barcode_checksum}".downcase # not going to be used in Alma
   users << info_to_user(contact_info: contact_info, barcode: barcode, statistic: statistic, note: note)
 end
 
-### For round 1 of this script, output the users for final review
+### Output the users for final review
 header_row = "Primary Identifier\tBarcode\tLast Name\tFirst Name\tMiddle Initial\t".dup
 header_row << "Statistical Category\tAddress Line1\tCity\tState\tCountry\tPostal Code\tInstitution\t"
 header_row << "Email\tPhone\tNote"
@@ -215,3 +303,69 @@ users.each do |user|
   end
 end
 output.close
+
+### Load the users into Alma and store the records created for a final report
+###   of what was loaded
+api_key = ENV.fetch('ALMA_SANDBOX_USER_API_KEY', nil)
+url = 'https://api-na.hosted.exlibrisgroup.com'
+conn = api_conn(url)
+user_results = {} # primary_id will be the key
+users.each do |user|
+  next if user_results[user['primary_id']]
+
+  result = AlmaCreateUser.new(conn: conn, api_key: api_key, user: user)
+  user_results[user['primary_id']] = result.response
+end
+
+### Assess if any user details are different in the output than the input
+users_with_discrepancy = {}
+users.each do |before|
+  primary_id = before['primary_id']
+  before_filtered = filter_user_elements(before.dup)
+  result = user_results[primary_id]
+  after = result[:body]
+  after_filtered = filter_user_elements(after.dup)
+  before_filtered['contact_info']['address'].sort_by! { |address| address['line1'] }
+  after_filtered['contact_info']['address'].sort_by! { |address| address['line1'] }
+  unless before_filtered.eql?(after_filtered)
+    users_with_discrepancy[primary_id] =
+      { before: before_filtered, after: after_filtered }
+  end
+end
+
+### Produce report of what was loaded
+header_row = "Primary Identifier\tBarcode\tLast Name\tFirst Name\tMiddle Initial\t".dup
+header_row << "Statistical Category\tAddress Line1\tCity\tState\tCountry\tPostal Code\tInstitution\t"
+header_row << "Email\tPhone\tNote\tUser Group"
+failed_user_output = File.open("#{output_dir}/access_office_users_failed_loading.tsv", 'w')
+failed_user_output.puts("Primary ID\tStatus Code\tError Message")
+output = File.open("#{output_dir}/access_office_users_loaded_into_alma.tsv", 'w')
+output.puts(header_row)
+user_results.each do |primary_id, info|
+  if info[:status] == 200
+    user = info[:body]
+    category = user['user_statistic'].empty? ? '' : user['user_statistic'].first['statistic_category']['value']
+    main_address = user['contact_info']['address'].find { |address| address['address_type'].first['value'] == 'home' }
+    institution = user['contact_info']['address'].find do |address|
+      address['address_type'].first['value'] == 'alternative'
+    end
+    note = user['user_note'].first
+    phone = user['contact_info']['phone'].first
+    output.write("#{user['primary_id']}\t#{user['user_identifier'].first['value']}\t")
+    output.write("#{user['last_name']}\t#{user['first_name']}\t#{user['middle_name']}\t")
+    output.write("#{category}\t")
+    output.write("#{main_address['line1']}\t#{main_address['city']}\t#{main_address['state_province']}\t")
+    output.write("#{main_address['country']['value']}\t")
+    output.write("#{main_address['postal_code']}\t#{institution['line1']}\t")
+    output.write("#{user['contact_info']['email'].first['email_address']}\t")
+    output.write(phone['phone_number']) if phone.instance_of?(Hash)
+    output.write("\t")
+    output.write(note['note_text']) if note.instance_of?(Hash)
+    output.write("\t")
+    output.puts('ACCESS')
+  else
+    failed_user_output.puts("#{primary_id}\t#{info[:status]}\t#{info[:body]}")
+  end
+end
+output.close
+failed_user_output.close
